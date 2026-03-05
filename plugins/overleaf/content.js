@@ -1,5 +1,5 @@
 let typingTimer;
-const DONE_TYPING_INTERVAL = 1200; // Wait 1.2s after typing to trigger autocomplete
+const DONE_TYPING_INTERVAL = 1200;
 let currentSuggestion = "";
 
 // --- 1. CORE UTILITIES ---
@@ -14,7 +14,6 @@ function getSelectedText() {
 }
 
 function insertTextSafely(text) {
-    // Safest way to insert text in web editors without breaking internal history
     document.execCommand("insertText", false, text);
 }
 
@@ -24,27 +23,23 @@ function setupAutocomplete() {
     suggestionBox.id = 'gemini-autocomplete-box';
     document.body.appendChild(suggestionBox);
 
-    // Listen to typing in Overleaf's editor area
     document.addEventListener('keyup', (e) => {
         clearTimeout(typingTimer);
         suggestionBox.style.display = 'none';
         currentSuggestion = "";
 
-        // If user presses Tab while suggestion is active, insert it
         if (e.key === 'Tab' && currentSuggestion !== "") {
-            e.preventDefault(); // Stop default tab behavior
+            e.preventDefault();
             insertTextSafely(currentSuggestion + " ");
             currentSuggestion = "";
             return;
         }
 
-        // Only trigger on actual text input (ignore arrows, modifiers, etc)
         if (e.key.length === 1 || e.key === 'Backspace') {
             typingTimer = setTimeout(fetchAutocomplete, DONE_TYPING_INTERVAL);
         }
     });
 
-    // Also block default Tab behavior on keydown so it doesn't indent if a suggestion exists
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Tab' && currentSuggestion !== "") {
             e.preventDefault();
@@ -53,11 +48,9 @@ function setupAutocomplete() {
 }
 
 function fetchAutocomplete() {
-    // Get the active line/paragraph to send to Gemini
     const selection = window.getSelection();
     if (!selection || !selection.focusNode) return;
 
-    // Find the current CodeMirror line
     let activeNode = selection.focusNode;
     while (activeNode && !activeNode.classList?.contains('cm-line')) {
         activeNode = activeNode.parentNode;
@@ -65,9 +58,8 @@ function fetchAutocomplete() {
 
     if (!activeNode) return;
     const currentParagraph = activeNode.innerText;
-    if (currentParagraph.trim().length < 10) return; // Too short to guess
+    if (currentParagraph.trim().length < 10) return;
 
-    // Position the box near the cursor
     const cursor = document.querySelector('.cm-cursor');
     if (cursor) {
         const rect = cursor.getBoundingClientRect();
@@ -75,7 +67,7 @@ function fetchAutocomplete() {
         box.style.left = `${rect.left + 5}px`;
         box.style.top = `${rect.bottom + 5}px`;
         box.style.display = 'block';
-        box.innerText = "✨ Thinking...";
+        box.innerHTML = `<span style="opacity:0.6">✨ Thinking...</span>`;
 
         chrome.runtime.sendMessage({
             action: "callGemini",
@@ -84,7 +76,10 @@ function fetchAutocomplete() {
         }, (res) => {
             if (res.success && res.answer.length > 5) {
                 currentSuggestion = res.answer;
-                box.innerHTML = `<span style="color:#888;">${currentSuggestion}</span> <span style="background:#444; color:white; font-size:10px; padding:2px 4px; border-radius:3px;">Press Tab</span>`;
+                box.innerHTML = `
+                    <span style="color:var(--g-text-dim);">${currentSuggestion}</span> 
+                    <span style="background:var(--gemini-gradient); color:white; font-size:9px; padding:2px 5px; border-radius:4px; margin-left:8px; font-weight:bold;">TAB</span>
+                `;
             } else {
                 box.style.display = 'none';
             }
@@ -92,13 +87,23 @@ function fetchAutocomplete() {
     }
 }
 
-// --- 3. UI INJECTION & SIDEBAR ---
+// --- 3. UI INJECTION ---
 function injectUI() {
     if (document.getElementById('gemini-sidebar')) return;
 
+    const logoUrl = chrome.runtime.getURL("logo.svg");
     const sidebar = document.createElement('div');
     sidebar.id = 'gemini-sidebar';
+
     sidebar.innerHTML = `
+        <div class="g-header">
+            <div class="g-brand">
+                <img src="${logoUrl}" class="g-logo" alt="Logo">
+                <span>Idea<span style="font-weight: 300; opacity: 0.8; font-family: FontAwesome,serif">Overflow</span></span>
+            </div>
+            <button id="g-theme-btn" class="g-theme-toggle" title="Toggle Light/Dark">🌗</button>
+        </div>
+
         <div id="gemini-tabs">
             <button class="g-tab active" data-tab="chat">Chat</button>
             <button class="g-tab" data-tab="edit">Edit</button>
@@ -106,7 +111,9 @@ function injectUI() {
         </div>
         
         <div id="g-content-chat" class="g-panel active">
-            <div class="g-messages" id="chat-msgs"></div>
+            <div class="g-messages" id="chat-msgs">
+                <div class="g-msg g-msg-ai">Ready to enhance your research. How can I help?</div>
+            </div>
             <div class="g-input-area">
                 <input type="text" id="chat-input" placeholder="Ask a question..." />
                 <button id="chat-send">Send</button>
@@ -114,30 +121,44 @@ function injectUI() {
         </div>
 
         <div id="g-content-edit" class="g-panel">
-            <div class="g-info">Highlight text in Overleaf, describe how to change it, and click Rewrite.</div>
-            <textarea id="edit-instructions" placeholder="e.g., 'Make this sound more formal' or 'Summarize this section'"></textarea>
-            <button id="edit-btn" class="g-btn">Rewrite Selection</button>
+            <div class="g-info">Highlight text in Overleaf to rewrite or summarize it.</div>
+            <textarea id="edit-instructions" placeholder="e.g., 'Make this sound more academic'"></textarea>
+            <button id="edit-btn" class="g-btn">✨ Rewrite Selection</button>
             <div id="edit-result" class="g-result-box hidden"></div>
         </div>
 
         <div id="g-content-review" class="g-panel">
-            <button id="review-btn" class="g-btn">Run Full Document Review</button>
+            <div class="g-info">Analyze your entire LaTeX document for clarity, structure, and academic quality.</div>
+            <button id="review-btn" class="g-btn">📋 Run Document Analysis</button>
             <div id="review-result" class="g-result-box hidden"></div>
         </div>
         
-        <button id="gemini-main-toggle">✨</button>
+        <button id="gemini-main-toggle">✦</button>
     `;
-    document.body.appendChild(sidebar);
 
+    document.body.appendChild(sidebar);
     bindEvents();
 }
 
 function bindEvents() {
-    // Toggling Sidebar
     const sidebar = document.getElementById('gemini-sidebar');
+
+    // Sidebar Toggle
     document.getElementById('gemini-main-toggle').onclick = () => sidebar.classList.toggle('open');
 
-    // Toggling Tabs
+    // Theme Toggle
+    document.getElementById('g-theme-btn').onclick = () => {
+        sidebar.classList.toggle('light-mode');
+        const isLight = sidebar.classList.contains('light-mode');
+        chrome.storage.local.set({ theme: isLight ? 'light' : 'dark' });
+    };
+
+    // Load Saved Theme
+    chrome.storage.local.get(['theme'], (res) => {
+        if (res.theme === 'light') sidebar.classList.add('light-mode');
+    });
+
+    // Tab Switching
     document.querySelectorAll('.g-tab').forEach(tab => {
         tab.onclick = (e) => {
             document.querySelectorAll('.g-tab').forEach(t => t.classList.remove('active'));
@@ -147,19 +168,29 @@ function bindEvents() {
         };
     });
 
-    // Chat Event
-    document.getElementById('chat-send').onclick = () => {
-        const input = document.getElementById('chat-input');
-        const query = input.value.trim();
+    // Chat Logic
+    const chatInput = document.getElementById('chat-input');
+    const sendChat = () => {
+        const query = chatInput.value.trim();
         if (!query) return;
         appendMsg('chat-msgs', query, 'user');
-        input.value = '';
+        chatInput.value = '';
 
-        chrome.runtime.sendMessage({ action: "callGemini", actionType: "chat", context: getOverleafText(), query: query },
-        (res) => appendMsg('chat-msgs', res.answer, 'ai'));
+        chrome.runtime.sendMessage({
+            action: "callGemini",
+            actionType: "chat",
+            context: getOverleafText(),
+            query: query
+        }, (res) => appendMsg('chat-msgs', res.answer, 'ai'));
     };
 
-    // Edit Event
+    chatInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') sendChat();
+    });
+
+    document.getElementById('chat-send').onclick = sendChat;
+
+    // Edit Logic
     document.getElementById('edit-btn').onclick = () => {
         const selected = getSelectedText();
         if (!selected) return alert("Please highlight text in Overleaf first!");
@@ -167,22 +198,30 @@ function bindEvents() {
         const resultBox = document.getElementById('edit-result');
 
         resultBox.classList.remove('hidden');
-        resultBox.innerText = "Rewriting...";
+        resultBox.innerHTML = `<span style="opacity:0.6 italic">Rewriting...</span>`;
 
-        chrome.runtime.sendMessage({ action: "callGemini", actionType: "edit", context: selected, query: instructions },
-        (res) => {
-            resultBox.innerHTML = `<strong>Result:</strong><br/><br/>${res.answer.replace(/\n/g, '<br/>')}`;
+        chrome.runtime.sendMessage({
+            action: "callGemini",
+            actionType: "edit",
+            context: selected,
+            query: instructions
+        }, (res) => {
+            resultBox.innerHTML = `<strong>Suggested Revision:</strong><br/><br/>${res.answer.replace(/\n/g, '<br/>')}`;
         });
     };
 
-    // Review Event
+    // Review Logic
     document.getElementById('review-btn').onclick = () => {
         const resultBox = document.getElementById('review-result');
         resultBox.classList.remove('hidden');
-        resultBox.innerText = "Reviewing document. This might take 10-20 seconds for deep analysis...";
+        resultBox.innerText = "Analyzing document structure and clarity...";
 
-        chrome.runtime.sendMessage({ action: "callGemini", actionType: "review", context: getOverleafText(), query: "" },
-        (res) => {
+        chrome.runtime.sendMessage({
+            action: "callGemini",
+            actionType: "review",
+            context: getOverleafText(),
+            query: ""
+        }, (res) => {
             resultBox.innerHTML = res.answer.replace(/\n/g, '<br/>');
         });
     };
@@ -197,7 +236,7 @@ function appendMsg(containerId, text, type) {
     container.scrollTop = container.scrollHeight;
 }
 
-// Initialize
+// Initialize after Overleaf loads
 setTimeout(() => {
     injectUI();
     setupAutocomplete();
