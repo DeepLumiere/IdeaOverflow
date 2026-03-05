@@ -99,7 +99,7 @@ function injectUI() {
         <div class="g-header">
             <div class="g-brand">
                 <img src="${logoUrl}" class="g-logo" alt="Logo">
-                <span>Idea<span style="font-weight: 300; opacity: 0.8; font-family: FontAwesome,serif">Overflow</span></span>
+                <span>Idea<span style="font-weight: 300; opacity: 0.8; font-family: FontAwesome,serif"> Overflow</span></span>
             </div>
             <button id="g-theme-btn" class="g-theme-toggle" title="Toggle Light/Dark">🌗</button>
         </div>
