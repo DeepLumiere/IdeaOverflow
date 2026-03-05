@@ -1,0 +1,94 @@
+/* Sidebar Container */
+#gemini-sidebar {
+    position: fixed;
+    right: -350px;
+    top: 50px;
+    width: 350px;
+    height: calc(100vh - 100px);
+    background: #1e1e1e;
+    color: #fff;
+    border-left: 1px solid #333;
+    z-index: 999999;
+    font-family: -apple-system, sans-serif;
+    transition: right 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    box-shadow: -5px 0 25px rgba(0,0,0,0.5);
+}
+#gemini-sidebar.open { right: 0; }
+
+/* The Toggle Button */
+#gemini-main-toggle {
+    position: absolute;
+    left: -40px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: #1a73e8;
+    color: white;
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 8px 0 0 8px;
+    cursor: pointer;
+    font-size: 18px;
+    box-shadow: -2px 0 10px rgba(0,0,0,0.3);
+}
+
+/* Tabs */
+#gemini-tabs {
+    display: flex;
+    background: #2d2d2d;
+    border-bottom: 1px solid #444;
+}
+.g-tab {
+    flex: 1;
+    padding: 12px 0;
+    background: transparent;
+    color: #aaa;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 13px;
+}
+.g-tab.active { background: #1e1e1e; color: #fff; border-bottom: 2px solid #1a73e8; }
+
+/* Panels */
+.g-panel { display: none; flex: 1; flex-direction: column; overflow: hidden; }
+.g-panel.active { display: flex; }
+
+/* General Elements */
+.g-btn { background: #1a73e8; color: white; border: none; padding: 10px; margin: 15px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+.g-btn:hover { background: #1557b0; }
+.g-info { font-size: 12px; color: #aaa; padding: 15px; }
+
+/* Chat Panel specific */
+.g-messages { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
+.g-msg { padding: 10px; border-radius: 6px; font-size: 13px; max-width: 85%; }
+.g-msg-user { background: #1a73e8; align-self: flex-end; }
+.g-msg-ai { background: #333; align-self: flex-start; }
+.g-input-area { display: flex; padding: 10px; background: #2d2d2d; gap: 8px; }
+.g-input-area input { flex: 1; background: #1e1e1e; color: white; border: 1px solid #444; padding: 8px; border-radius: 4px; outline: none; }
+.g-input-area button { background: #1a73e8; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; }
+
+/* Edit / Review specific */
+textarea#edit-instructions { background: #1e1e1e; color: white; border: 1px solid #444; margin: 0 15px; height: 80px; padding: 10px; border-radius: 4px; resize: none; font-family: inherit; }
+.g-result-box { margin: 0 15px 15px; padding: 15px; background: #2d2d2d; border-radius: 4px; font-size: 13px; color: #ddd; overflow-y: auto; flex: 1; border-left: 3px solid #1a73e8; }
+.hidden { display: none !important; }
+
+/* --- THE AUTOCOMPLETE FLOATING WIDGET --- */
+#gemini-autocomplete-box {
+    position: fixed;
+    background: #252526;
+    border: 1px solid #444;
+    color: #fff;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-family: monospace;
+    font-size: 12px;
+    z-index: 9999999;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    pointer-events: none; /* So it doesn't block clicks */
+    display: none;
+    max-width: 400px;
+    white-space: pre-wrap;
+}
