@@ -1,0 +1,444 @@
+/* ===== CSS VARIABLES ===== */
+:root {
+    /* Brand Colors */
+    --gemini-gradient: linear-gradient(135deg, #4285f4 0%, #66f442 100%);
+    --gemini-blue: #4285f4;
+
+    /* Dark Theme (Default) */
+    --bg-dark: rgba(28, 28, 30, 0.95);
+    /* FIX: Changed to white for dark mode */
+    --text-main: rgba(255, 255, 255, 0.9);
+    --text-dim: #a0a0a0;
+    --border-color: rgba(255, 255, 255, 0.1);
+
+    /* Functional Mappings */
+    --g-bg: var(--bg-dark);
+    --g-text: var(--text-main);
+    --g-text-dim: var(--text-dim);
+    --g-panel-bg: rgba(0, 0, 0, 0.2);
+    --g-border: var(--border-color);
+    --g-input-bg: rgba(255, 255, 255, 0.05);
+    --g-ai-msg: rgba(255, 255, 255, 0.08);
+}
+
+/* Light Theme Overrides */
+#gemini-sidebar.light-mode {
+    --bg-dark: rgba(250, 250, 252, 0.98);
+    /* FIX: Changed to solid black for light mode */
+    --text-main: rgba(0, 0, 0, 0.9);
+
+    --text-dim: rgba(0, 0, 0, 0.6);
+    --border-color: rgba(0, 0, 0, 0.1);
+
+    --g-bg: rgba(250, 250, 252, 0.98);
+    /* FIX: Added missing functional text mapping */
+    --g-text: var(--text-main);
+    --g-panel-bg: #f0f0f2;
+    --g-border: rgba(0, 0, 0, 0.1);
+    --g-input-bg: #ffffff;
+    --g-ai-msg: #ffffff;
+    --gemini-gradient: linear-gradient(135deg, #1a73e8 0%, #66f442 100%);
+}
+
+/* ===== MAIN SIDEBAR CONTAINER ===== */
+#gemini-sidebar {
+    /* Keep your existing properties... */
+    position: fixed;
+    right: -380px;
+    top: 100px;
+    width: 360px;
+    height: calc(80vh - 40px);
+
+    /* FIX: Make all 4 corners rounded */
+    border-radius: 16px;
+
+    /* Keep the rest of your existing properties... */
+    background: var(--g-bg);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    color: var(--g-text);
+    border: 1px solid var(--g-border);
+    z-index: 999999;
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    display: flex;
+    flex-direction: column;
+    box-shadow: -10px 0 30px rgba(0, 0, 0, 0.3);
+}
+
+#gemini-sidebar.open {
+    right: 0;
+
+}
+
+/* ===== TOGGLE BUTTON ===== */
+#gemini-main-toggle {
+    position: absolute;
+    left: -75px;
+    top: 20px;
+    background: var(--gemini-gradient);
+    color: white;
+    border: none;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(66, 133, 244, 0.3);
+    transition: transform 0.2s ease;
+}
+
+#gemini-main-toggle:hover {
+    transform: scale(1.05);
+}
+
+/* ===== HEADER ===== */
+.g-header {
+    display: flex;
+    align-items: center;
+    border-radius: 16px;
+    justify-content: space-between;
+    background: var(--g-bg);
+    border-bottom: 1px solid var(--g-border);
+    padding: 20px;
+}
+
+.g-brand {
+    color: var(--g-text);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 800;
+    font-size: 16px;
+}
+
+.g-logo {
+    width: 24px;
+    height: 24px;
+}
+
+.g-theme-toggle {
+    background: transparent;
+    border: 1px solid var(--g-border);
+    color: var(--g-text);
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+.g-theme-toggle:hover {
+    background: var(--g-panel-bg);
+}
+
+/* ===== MODERN TABS ===== */
+#gemini-tabs {
+    display: flex;
+    background: rgba(255, 255, 255, 0.05);
+    margin: 10px 15px;
+    padding: 4px;
+    border-radius: 12px;
+    gap: 4px;
+}
+
+.g-tab {
+    flex: 1;
+    padding: 10px 0;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--g-text-dim);
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    text-align: center;
+}
+
+.g-tab.active {
+    background: var(--gemini-gradient);
+    color: white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.g-tab:not(.active):hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--g-text);
+}
+
+/* ===== PANELS ===== */
+.g-panel {
+    display: none;
+    flex: 1;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.g-panel.active {
+    display: flex;
+}
+
+.g-info {
+    font-size: 12px;
+    padding: 15px;
+    color: var(--g-text-dim);
+    line-height: 1.4;
+}
+
+/* ===== CHAT MESSAGES ===== */
+.g-messages {
+    flex: 1;
+    padding: 20px;
+    gap: 15px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.g-msg {
+    padding: 12px 16px;
+    border-radius: 14px;
+    font-size: 13px;
+    line-height: 1.5;
+    max-width: 90%;
+    word-wrap: break-word;
+}
+
+.g-msg-user {
+    background: var(--gemini-blue);
+    color: white;
+    align-self: flex-end;
+    border-bottom-right-radius: 2px;
+}
+
+.g-msg-ai {
+    background: var(--g-ai-msg);
+    color: var(--g-text);
+    align-self: flex-start;
+    border-bottom-left-radius: 2px;
+    border: 1px solid var(--g-border);
+}
+
+/* ===== INPUTS & BUTTONS ===== */
+.g-input-area {
+    display: flex;
+    padding: 15px;
+    background: var(--g-panel-bg);
+    border-top: 1px solid var(--g-border);
+    gap: 8px;
+}
+
+.g-input-area input {
+    flex: 1;
+    background: var(--g-input-bg);
+    color: var(--g-text);
+    border: 1px solid var(--g-border);
+    padding: 10px 14px;
+    border-radius: 10px;
+    outline: none;
+    transition: border-color 0.2s ease;
+}
+
+.g-input-area input::placeholder {
+    color: var(--g-text-dim);
+    opacity: 0.7;
+}
+
+.g-input-area input:focus {
+    border-color: var(--gemini-blue);
+}
+
+.g-input-area button {
+    background: var(--gemini-gradient);
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: opacity 0.2s;
+}
+
+.g-btn {
+    background: var(--gemini-gradient);
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    margin: 15px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 13px;
+    transition: opacity 0.2s;
+    width: calc(100% - 30px);
+}
+
+.g-btn:hover,
+.g-input-area button:hover {
+    opacity: 0.9;
+}
+
+/* ===== EDIT PANEL SPECIFIC ===== */
+textarea#edit-instructions {
+    background: var(--g-input-bg);
+    color: var(--g-text);
+    border: 1px solid var(--g-border);
+    margin: 0 15px 15px;
+    height: 80px;
+    padding: 12px;
+    border-radius: 8px;
+    resize: none;
+    font-family: inherit;
+    font-size: 13px;
+    line-height: 1.4;
+    outline: none;
+    transition: border-color 0.2s ease;
+}
+
+textarea#edit-instructions::placeholder {
+    color: var(--g-text-dim);
+    opacity: 0.7;
+}
+
+textarea#edit-instructions:focus {
+    border-color: var(--gemini-blue);
+}
+
+.g-result-box {
+    margin: 0 15px 15px;
+    padding: 15px;
+    background: var(--g-panel-bg);
+    border-radius: 8px;
+    font-size: 13px;
+    color: var(--g-text);
+    overflow-y: auto;
+    flex: 1;
+    border-left: 3px solid var(--gemini-blue);
+    line-height: 1.5;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* ===== AUTOCOMPLETE WIDGET ===== */
+#gemini-autocomplete-box {
+    position: fixed;
+    background: var(--g-bg);
+    color: var(--g-text);
+    border: 1px solid var(--g-border);
+    padding: 8px 12px;
+    border-radius: 10px;
+    font-family: var(--font-mono, 'Monaco', 'Menlo', monospace);
+    font-size: 12px;
+    z-index: 9999999;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    pointer-events: none;
+    display: none;
+    max-width: 400px;
+    white-space: pre-wrap;
+    backdrop-filter: blur(8px);
+    animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ===== SCROLLBAR STYLING ===== */
+.g-messages::-webkit-scrollbar,
+.g-result-box::-webkit-scrollbar {
+    width: 6px;
+}
+
+.g-messages::-webkit-scrollbar-track,
+.g-result-box::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.g-messages::-webkit-scrollbar-thumb,
+.g-result-box::-webkit-scrollbar-thumb {
+    background: var(--g-border);
+    border-radius: 3px;
+}
+
+.g-messages::-webkit-scrollbar-thumb:hover,
+.g-result-box::-webkit-scrollbar-thumb:hover {
+    background: var(--g-text-dim);
+}
+
+/* ===== RESPONSIVE ADJUSTMENTS ===== */
+@media (max-height: 600px) {
+    #gemini-sidebar {
+        top: 10px;
+        height: calc(100vh - 20px);
+    }
+
+    .g-header {
+        padding: 15px;
+    }
+
+    .g-messages {
+        padding: 15px;
+    }
+}
+
+/* ===== LATEX-SPECIFIC IMPROVEMENTS ===== */
+.latex-formula {
+    background: var(--g-panel-bg);
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-family: 'Latin Modern Math', 'Computer Modern', monospace;
+    font-size: 14px;
+    margin: 8px 0;
+    border-left: 2px solid var(--gemini-blue);
+}
+
+.citation-suggestion {
+    background: rgba(102, 244, 66, 0.1);
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    color: #66f442;
+    border: 1px solid rgba(102, 244, 66, 0.2);
+}
+
+/* ===== ANIMATION IMPROVEMENTS ===== */
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.g-msg {
+    animation: slideIn 0.3s ease-out;
+}
+
+/* ===== FOCUS STATES ===== */
+.g-tab:focus,
+.g-btn:focus,
+.g-input-area button:focus,
+.g-theme-toggle:focus {
+    outline: 2px solid var(--gemini-blue);
+    outline-offset: 2px;
+}

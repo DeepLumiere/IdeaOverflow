@@ -3,3 +3,4 @@ uvicorn[standard]
 pylatexenc
 python-multipart
 pydantic>=2.0
+google-generativeai>=0.4.0
