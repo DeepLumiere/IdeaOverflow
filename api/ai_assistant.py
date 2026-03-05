@@ -9,7 +9,7 @@ async def ask_gemini(latex_code: str, query: str) -> str:
     Uses the async client to prevent blocking the FastAPI event loop.
     """
     # Ensure the API key is set in the environment
-    api_key = os.environ.get("AIzaSyA7BOF_98M2JGAaOBPy_Ta0OX1VrYbaKlQ")
+    api_key = os.environ.get("GEMINI_API_KEY")
     if not api_key:
         return "Error: GEMINI_API_KEY environment variable is not set."
 

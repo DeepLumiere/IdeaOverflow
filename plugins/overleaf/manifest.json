@@ -1,0 +1,33 @@
+{
+  "manifest_version": 3,
+  "name": "IdeaOverflow - Overleaf AI Assistant",
+  "version": "1.0.0",
+  "description": "AI-powered research assistant for Overleaf with chat, autocomplete, review, and editing features",
+  "permissions": [
+    "storage"
+  ],
+  "host_permissions": [
+    "https://www.overleaf.com/*",
+    "http://localhost:8000/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://www.overleaf.com/*"],
+      "js": ["content.js"],
+      "css": ["styles.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "icons": {
+    "128": "logo.svg"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["logo.svg"],
+      "matches": ["https://www.overleaf.com/*"]
+    }
+  ]
+}

@@ -4,8 +4,9 @@ from google.genai import types
 from config import GEMINI_API_KEY
 
 async def ask_gemini(latex_code: str, query: str, action_type: str = "chat") -> str:
-    api_key = "AIzaSyBJwAUKAb8zUUEEeyaaAJSVWqwf2kuaksE"  # MAKE SURE THIS IS A SECURE ENVIRONMENT VARIABLE
-    if not api_key: return "Error: API key missing."
+    api_key = GEMINI_API_KEY
+    if not api_key or api_key == "GEMINI_API_KEY": 
+        return "Error: GEMINI_API_KEY not configured. Please set it in config.py or as environment variable."
 
     client = genai.Client(api_key=api_key)
     model = "gemini-2.5-flash"
