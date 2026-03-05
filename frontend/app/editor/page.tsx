@@ -6,6 +6,7 @@ import { Navbar } from "@/components/Navbar";
 import { Sidebar } from "@/components/Sidebar";
 import { EditorPanel } from "@/components/EditorPanel";
 import { PreviewPanel } from "@/components/PreviewPanel";
+import { ChatPanel } from "@/components/ChatPanel";
 import { useAuth } from "@/context/AuthContext";
 import { useEditor } from "@/context/EditorContext";
 import type { ConferenceId } from "@/types/editor";
@@ -144,6 +145,9 @@ export default function EditorPage() {
           </div>
         </div>
       </div>
+
+      {/* AI Chat Panel */}
+      <ChatPanel />
     </div>
   );
 }

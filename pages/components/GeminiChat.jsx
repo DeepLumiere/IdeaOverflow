@@ -1,13 +1,110 @@
 // pages/components/GeminiChat.jsx
 import React, { useState } from 'react';
-import { useEditorStore } from './store';
+import { useEditorStore } from '../store';
+
+function escapeLatex(text) {
+  return String(text)
+    .replace(/\\/g, '\\textbackslash{}')
+    .replace(/([#$%&_{}])/g, '\\\\$1')
+    .replace(/\^/g, '\\textasciicircum{}')
+    .replace(/~/g, '\\textasciitilde{}');
+}
+
+function titleCase(label) {
+  return String(label)
+    .replace(/[_-]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .replace(/\b\w/g, (m) => m.toUpperCase());
+}
+
+function parseJsonFromResponse(rawText) {
+  if (!rawText || typeof rawText !== 'string') return null;
+
+  const fenceMatch = rawText.match(/```(?:json)?\s*([\s\S]*?)```/i);
+  if (fenceMatch?.[1]) {
+    try {
+      return JSON.parse(fenceMatch[1].trim());
+    } catch {
+      // Fall through to whole-string parsing.
+    }
+  }
+
+  try {
+    return JSON.parse(rawText.trim());
+  } catch {
+    return null;
+  }
+}
+
+function renderNodeToLatex(node, depth = 0) {
+  const sectionCmds = ['section', 'subsection', 'subsubsection', 'paragraph'];
+  const sectionCmd = sectionCmds[Math.min(depth, sectionCmds.length - 1)];
+
+  if (node == null) return '';
+
+  if (typeof node === 'string' || typeof node === 'number' || typeof node === 'boolean') {
+    return `${escapeLatex(node)}\n\n`;
+  }
+
+  if (Array.isArray(node)) {
+    if (node.length === 0) return '';
+    const items = node
+      .map((item) => {
+        if (typeof item === 'object' && item !== null) {
+          const rendered = renderNodeToLatex(item, depth + 1).trim();
+          return rendered ? `\\item ${rendered}` : '';
+        }
+        return `\\item ${escapeLatex(item)}`;
+      })
+      .filter(Boolean)
+      .join('\n');
+    return `\\begin{itemize}\n${items}\n\\end{itemize}\n\n`;
+  }
+
+  const entries = Object.entries(node);
+  return entries
+    .map(([key, value]) => {
+      const heading = `\\${sectionCmd}{${escapeLatex(titleCase(key))}}\n`;
+      return `${heading}${renderNodeToLatex(value, depth + 1)}`;
+    })
+    .join('\n');
+}
+
+function convertJsonToLatex(jsonData) {
+  const body = renderNodeToLatex(jsonData).trim();
+  return `\\documentclass{article}\n\\usepackage[T1]{fontenc}\n\\usepackage[utf8]{inputenc}\n\\usepackage{lmodern}\n\\begin{document}\n${body}\n\\end{document}`;
+}
 
 export default function GeminiChat() {
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [messages, setMessages] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const { latexCode } = useEditorStore();
+  const { latexCode, setLatexCode, setPdfUrl, setAstData } = useEditorStore();
+
+  const refreshOutputs = async (code) => {
+    fetch('http://localhost:8000/parse', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ latex_code: code })
+    })
+      .then((res) => res.json())
+      .then((data) => setAstData(data.ast))
+      .catch(() => {});
+
+    fetch('http://localhost:8000/compile', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ latex_code: code })
+    })
+      .then((res) => res.blob())
+      .then((blob) => {
+        const url = URL.createObjectURL(blob);
+        setPdfUrl(url);
+      })
+      .catch(() => {});
+  };
 
   const handleSend = async () => {
     if (!query.trim()) return;
@@ -26,7 +123,22 @@ export default function GeminiChat() {
       });
 
       const data = await response.json();
-      setMessages(prev => [...prev, { role: 'assistant', content: data.response }]);
+      const jsonPayload = parseJsonFromResponse(data.response);
+
+      if (jsonPayload) {
+        const latexOutput = convertJsonToLatex(jsonPayload);
+        setLatexCode(latexOutput);
+        refreshOutputs(latexOutput);
+        setMessages(prev => [
+          ...prev,
+          {
+            role: 'assistant',
+            content: 'Converted AI JSON response to LaTeX and inserted it into the editor.'
+          }
+        ]);
+      } else {
+        setMessages(prev => [...prev, { role: 'assistant', content: data.response }]);
+      }
     } catch (error) {
       setMessages(prev => [...prev, { role: 'assistant', content: 'Error reaching backend.' }]);
     } finally {
