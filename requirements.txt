@@ -1,5 +1,5 @@
 fastapi>=0.100.0
 uvicorn[standard]
-pylatexenc>=3.0
+pylatexenc
 python-multipart
 pydantic>=2.0
