@@ -33,7 +33,33 @@ CONFERENCE_PRESETS = {
         "topics": "General AI, Reasoning, Multi-agent Systems, Search, Machine Learning, Vision, NLP."
     }
 }
-
+JOURNAL_PRESETS = {
+    "JMLR": {
+        "name": "Journal of Machine Learning Research (JMLR)",
+        "structure": "Abstract, Keywords, Introduction, Background/Related Work, Theoretical Framework/Algorithm, Experiments, Discussion, Conclusion, Acknowledgments, Appendix (Proofs).",
+        "topics": "Machine Learning Theory, Statistical Learning, Algorithms, Deep Learning, Empirical Studies."
+    },
+    "TPAMI": {
+        "name": "IEEE Transactions on Pattern Analysis and Machine Intelligence (TPAMI)",
+        "structure": "Abstract, Index Terms, Introduction, Related Work, Proposed Methodology, Experimental Results, Ablation Study, Conclusion, Acknowledgment, References, Author Biographies.",
+        "topics": "Computer Vision, Pattern Recognition, Machine Learning, Image Processing, Medical Image Analysis."
+    },
+    "TACL": {
+        "name": "Transactions of the Association for Computational Linguistics (TACL)",
+        "structure": "Abstract, Introduction, Background, Methodology, Experimental Setup, Results, Analysis/Discussion, Conclusion, Limitations, Ethics Statement.",
+        "topics": "Computational Linguistics, Natural Language Processing, Dialogue Systems, Machine Translation, Semantics."
+    },
+    "AIJ": {
+        "name": "Artificial Intelligence Journal (AIJ)",
+        "structure": "Abstract, Keywords, Introduction, Literature Review, Formal Framework/Model, Experimental Evaluation, Discussion/Future Work, Conclusion.",
+        "topics": "Knowledge Representation, Automated Reasoning, Cognitive Modeling, Multi-agent Systems, Heuristic Search."
+    },
+    "NATURE": {
+        "name": "Nature (Main Journal)",
+        "structure": "Summary Paragraph (Abstract), Main Text (Introduction, Results, Discussion combined), Methods, Data Availability, Code Availability, References, Acknowledgements.",
+        "topics": "Multidisciplinary Science, Groundbreaking Research, Biology, Physics, Artificial Intelligence breakthroughs."
+    }
+}
 
 async def ask_gemini(latex_code: str, query: str, action_type: str = "chat") -> str:
     if not api_key: return "Error: API key missing."
@@ -49,9 +75,9 @@ async def ask_gemini(latex_code: str, query: str, action_type: str = "chat") -> 
         )
     elif action_type == "review":
         # Get the selected conference data, default to a general fallback if not found
-        conf_data = CONFERENCE_PRESETS.get(query, {
-            "name": "General Academic Conference",
-            "structure": "Standard academic structure (Abstract, Intro, Method, Results, Conclusion)",
+        conf_data = CONFERENCE_PRESETS.get(query) or JOURNAL_PRESETS.get(query, {
+            "name": "General Academic Venue",
+            "structure": "Standard academic structure (Abstract, Intro, Method, Results, Discussion, Conclusion)",
             "topics": "General Academic Topics"
         })
 
