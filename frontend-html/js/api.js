@@ -160,6 +160,51 @@ const API = {
         }
         return res.blob();
     },
+
+    /** POST /schema-json — map AST to schema JSON and generate file */
+    async schemaJson(document) {
+        const res = await fetch(`${API_BASE}/schema-json`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ document }),
+        });
+        if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            throw new Error(err.detail || 'Schema mapping failed');
+        }
+        return res.json();
+    },
+
+    /** POST /api/debug-json — debug: return schema JSON without saving */
+    async debugJson(document) {
+        const res = await fetch(`${API_BASE}/api/debug-json`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ document }),
+        });
+        if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            throw new Error(err.detail || 'Debug JSON failed');
+        }
+        return res.json();
+    },
+
+    /** POST /pipeline — complete pipeline: file upload → JSON + PDF */
+    async runPipeline(file, conference = 'ieee', layout = 'single-column') {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('conference', conference);
+        formData.append('layout', layout);
+        const res = await fetch(`${API_BASE}/pipeline`, {
+            method: 'POST',
+            body: formData,
+        });
+        if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            throw new Error(err.detail || 'Pipeline failed');
+        }
+        return res.json();
+    },
 };
 
 window.API = API;

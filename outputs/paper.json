@@ -1,0 +1,241 @@
+{
+  "title": "Host attachment and fluid shear are integrated into a",
+  "abstract": "",
+  "index_terms": [],
+  "authors": [
+    {
+      "name": "Riddhi Shaha",
+      "department": "",
+      "organization": "",
+      "location": "",
+      "email": ""
+    },
+    {
+      "name": "Bangladesh Agricultural University",
+      "department": "",
+      "organization": "",
+      "location": "",
+      "email": ""
+    },
+    {
+      "name": "Bangladesh",
+      "department": "",
+      "organization": "",
+      "location": "",
+      "email": ""
+    },
+    {
+      "name": "Significance",
+      "department": "",
+      "organization": "",
+      "location": "",
+      "email": ""
+    },
+    {
+      "name": "S.A.",
+      "department": "",
+      "organization": "",
+      "location": "",
+      "email": ""
+    },
+    {
+      "name": "M.S.I.",
+      "department": "",
+      "organization": "",
+      "location": "",
+      "email": ""
+    },
+    {
+      "name": "R.S.",
+      "department": "",
+      "organization": "",
+      "location": "",
+      "email": ""
+    },
+    {
+      "name": "S.J.B.",
+      "department": "",
+      "organization": "",
+      "location": "",
+      "email": ""
+    },
+    {
+      "name": "G.A.",
+      "department": "",
+      "organization": "",
+      "location": "",
+      "email": ""
+    },
+    {
+      "name": "S.A.",
+      "department": "",
+      "organization": "",
+      "location": "",
+      "email": ""
+    },
+    {
+      "name": "M.S.I.",
+      "department": "",
+      "organization": "",
+      "location": "",
+      "email": ""
+    },
+    {
+      "name": "R.S.",
+      "department": "",
+      "organization": "",
+      "location": "",
+      "email": ""
+    },
+    {
+      "name": "G.A.",
+      "department": "",
+      "organization": "",
+      "location": "",
+      "email": ""
+    },
+    {
+      "name": "S.A.",
+      "department": "",
+      "organization": "",
+      "location": "",
+      "email": ""
+    },
+    {
+      "name": "M.S.I.",
+      "department": "",
+      "organization": "",
+      "location": "",
+      "email": ""
+    },
+    {
+      "name": "G.A.",
+      "department": "",
+      "organization": "",
+      "location": "",
+      "email": ""
+    },
+    {
+      "name": "S.A.",
+      "department": "",
+      "organization": "",
+      "location": "",
+      "email": ""
+    },
+    {
+      "name": "M.S.I.",
+      "department": "",
+      "organization": "",
+      "location": "",
+      "email": ""
+    },
+    {
+      "name": "R.S.",
+      "department": "",
+      "organization": "",
+      "location": "",
+      "email": ""
+    },
+    {
+      "name": "S.J.B.",
+      "department": "",
+      "organization": "",
+      "location": "",
+      "email": ""
+    }
+  ],
+  "sections": [
+    {
+      "heading": "Results",
+      "content": ""
+    },
+    {
+      "heading": "Attachment to Host Cells Triggers LEE Induction in a GrlA-Dependent",
+      "content": "Manner. LEE1 is the first transcriptional unit within the LEE\n\nregion and encodes Ler, the master regulator of EHEC virulence\n\ngene expression. Previous reports show only a moderate in-\n\nduction of LEE1 promoter activity on exposure to individual\n\nenvironmental cues, but many of these studies were done using\n\nE. coli K12 as a surrogate strain, thus eliminating many EHEC-\n\nspecific factors relevant to virulence regulation (15, 17). Others\n\nwere done in EHEC strains, but not in the context of host cells\n\n(18). In this study, we set out to investigate the direct effects of\n\nhost cell attachment on LEE-encoded virulence gene regulation\n\nin the EHEC strain Sakai 813, a Shiga-toxin-negative deriva-\n\ntive of the original Sakai isolate. We analyzed LEE1 promoter\n\n(PLEE1 ) activity, using EHEC reporter strains transformed with\n\neither P LEE1-lacZ or P LEE1-gfp transcriptional fusions, on contact\n\nwith host cells. We infected HeLa epithelial cells with EHEC for\n\n4 h and first analyzed LEE1 promoter induction and infection\n\nphenotype in situ, using fluorescence microscopy of P LEE1-gfp\n\nreporter strains. Wild-type bacteria efficiently attached to HeLa\n\ncells and formed actin pedestals, apparent from the fluorescent-\n\nactin staining test, as previously described (Fig. 1A) (19). Most\n\nhost-attached bacteria also showed strong LEE1 promoter acti-\n\nvation. Strikingly, bacteria adsorbed to the glass slide, rather\n\nthan attached to host cells, showed no or low GFP fluorescence,\n\nindicating that ler induction is enhanced on attachment to host\n\ncells compared with exposure to DMEM alone, which has pre-\n\nviously been described as a cue for ler activation (Fig. 1C) (17).\n\nBecause GrlA is a LEE-encoded activator of ler, and thus the\n\nentire LEE region, we also tested LEE1 promoter activation in a\n\nΔgrlA background. In contrast to wild-type bacteria, LEE1 pro-\n\nmoter activity remained low in a ΔgrlA background, even in\n\nbacteria attached to host cells (Fig. 1 B–D). Lower LEE1 pro-\n\nmoter induction, and thus lower activation of the entire LEE\n\nregion in the ΔgrlA background, was also apparent from the in-\n\nfection phenotype: both the number of attached bacteria per\n\nhost cell and the bacteria’s ability to form actin pedestals was\n\nsignificantly decreased (Fig. 1 E and F). Introduction of the\n\ndifferent extrachromosomal transcriptional reporters did not,\n\nin itself, alter the bacteria’s ability to attach or form pedestals:\n\nboth EHEC wild-type and wild-type containing a previously\n\ndescribed, constitutively active P LEE1-gfp fusion (PLEE1 99T-gfp)\n\nshowed similar levels of attachment and pedestal formation\n\n(Fig. S1) (17).\n\nWe also tested LEE1 promoter induction in EHEC strains\n\ntransformed with P LEE1-lacZ transcription fusions. β-galactosi-\n\ndase activity was measured in host-attached or nonattached re-\n\nporter strains isolated from infected host cell cultures and\n\nnormalized to bacterial counts determined from these samples\n\n(Fig. S2A). Exposure to DMEM (the cue experienced by non-\n\nadherent bacteria isolated from infected cultures) resulted in\n\na moderate increase in ler induction, which is in agreement\n\nwith previous findings (17). Host-adherent bacteria, in contrast,\n\nshowed strongly increased LEE1 promoter activity (∼14-fold\n\ncompared with EHEC grown in LB and approximately sevenfold\n\ncompared with DMEM-induced, nonadherent bacteria). Similar\n\nto what we observed with the P LEE1-gfp reporter strain, induction\n\nof P LEE1-lacZ was GrlA-dependent (Fig. S2B). LEE1 induction\n\nwas also observed using PLEE1-gfp and P LEE1-lacZ transcription\n\nreporters in wild-type, but not ΔgrlA, strains on bacterial at-\n\ntachment to Caco-2 intestinal epithelial cells, similar to what was\n\nobserved in HeLa cells (∼10-fold induction compared with\n\nDMEM-induced, nonadherent bacteria; Fig. S3). The ΔgrlA\n\nstrain showed significantly lower levels of attachment and ped-\n\nestal formation compared with the wild-type strain. However, the\n\noverall level of bacterial attachment was lower in Caco-2 cells\n\ncompared with in HeLa cells."
+    },
+    {
+      "heading": "Attachment-Dependent LEE1 Promoter Activation Is Bacteria-Driven",
+      "content": "and Is Independent of the Host Response to Infection. Stable at-\n\ntachment of EHEC to host cells is a multifactorial process and is\n\nthe result of a complex interplay between bacterial and host cell\n\nsignaling. This raises the question of whether GrlA-dependent\n\nLEE1 induction is driven by bacterial signaling alone or whether\n\nhost-derived signals, which form part of the host response to\n\ninfection, are required as well. First, we tested whether de novo\n\nprotein synthesis in the host cells was required for attachment-\n\ndependent LEE1 induction. Pretreatment of HeLa cells with\n\ncycloheximide before infection did not change the overall in-\n\nfection phenotype, nor did it alter LEE1 induction levels (Fig. 2).\n\nNext, we asked whether host cytoskeletal rearrangements leading\n\nto pedestal formation were required for LEE1 induction. We\n\nFig. 1. Attachment to host cells triggers LEE1 promoter activation in a GrlA-dependent manner. EHEC wild-type (A) or EHEC ΔgrlA (B) harboring a P LEE1-gfp\n\ntranscriptional fusion as reporter were used to infect HeLa cells [multiplicity of infection (MOI) 10, 4 h]. Samples were fixed and DNA (Hoechst), reporter\n\nactivation (GFP), and F-actin (rhodamine-phalloidin) were visualized by fluorescence microscopy. Several actin pedestals caused by EHEC attachment are\n\nmarked by arrows. Example of an EHEC bacterium adsorbed to the glass slide, rather than attached to host cells, is marked by an asterisk. (Scale bar, 10 μm.)\n\nPercentage GFP-positive bacteria (C), average GFP intensity per bacterium (for GFP-positive cells) (D), number of attached bacteria per host cell (E), and\n\nnumber of pedestals per host cell (F) were determined from these experiments. Data are representative of three independent experiments (>100 HeLa cells\n\neach). The asterisk denotes significant differences between samples based on Student’s t test (P < 0.05). ns, not significant (P ≥ 0.05).\n\nanalyzed infection phenotype and LEE1 promoter activity in\n\nEHEC wild-type-infected HeLa cells after pretreatment with\n\ncytochalasin D, which inhibits actin polymerization, and thus\n\npedestal formation. Although cytochalasin D treatment abol-\n\nished pedestal formation, neither overall bacterial attachment\n\nnor LEE1 activation was affected by the drug treatment (Fig. 2\n\nC–G). We conclude that LEE1 promoter activation is likely\n\nbacteria-driven, as it does not require cues based on de novo\n\nprotein synthesis or actin rearrangements derived from the host\n\ncells as a result of infection.\n\nLEE1 Activation Results Directly from Host Attachment and Is not the"
+    },
+    {
+      "heading": "Result of Positive Selection for Stochastic LEE1 Activation through",
+      "content": "Adhesion. Arguably, the selective induction of LEE1 we observe\n\nin host-adherent cells could be brought about by at least two\n\ndifferent mechanisms: LEE1 induction could be a result of host\n\nattachment, and thus adhesion would act as a cue for induction,\n\nor it could a result of stochastic LEE1 activation in nonadherent\n\ncells, and then positive selection of bacteria with high LEE ac-\n\ntivation levels for host attachment, through their enhanced ca-\n\npability to engage with the host cell surface. To distinguish\n\nbetween these two mechanisms, we measured LEE1 induction,\n\nusing a fluorescence plate assay. EHEC wild-type strains con-\n\ntaining promoterless gfp, inducible P LEE1-gfp, or constitutively\n\nactive P LEE199T-gfp were incubated in a plate either in the\n\npresence or absence of host cells, and total fluorescence per\n\nwell was measured over time. In the presence of host cells,\n\nfluorescence of the constitutively active reporter was initially\n\nhigh and slightly increased during the 4-h course of the experi-\n\nment, reflecting bacterial proliferation (Fig. 3A). Fluorescence of\n\nthe promoterless reporter (background fluorescence) remained\n\nlow over the same time course. Fluorescence from the inducible\n\nLEE1 promoter (PLEE1-gfp) was initially low, but increased sig-\n\nnificantly over the course of the experiment to reach levels to\n\nmatch those of the constitutive reporter at 4 h. The rate of\n\nfluorescence increase over time was thus much higher for the\n\nP LEE1-gfp than the P LEE199T-gfp reporter strain, indicating LEE1\n\ninduction, rather than an increase resulting from cell pro-\n\nliferation alone. In the absence of host cells, both rates matched,\n\nindicating that LEE1 induction was a result of host attachment,\n\nrather than selective attachment to host cells resulting from\n\nadhesion-independent stochastic activation (Fig. 3B). No signif-\n\nicant increase in the fluorescence rate of the P LEE1-gfp reporter\n\nwas observed in a ΔgrlA background, even in the presence of host\n\ncells (Fig. 3C). Because the growth rates of both wild-type and\n\nmutant strains are similar (Fig. S4), this confirms the GrlA-\n\ndependence of adhesion-dependent LEE1 induction. We further\n\ntested EHEC deletion strains deficient for either Tir (Δtir) or\n\nIntimin (Δeae), two factors involved in the stable attachment of\n\nEHEC to host cells. Neither of these two mutants showed an\n\nincreased rate of fluorescence (and thus LEE1 induction) com-\n\npared with P LEE199T-gfp (Fig. 3 D and E). Growth rates were\n\nunaffected by either tir or eae deletion (Fig. S4). Taken together,\n\nthese data better align with a scenario in which host attachment\n\nprecedes and acts as a cue for LEE1 induction."
+    },
+    {
+      "heading": "Attachment-Dependent Activation via GrlA Underlies Positive Feedback",
+      "content": "Regulation. EHEC produces several adhesins that facilitate its in-\n\nteraction with host cells, including fimbriae and Tir/Intimin (20).\n\nBecause both Intimin and its type 3-secreted receptor, Tir, are\n\npart of the LEE regulon, we investigated whether attachment\n\nunderlies positive feedback regulation. Deletion of either tir or\n\neae, encoding Tir and Intimin, respectively, decreased host ad-\n\nhesion significantly, both at early (1 h) and later (4 h) points\n\n(Fig. 4). The grlA deletion mutant showed no significant dif-\n\nference in its initial attachment to host cells. However, after 4 h\n\nof infection, the number of host-adherent bacteria was signifi-\n\ncantly decreased (approximately fourfold) compared with wild-type\n\nFig. 2. Induction of LEE1 is bacteria-driven, and a host response to infection\n\nis not required for signal transmission to GrlA. HeLa cells were infected with\n\nEHEC harboring a P LEE1-gfp transcriptional fusion (MOI 10, 4 h), following\n\npretreatment with DMSO as control (A), 10 μg/mL cycloheximide (B), or 1 μg/mL\n\ncytochalasin D (C) for 1 h. Samples were fixed and DNA (Hoechst), reporter\n\nactivation (GFP), and F-actin (rhodamine-phalloidin) were visualized by fluo-\n\nrescence microscopy. (Scale bar, 10 μm.) Percentage GFP-positive bacteria\n\n(D), average GFP intensity per bacterium (for GFP-positive cells) (E), number\n\nof attached bacteria per host cell (F), and number of pedestals per host cell\n\n(G) were determined for untreated (U), cycloheximide-treated (CHX), and\n\ncytochalasin D -treated (CD) cells. Data are representative of three inde-\n\npendent experiments (>100 HeLa cells each). The asterisk denotes signifi-\n\ncant differences between samples based on Student’s t test (P < 0.05).\n\nns, not significant (P ≥ 0.05); NA, not analyzed (no pedestals formed in\n\nCD-treated cells).\n\nFig. 3. Population-level analysis of LEE1 induction rates in EHEC wild-type and\n\nmutant strains. Fluorescence intensity (AFU) was measured as a read-out for\n\npromoter activation, using promoterless gfp (blue), PLEE1-gfp (red), or PLEE199T-\n\ngfp (green) reporter constructs in EHEC wild-type cells grown in the presence (A)\n\nor absence (B) of host cells. Fluorescence was also measured in EHEC ΔgrlA (C),\n\nΔtir (D), and Δeae (E) strains incubated in the presence of HeLa cells for 1, 2, 3, or\n\n4 h. Data are representative of three independent experiments done in triplicate.\n\nAsterisks denote significant differences between samples based on Student’s\n\nt test (P < 0.05). ns, not significant (P ≥ 0.05).\n\nAlsharif et al. PNAS | April 28, 2015 | vol. 112 | no. 17 | 5505\n\nbacteria. This coincides with the time frame for full LEE1 induc-\n\ntion (Fig. 3A)."
+    },
+    {
+      "heading": "The LEE1 Promoter Is Mechanoresponsive, and Its Induction Is Inde-",
+      "content": "pendent of the Mode of Attachment. In a bid to identify whether a\n\nspecific host receptor is required for attachment-dependent LEE1\n\ninduction, we immobilized EHEC on a range of pure substrates,\n\neach mimicking a different type of interaction between bacteria\n\nand the host cell surface. These included electrostatic interactions\n\nbetween the negatively charged bacterial cell wall and positively\n\ncharged poly-L-lysine, Tir–Intimin interaction, and immobilization\n\nusing an antibody recognizing the O-antigen moiety of EHEC li-\n\npopolysaccharide. Immobilization on all three types of substrates\n\ninduced LEE1 in a GrlA-dependent manner, albeit to different\n\ndegrees (Fig. 5). In contrast, treatment of bacteria with these\n\nadhesion substrates in solution had no significant effect on LEE1\n\ninduction (Fig. S5). However, in each case, exposure of substrate-\n\nimmobilized bacteria to increasing levels of fluid shear (0.1–10\n\ndynes/cm2\n\n) caused a further increase in LEE1 promoter activity\n\ncompared with the activity observed under static conditions.\n\nAlthough this behavior was independent of the mechanism of\n\nbacteria–substrate interaction, the rate of induction with in-\n\ncreasing fluid shear varied, depending on the substrate used for\n\nimmobilization, but saturated at ∼17,000 AFU (arbitrary fluo-\n\nrescence units) per cell (corresponding to sevenfold induction\n\ncompared with static conditions; Fig. 5 D, H, and L). The\n\nnumber of immobilized bacteria per field did not change sig-\n\nnificantly with increasing fluid shear, meaning bacteria could\n\nwithstand the increasing shear force and remained stably at-\n\ntached to the substrate in each case. The level of substrate at-\n\ntachment did not generally alter between wild-type and grlA\n\ndeletion mutant, with the exception of bacteria immobilized on\n\nTir peptide, in which case attachment was lower for the ΔgrlA\n\nstrain but also remained stable with increased shear force\n\n(Fig. S6).\n\nTo analyze LEE1 induction and phenotypic changes during\n\ninfection, host-adherent EHEC strains were exposed to in-\n\ncreasing levels of fluid shear (Fig. 6). Using imaging analysis of\n\ngfp-reporter strains attached to HeLa cells, we observed gradual\n\nLEE1 induction in a GrlA-dependent manner under increasing\n\nlevels of fluid shear (0.1–10 dynes/cm2 ). The level of LEE1 in-\n\nduction increased under fluid shear compared with static con-\n\nditions, but saturated at ∼19,000 AFU per cell (corresponding to\n\n3.5-fold induction compared with static conditions) and did not\n\nfurther increase under shear flows of up to 10 dynes/cm2 (Fig.\n\n6B). This increase in LEE1 induction in response to fluid shear\n\nwas partially mirrored by a change in infection phenotype, with\n\nmore attached bacteria progressing to stable attachment (i.e.,\n\npedestal formation) under flow compared with static conditions\n\n(Fig. 6 C and D). Nonadherent bacteria exposed to flow condi-\n\ntions did not show increased levels of LEE1 induction (Fig. 6E).\n\nOnly Free, not GrlR-Bound, GrlA Is Mechanoresponsive. It is well\n\ndocumented that GrlR acts as a repressor of GrlA-mediated\n\nLEE1 promoter induction, and thus LEE activation, by seques-\n\ntering a portion of the cell’s GrlA in a (GrlR) 2–GrlA complex\n\n(21). We therefore tested whether both free and GrlR-bound\n\npools of GrlA are mechanoresponsive. If host attachment acts on\n\nthe GrlRA complex to relieve GrlR-mediated repression, de-\n\nletion of grlR should mimic the effect of host attachment. We\n\nthus compared LEE1 induction in EHEC wild-type and ΔgrlR\n\nstrains containing P LEE1-lacZ transcriptional fusions. Deletion of\n\ngrlR enhanced LEE1 induction by approximately twofold, but did\n\nnot mimic the strong induction seen in host-adherent bacteria\n\n(Fig. S7). This suggests that attachment-mediated activation of\n\nGrlA is not achieved merely by relieving GrlR-mediated sup-\n\npression of GrlA, and that other, GrlR-independent modes of\n\nregulating GrlA activity exist.\n\nWe also analyzed LEE1 promoter activity and infection phe-\n\nnotype in EHEC wild-type cells overexpressing GrlR, both GrlR\n\nFig. 4. Bacterial attachment over time in EHEC wild-type and deletion strains.\n\nHeLa cells were infected with EHEC wild-type or deletion strains (MOI of 10), and\n\nbacterial attachment to host cells was determined after 1 h (gray bars) or 4 h\n\n(black bars) of infection by dilution plating. Data are representative of three\n\nindependent experiments done in triplicate. The asterisk denotes significant\n\ndifferences between wild type and deletion strains at the respective time, based\n\non Student’s t test (P < 0.05). ns, not significant (P ≥ 0.05).\n\nFig. 5. LEE1 induction is independent of the mode of attachment, but the\n\nshape of the force response curve is substrate-dependent. EHEC wild-type\n\n(A, E, I) or ΔgrlA (B, F, J) strains containing a P LEE1-gfp reporter were intro-\n\nduced into substrate-coated flow cells and incubated for 1 h under static con-\n\nditions, followed by 3 h of flow to give a defined fluid shear force ranging\n\nfrom 0 to 10 dynes/cm2\n\n. Substrates included poly-L-lysine (A–D), Tir-peptide (E–H),\n\nand α-LPS antibody (I–L) and were chosen to represent different modes of bac-\n\nterial attachment. Images are representative of bacteria incubated under static\n\nconditions (0 dynes/cm 2 ). (Scale bar, 5 μm.) After the experiment, average\n\nfluorescence intensity (AFU) per bacterium was determined from image anal-\n\nysis, and values were blotted as fold-change compared with wild-type EHEC\n\non poly-K under static conditions (D, H, L). Data are representative of three\n\nindependent experiments (>100 cells each). The asterisk denotes significant\n\ndifferences between samples based on Student’s t test (P < 0.05).\n\nand GrlA, or GrlA alone. Cells infected with EHEC expressing\n\nadditional GrlR showed a very similar phenotype to cells infec-\n\nted with the ΔgrlA strain: P LEE1-gfp activity, number of attached\n\nbacteria, and pedestal formation were significantly decreased\n\ncompared with in cells infected with EHEC wild-type bacteria\n\n(Fig. 7A). GrlA overexpression, in contrast, led to a hyper-\n\ninfective phenotype, with an approximately twofold increase in\n\nboth the number of attached bacteria and pedestals formed (Fig.\n\n7C), but this phenotype was not recapitulated with the GrlRA\n\noverexpressing strain (Fig. 7B), which behaved similar to the\n\nEHEC wild-type strain. These results were recapitulated using\n\nPLEE1-lacZ reporter strains overexpressing GrlR, GrlRA, or GrlA\n\n(Fig. 7H). LEE1 induction was slightly enhanced in both the\n\nGrlRA and GrlA overexpressing wild-type cells harvested from\n\nthe supernatant during infection, or from cells grown in plank-\n\ntonic cultures. This slight enhancement in LEE1 induction was\n\nexaggerated by host attachment, where GrlA overexpression\n\ncaused a ∼13-fold induction of LEE1 over wild-type cells (which,\n\nthemselves, show a 14-fold induction compared with planktonic\n\ncells). These data confirm that only free GrlA is mechanores-\n\nponsive and can induce LEE1, whereas GrlRA complex remains\n\nunaffected by this stimulus. Our data also suggest that the cel-\n\nlular pool of free GrlA is not, in itself, competent to fully induce\n\nLEE1, but becomes activated as a result of host attachment via\n\nan as-yet-unidentified mechanism."
+    },
+    {
+      "heading": "Discussion",
+      "content": "Human disease caused by EHEC infection is usually the result\n\nof foodborne transmission. Thus, bacteria exit the ruminant\n\ngastrointestinal tract and persist on contaminated food matter\n\nbefore being taken up into a human host, where they colonize\n\nand cause diarrheal disease. After human uptake, bacteria are\n\nexposed to a range of host-specific cues, including a shift in\n\ntemperature, passage through the acidic stomach environment,\n\nneutralization through bicarbonate exposure, and finally, the in-\n\ntestinal environment. It has always been assumed that sequen-\n\ntial exposure to these host-specific triggers is sufficient to induce\n\nvirulence exclusively within the human host niche, the intestine.\n\nPrevious studies have indeed demonstrated induction of Ler,\n\nand thus LEE, in response to environmental stimuli. For exam-\n\nple, GrlA is expressed in response to bicarbonate released by\n\nthe pancreas, which partially induces LEE, and thus virulence\n\n(22, 23). Here, we show that although the levels of GrlA have\n\na subtle effect on Ler activation, full virulence induction is\n\nonly achieved through host attachment. This departs from our\n\nprevious understanding of GrlA-based regulation, which was\n\nthought to require GrlR for inhibition and release of GrlA from\n\nthe GrlR complex to achieve activation. In contrast to this, our\n\ndata give strong evidence supporting the hypothesis that full\n\ninduction by GrlA relies on mechanically stimulated activation\n\nof free GrlA, whereas the same cue does not activate GrlR-\n\nbound GrlA. How exactly GrlA becomes competent to bind to\n\nor activate the LEE1 promoter is clearly more complex than a\n\ntransition from GrlR-bound to unbound states. It could be a\n\nresult of a change in subcellular localization, posttranslational\n\nmodification, or additional binding partners; these possibilities\n\nwill be addressed in future work. This mechanism of virulence\n\ninduction underlies positive feedback regulation, as the LEE\n\nincludes both Tir and Intimin, factors required for intimate host\n\nattachment. Although EHEC adhesion is mediated by multiple\n\nFig. 6. Fluid shear exacerbates LEE1 activation in host-attached bacteria. EHEC wild-type (black circles) or ΔgrlA strains (white squares) containing a P LEE1-gfp\n\nreporter were used to infect HeLa cells grown in glass flow cells and incubated for 1 h under static conditions, followed by 3 h of flow to give a defined fluid\n\nshear force ranging from 0 to 10 dynes/cm 2 . After the experiment, percentage GFP-positive bacteria per cell (A), fold-change in average GFP intensity per\n\nbacterium compared with static conditions (B), attached bacteria per cell (C), and pedestals per cell (D) were determined from image analysis. Data are\n\nrepresentative of three independent experiments (>100 HeLa cells each). HeLa cells grown in glass flow cells were also infected with EHEC wild-type strain\n\ncontaining promoter-less lacZ (blue), P LEE1-lacZ (green), or P LEE199T-lacZ (red) reporters, as described earlier. After the experiment, cells were detached from\n\nthe flow cells, using Triton-X100, and samples were used to determine relative transcriptional activities (E). Data are representative of three independent\n\nexperiments performed in triplicate. The asterisk denotes significant differences between samples based on Student’s t test (P < 0.05).\n\nFig. 7. Only free, but not GrlR-bound, GrlA is competent for attachment-\n\nmediated LEE1 induction; attachment does not relieve GrlR-mediated re-\n\npression of GrlA. EHEC wild-type strain harboring a P LEE1-gfp transcrip-\n\ntional fusion as reporter and GrlR (A), GrlRA (B), or GrlA (C ) expression\n\nvectors were used to infect HeLa cells (MOI 10, 4 h). Samples were fixed and\n\nDNA (Hoechst), reporter activation (GFP), and F-actin (rhodamine-phalloidin)\n\nwere visualized by fluorescence microscopy. (Scale bar, 10 μm.) Percentage GFP-\n\npositive bacteria (D), average GFP intensity per bacterium (for GFP-positive\n\ncells) (E), number of attached bacteria per host cell (F), and number of pedestals\n\nper host cell (G) were determined from these experiments. Data are represen-\n\ntative of three independent experiments (>100 HeLa cells each). HeLa cells were\n\nalso infected (MOI 10, 4 h) with EHEC wild-type strain harboring a P LEE1-lacZ\n\ntranscriptional fusion as reporter and empty vector (cont), GrlR, GrlRA, or GrlA\n\nexpression constructs (H). Nonadherent bacteria (red) were recovered from the\n\nsupernatant. Host cells were then washed and Triton-X100 lysed to recover\n\nadherent bacteria (green). Both fractions were used to determine β-galactosi-\n\ndase activity, and results were normalized to cfu/mL and are shown as relative\n\ntranscriptional activity. Relative transcriptional activity was also determined for\n\nbacteria grown in planktonic LB cultures (blue). The asterisk denotes significant\n\ndifferences between bacteria harboring empty vector and expression con-\n\nstructs, based on Student’s t test (P < 0.05; n = 3). ns, not significant (P ≥ 0.05).\n\nAlsharif et al. PNAS | April 28, 2015 | vol. 112 | no. 17 | 5507\n\ncomponents, and thus LEE induction does not strictly require\n\nTir/Intimin, their presence reinforces existing bacterial attach-\n\nment, and thus optimizes mechanotransduction.\n\nTaken together, our data suggest that although exposure to\n\nearly host environmental triggers may cause basal activation of\n\nthe LEE, and thus poise the system to respond, full activation of\n\nvirulence requires two components of mechanosensation: First,\n\ndirect contact with and attachment to the host cell surface, which\n\ncontributed to an approximately sevenfold induction over host\n\nexposed but nonattached bacteria, and second, enhancement of\n\nthe thus-generated force in response to fluid shear levels com-\n\nparable to those in the intestinal lumen, which leads to a further\n\nthree- to fourfold activation of LEE1 in bacteria experiencing\n\nfluid shear compared with static conditions. Levels of fluid shear\n\nin the intestinal tract vary, depending on the exact physical lo-\n\ncation. According to hydrodynamic calculations, shear forces can\n\napproach 5 dynes/cm 2 on the exposed brush border surface and\n\ncan decrease to 2–3 dynes/cm2 between microvilli, depending on\n\nthe flow rate (24). This highlights the physiological relevance of\n\nthe LEE1 induction observed in our experiments, which reaches\n\nits maximum around 1 dyne/cm 2\n\n. The basic physical sensation of\n\nmechanical forces thus acts to integrate a variety of host-specific\n\nchemical signals and ensures the complex arsenal of virulence\n\nfactors is only fully expressed once the pathogen has reached its\n\ndedicated niche. Although such chemical stimuli may vary be-\n\ntween different environments, and even different host organisms,\n\nthese physical parameters are a conserved signal indicating the\n\npresence of a host surface.\n\nFurther work will be needed to understand what bacterial\n\nenvelope components are involved in transduction of the me-\n\nchanical signal sensed at the outer membrane in response to\n\nattachment to GrlA, the cytoplasmic regulator of virulence\n\ngenes. The plate-based fluorescence assay used here to measure\n\npromoter activation in response to attachment (Fig. 3) can be\n\neasily adopted to conduct high-throughput screens to identify\n\nfurther bacterial components involved in signal perception and\n\ntransduction across the bacterial cell envelope. The EHEC sur-\n\nface contains multiple mechanoresponsive elements and factors,\n\nwhich could have a putative role in signaling attachment, in-\n\ncluding flagella (during the early stages of attachment), fimbrial\n\nadhesins, or, as recently reported, the tip-associated adhesin PilY\n\n(16, 25–27). Recently, Siryaporn et al. described mechanosensing\n\nas the inducing signal for virulence in P. aeruginosa and impli-\n\ncated PilY as the outer membrane component of the signal\n\ntransduction pathway, although further components of the\n\ntransduction mechanism remained elusive (16). In comparison\n\nwith attaching/effacing pathogens such as EHEC, P. aeruginosa\n\ncolonizes different niches within the host and comprises a dif-\n\nferent arsenal of virulence mechanisms. However, surface attach-\n\nment equally acts as a general and evolutionary conserved signal for\n\nthe presence of a host cell. This opens up the exciting perspective\n\nthat mechanoperception is an evolutionary robust and widely used\n\nprinciple used by microbial pathogens to integrate a large and di-\n\nvergent set of specific environmental cues."
+    },
+    {
+      "heading": "Materials And Methods",
+      "content": "The wild-type strain used in this study was an EHEC O157:H7 Sakai shiga-toxin-\n\nnegative derivative strain (Sakai 813), a derivative of RIMD 0509952 (28). The\n\ngene-doctoring procedure was used to introduce gene deletions in this\n\nbackground, as previously described (29). All described strains and plasmids are\n\nlisted in Table S1. Details of growth conditions, infection experiments under\n\nstatic and flow conditions, surface coating, imaging, and measurements of\n\ntranscriptional activity are described in the SI Materials and Methods.\n\nACKNOWLEDGMENTS. We thank S. Sasakawa for the kind gift of EHEC\n\nstrain Sakai 813. We thank Dave Lee, Jack Bryant, and Laura Sellars for\n\ntechnical assistance with the construction of transcriptional fusions and\n\nEHEC deletion strains. We thank Mark Webber for providing equipment\n\naccess and technical assistance with flow cell experiments. We thank\n\nmembers of the A.M.K. and S.J.B. laboratories for critical reading and\n\ncomments on the manuscript. This work was supported by grants from the"
+    },
+    {
+      "heading": "Biotechnology and Biological Sciences Research Council (to A.M.K. and S.J.B.),",
+      "content": "the Leverhulme Trust (to S.J.B.), a King Abdulaziz University Scholarship (to\n\nG.A.), and a Commonwealth Academic Fellowship (to M.S.I.).\n\n1. Nataro JP, Kaper JB (1998) Diarrheagenic Escherichia coli. Clin Microbiol Rev 11(1):\n\n142–201."
+    },
+    {
+      "heading": "McDaniel TK, Kaper JB (1997) A cloned pathogenicity island from enteropathogenic",
+      "content": "Escherichia coli confers the attaching and effacing phenotype on E. coli K-12. Mol\n\nMicrobiol 23(2):399–407."
+    },
+    {
+      "heading": "Jerse AE, Yu J, Tall BD, Kaper JB (1990) A genetic locus of enteropathogenic Escher-",
+      "content": "ichia coli necessary for the production of attaching and effacing lesions on tissue\n\nculture cells. Proc Natl Acad Sci USA 87(20):7839–7843."
+    },
+    {
+      "heading": "McDaniel TK, Jarvis KG, Donnenberg MS, Kaper JB (1995) A genetic locus of enter-",
+      "content": "ocyte effacement conserved among diverse enterobacterial pathogens. Proc Natl\n\nAcad Sci USA 92(5):1664–1668.\n\n5. Elliott SJ, et al. (2000) The locus of enterocyte effacement (LEE)-encoded regulator\n\ncontrols expression of both LEE- and non-LEE-encoded virulence factors in entero-\n\npathogenic and enterohemorrhagic Escherichia coli. Infect Immun 68(11):6115–6126.\n\n6. Elliott SJ, et al. (1998) The complete sequence of the locus of enterocyte effacement\n\n(LEE) from enteropathogenic Escherichia coli E2348/69. Mol Microbiol 28(1):1–4.\n\n7. Deng W, et al. (2004) Dissecting virulence: Systematic and functional analyses of a\n\npathogenicity island. Proc Natl Acad Sci USA 101(10):3597–3602."
+    },
+    {
+      "heading": "Bustamante VH, Santana FJ, Calva E, Puente JL (2001) Transcriptional regulation of",
+      "content": "type III secretion genes in enteropathogenic Escherichia coli: Ler antagonizes H-NS-\n\ndependent repression. Mol Microbiol 39(3):664–678."
+    },
+    {
+      "heading": "Sperandio V, Torres AG, Jarvis B, Nataro JP, Kaper JB (2003) Bacteria-host communi-",
+      "content": "cation: The language of hormones. Proc Natl Acad Sci USA 100(15):8951–8956.\n\n10. Pacheco AR, et al. (2012) Fucose sensing regulates bacterial intestinal colonization.\n\nNature 492(7427):113–117."
+    },
+    {
+      "heading": "Yoh M, Bi Z, Matsuyama J, Nagayama K, Honda T (2003) Effect of environmental",
+      "content": "conditions on proteins secreted by enterohemorrhagic Escherichia coli O26:H11. Mi-\n\ncrobiol Immunol 47(1):1–6.\n\n12. Branchu P, et al. (2014) NsrR, GadE, and GadX interplay in repressing expression of the\n\nEscherichia coli O157:H7 LEE pathogenicity island in response to nitric oxide. PLoS\n\nPathog 10(1):e1003874.\n\n13. Barba J, et al. (2005) A positive regulatory loop controls expression of the locus of enter-\n\nocyte effacement-encoded regulators Ler and GrlA. J Bacteriol 187(23):7918–7930.\n\n14. Iyoda S, et al. (2006) The GrlR-GrlA regulatory system coordinately controls the ex-\n\npression of flagellar and LEE-encoded type III protein secretion systems in enter-\n\nohemorrhagic Escherichia coli. J Bacteriol 188(16):5682–5692."
+    },
+    {
+      "heading": "Russell RM, Sharp FC, Rasko DA, Sperandio V (2007) QseA and GrlR/GrlA regulation of",
+      "content": "the locus of enterocyte effacement genes in enterohemorrhagic Escherichia coli.\n\nJ Bacteriol 189(14):5387–5392.\n\n16. Siryaporn A, Kuchma SL, O’Toole GA, Gitai Z (2014) Surface attachment induces\n\nPseudomonas aeruginosa virulence. Proc Natl Acad Sci USA 111(47):16860–16865."
+    },
+    {
+      "heading": "Islam MS, Bingle LE, Pallen MJ, Busby SJ (2011) Organization of the LEE1 operon",
+      "content": "regulatory region of enterohaemorrhagic Escherichia coli O157:H7 and activation by\n\nGrlA. Mol Microbiol 79(2):468–483.\n\n18. Tobe T, et al. (2005) Dual regulatory pathways integrating the RcsC-RcsD-RcsB signal-\n\nling system control enterohaemorrhagic Escherichia coli pathogenicity. Mol Microbiol\n\n58(1):320–333."
+    },
+    {
+      "heading": "Knutton S, Baldwin T, Williams PH, McNeish AS (1989) Actin accumulation at sites of",
+      "content": "bacterial adhesion to tissue culture cells: Basis of a new diagnostic test for entero-\n\npathogenic and enterohemorrhagic Escherichia coli. Infect Immun 57(4):1290–1298."
+    },
+    {
+      "heading": "Farfan MJ, Cantero L, Vidal R, Botkin DJ, Torres AG (2011) Long polar fimbriae of",
+      "content": "enterohemorrhagic Escherichia coli O157:H7 bind to extracellular matrix proteins.\n\nInfect Immun 79(9):3744–3750.\n\n21. Padavannil A, et al. (2013) Structure of GrlR-GrlA complex that prevents GrlA acti-\n\nvation of virulence genes. Nat Commun 4:2546."
+    },
+    {
+      "heading": "Abe H, Tatsuno I, Tobe T, Okutani A, Sasakawa C (2002) Bicarbonate ion stimulates",
+      "content": "the expression of locus of enterocyte effacement-encoded genes in enterohemor-\n\nrhagic Escherichia coli O157:H7. Infect Immun 70(7):3500–3509.\n\n23. Tauschek M, et al. (2010) Transcriptional analysis of the grlRA virulence operon from\n\nCitrobacter rodentium. J Bacteriol 192(14):3722–3734."
+    },
+    {
+      "heading": "Guo P, Weinstein AM, Weinbaum S (2000) A hydrodynamic mechanosensory hy-",
+      "content": "pothesis for brush border microvilli. Am J Physiol Renal Physiol 279(4):F698–F712."
+    },
+    {
+      "heading": "Cairns LS, Marlow VL, Bissett E, Ostrowski A, Stanley-Wall NR (2013) A mechanical",
+      "content": "signal transmitted by the flagellum controls signalling in Bacillus subtilis. Mol Mi-\n\ncrobiol 90(1):6–21."
+    },
+    {
+      "heading": "Thomas WE, Trintchina E, Forero M, Vogel V, Sokurenko EV (2002) Bacterial adhesion",
+      "content": "to target cells enhanced by shear force. Cell 109(7):913–923.\n\n27. Tchesnokova V, et al. (2010) Shear-enhanced binding of intestinal colonization factor\n\nantigen I of enterotoxigenic Escherichia coli. Mol Microbiol 76(2):489–502.\n\n28. Makino K, et al. (1998) Complete nucleotide sequences of 93-kb and 3.3-kb plasmids of an\n\nenterohemorrhagic Escherichia coli O157:H7 derived from Sakai outbreak. DNA Res 5(1):1–9.\n\n29. Lee DJ, et al. (2009) Gene doctoring: A method for recombineering in laboratory and\n\npathogenic Escherichia coli strains. BMC Microbiol 9:252."
+    }
+  ]
+}

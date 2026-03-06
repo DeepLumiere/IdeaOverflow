@@ -1,6 +1,6 @@
-from fastapi import FastAPI, HTTPException, BackgroundTasks, Request, UploadFile, File
+from fastapi import FastAPI, HTTPException, BackgroundTasks, Request, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, HTMLResponse
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from api import parser
@@ -13,9 +13,19 @@ from api import template_mapper
 from api import citation_handler
 from api import typst_generator
 from api import typst_compiler
+from api import schema_mapper
 import os
 import json
+import logging
 import TexSoup
+
+try:
+    from ai_cleaner import refine_ast as _ai_refine_ast
+    _HAS_AI_CLEANER = True
+except Exception:
+    _HAS_AI_CLEANER = False
+
+logger = logging.getLogger(__name__)
 
 app = FastAPI(title="LaTeX Research Editor API")
 
@@ -33,6 +43,11 @@ FRONTEND_DIR = os.path.join(BASE_DIR, "frontend-html")
 # Mount static assets (CSS, JS) under /css and /js paths
 app.mount("/css", StaticFiles(directory=os.path.join(FRONTEND_DIR, "css")), name="css")
 app.mount("/js", StaticFiles(directory=os.path.join(FRONTEND_DIR, "js")), name="js")
+
+# Serve generated JSON outputs
+OUTPUTS_DIR = os.path.join(BASE_DIR, "outputs")
+os.makedirs(OUTPUTS_DIR, exist_ok=True)
+app.mount("/outputs", StaticFiles(directory=OUTPUTS_DIR), name="outputs")
 
 
 class LatexRequest(BaseModel):
@@ -278,6 +293,124 @@ async def compile_typst(request: CompileTypstRequest, background_tasks: Backgrou
         media_type="application/pdf",
         filename="paper_formatted.pdf",
     )
+
+
+# ── Complete System Pipeline ──
+
+@app.post("/pipeline")
+async def run_pipeline(
+    background_tasks: BackgroundTasks,
+    file: UploadFile = File(...),
+    conference: str = Form("ieee"),
+    layout: str = Form("single-column"),
+):
+    """
+    Complete pipeline: Upload → Extract → Clean → Detect Sections →
+    Template Mapping → Typst Generation → Typst Compilation → PDF.
+
+    Accepts a multipart form with the file plus conference/layout choices.
+    Returns the compiled PDF directly.
+    """
+    import traceback
+    try:
+        # ── 1. Upload & Extract ──
+        MAX_SIZE = 20 * 1024 * 1024
+        contents = await file.read()
+        if len(contents) > MAX_SIZE:
+            raise HTTPException(status_code=413, detail="File too large. Maximum 20 MB.")
+
+        extract_result = extractor.extract_text(contents, file.filename)
+        if extract_result["status"] == "error":
+            raise HTTPException(status_code=400, detail=extract_result.get("error", "Text extraction failed"))
+
+        # ── 2. Clean ──
+        clean_result = cleaner.clean_text(extract_result["raw_text"])
+        if clean_result["status"] == "error":
+            raise HTTPException(status_code=400, detail=clean_result.get("error", "Text cleaning failed"))
+
+        # ── 3. Section Detection ──
+        detect_result = section_detector.detect_sections(clean_result["clean_text"])
+        if detect_result["status"] == "error":
+            raise HTTPException(status_code=400, detail=detect_result.get("error", "Section detection failed"))
+
+        document_ast = detect_result["document"]
+
+        # ── 3.5. AI Front-Matter Cleaning (title + authors) ──
+        if _HAS_AI_CLEANER:
+            try:
+                import asyncio
+                document_ast = await asyncio.to_thread(_ai_refine_ast, document_ast)
+            except Exception as e:
+                logger.warning("AI cleaner skipped: %s", e)
+
+        # ── 4. Schema JSON generation (AST → paper-schema.json format) ──
+        schema_result = schema_mapper.map_and_generate(document_ast, save=True)
+
+        # ── 5–7. Template Mapping + Typst Generation + Compilation ──
+        gen_result = typst_generator.generate(
+            document=document_ast,
+            conference=conference,
+            layout=layout,
+        )
+        if gen_result["status"] == "error":
+            raise HTTPException(status_code=400, detail=gen_result.get("error", "Typst generation failed"))
+
+        output_dir = gen_result["output_dir"]
+
+        comp_result = await typst_compiler.compile_typst(output_dir)
+        if comp_result["status"] == "error":
+            typst_generator.cleanup(output_dir)
+            raise HTTPException(status_code=500, detail=comp_result.get("error", "Typst compilation failed"))
+
+        # Copy PDF to outputs/ so it can be downloaded alongside the JSON
+        import shutil
+        pdf_out = os.path.join(OUTPUTS_DIR, "paper_formatted.pdf")
+        shutil.copy2(comp_result["pdf_path"], pdf_out)
+        background_tasks.add_task(typst_generator.cleanup, output_dir)
+
+        return JSONResponse({
+            "status": "success",
+            "schema_json": schema_result.get("data"),
+            "json_url": "/outputs/paper.json",
+            "pdf_url": "/outputs/paper_formatted.pdf",
+            "validation_errors": schema_result.get("validation_errors"),
+        })
+    except HTTPException:
+        raise
+    except Exception as e:
+        import traceback as tb
+        err = tb.format_exc()
+        print(f"PIPELINE ERROR: {err}", flush=True)
+        raise HTTPException(status_code=500, detail=f"Pipeline failed: {repr(e)}\n{err}")
+
+
+# ── Schema JSON Pipeline (AST → Schema JSON) ──
+
+class SchemaMapRequest(BaseModel):
+    document: dict
+
+
+@app.post("/schema-json")
+async def schema_json(request: SchemaMapRequest):
+    """
+    Accept a document AST (from /detect-sections) and return the
+    validated schema JSON plus a downloadable file URL.
+    Steps: mapping → normalisation → validation → file generation.
+    """
+    result = schema_mapper.map_and_generate(request.document, save=True)
+    if result["status"] == "error":
+        raise HTTPException(status_code=422, detail=result.get("validation_errors", "Schema mapping failed"))
+    return result
+
+
+@app.post("/api/debug-json")
+async def debug_json(request: SchemaMapRequest):
+    """
+    Debug endpoint — returns the mapped + normalised schema JSON
+    without saving a file. Useful during development.
+    """
+    result = schema_mapper.map_and_generate(request.document, save=False)
+    return result
 
 
 # ── Manuscript JSON endpoints ──

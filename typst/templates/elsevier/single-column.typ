@@ -37,7 +37,7 @@
         i += 1
       }
     }
-    eval(resolved-str, mode: "markup")
+    resolved-str
   }
 
   // Title — left-aligned, bold, 17pt (Elsevier style)
@@ -69,7 +69,7 @@
         heading(level: 3)[#eval(item.title, mode: "markup")]
         if "content" in item { render-blocks(item.content) }
       } else if item.type == "paragraph" {
-        process-text(item.text)
+        item.text
       } else if item.type == "equation" {
         math.equation(block: true, eval(item.math, mode: "math"))
       } else if item.type == "image" {

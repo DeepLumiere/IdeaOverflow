@@ -17,6 +17,7 @@ const AppState = {
         ],
         tables: [],
         images: [],
+        references: [],
         updatedAt: Date.now(),
     },
 
@@ -45,6 +46,9 @@ const AppState = {
 
     /* ─── JSON sync flag ─── */
     isJsonSynced: true,
+
+    /* ─── Selected node in editor ─── */
+    selectedNode: null,
 };
 
 /* ─── Pub/Sub Events ─── */
@@ -161,6 +165,12 @@ function setLoadError(err) {
     emit('loadErrorChanged', err);
 }
 
+/* ─── Selected Node ─── */
+function setSelectedNode(node) {
+    AppState.selectedNode = node;
+    emit('selectedNodeChanged', node);
+}
+
 /* ─── UID Generator ─── */
 function uid(prefix) {
     return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
@@ -177,5 +187,6 @@ window.State = {
     setTheme, toggleTheme, loadTheme,
     setUploadedFile,
     setLoading, setLoadError,
+    setSelectedNode,
     uid,
 };

@@ -10,6 +10,7 @@ Normalises headings for downstream section detection.
 """
 
 import re
+from collections import Counter
 
 
 def clean_text(raw_text: str) -> dict:
@@ -79,31 +80,53 @@ def _remove_page_numbers(text: str) -> str:
 def _remove_headers_footers(text: str) -> str:
     """Remove common header/footer patterns found in extracted PDFs."""
     lines = text.split("\n")
+    normalised = [" ".join(line.strip().split()) for line in lines if line.strip()]
+    counts = Counter(normalised)
+
+    known_heading_tokens = {
+        "abstract",
+        "introduction",
+        "related work",
+        "background",
+        "methodology",
+        "methods",
+        "materials and methods",
+        "experiments",
+        "results",
+        "discussion",
+        "conclusion",
+        "conclusions",
+        "references",
+        "appendix",
+    }
+
     cleaned = []
     for line in lines:
         stripped = line.strip()
-        # Skip lines that look like running headers (all caps, very short)
-        if stripped and len(stripped) < 80 and stripped.isupper() and not any(
-            kw in stripped
-            for kw in [
-                "ABSTRACT",
-                "INTRODUCTION",
-                "CONCLUSION",
-                "METHODOLOGY",
-                "RESULTS",
-                "DISCUSSION",
-                "REFERENCES",
-                "RELATED WORK",
-                "BACKGROUND",
-                "EXPERIMENTS",
-                "ACKNOWLEDGMENT",
-                "APPENDIX",
-            ]
-        ):
-            # Heuristic: short all-caps lines that aren't known section headings
-            # are likely running headers — but only if they are suspiciously short
-            if len(stripped) < 20:
-                continue
+        if not stripped:
+            cleaned.append(line)
+            continue
+
+        lowered = stripped.lower().rstrip(":.")
+        compact = " ".join(stripped.split())
+
+        # Keep known headings to avoid destroying section structure.
+        if lowered in known_heading_tokens:
+            cleaned.append(line)
+            continue
+
+        # Remove obvious journal/page noise.
+        if re.search(r"\b(doi|www\.|vol\.|no\.|copyright|all rights reserved)\b", lowered):
+            continue
+
+        # Remove repeated all-caps running headers/footers seen on multiple pages.
+        if len(stripped) <= 80 and stripped.isupper() and counts.get(compact, 0) >= 2 and len(stripped) <= 40:
+            continue
+
+        # Remove standalone page numbers.
+        if re.fullmatch(r"[-–—]?\s*\d{1,4}\s*[-–—]?", stripped):
+            continue
+
         cleaned.append(line)
     return "\n".join(cleaned)
 

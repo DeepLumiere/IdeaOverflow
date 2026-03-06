@@ -200,23 +200,33 @@ window.Pages.editor = function (container) {
     if (AppState.loadError) return `<div class="editor-panel"><div class="p-8 text-center text-rose">${AppState.loadError} <button class="btn btn-sm btn-outline" id="retry-load">Retry</button></div></div>`;
 
     const authorsHTML = doc.authors.map((a, i) => `
-      <div class="author-badge">
+      <div class="author-badge node-clickable" data-node-level="0" data-node-type="author" data-node-title="${a.name}">
         <span class="name">${a.name}</span>
         <span>${a.affiliation || ''}</span>
       </div>
     `).join('');
 
     const sectionsHTML = doc.sections.map((section, idx) => {
-      const subsHTML = section.subsections.map((sub, sIdx) => `
-        <div class="ml-6" style="margin-top: 0.5rem;">
-          <h3 class="text-lg font-semibold text-primary">${idx + 1}.${sIdx + 1} ${sub.name}</h3>
-          <p class="text-secondary" style="margin-top: 0.25rem;">${sub.content}</p>
-        </div>
-      `).join('');
+      const subsHTML = section.subsections.map((sub, sIdx) => {
+        const subsubsHTML = (sub.subsubsections || []).map((subsub, ssIdx) => `
+          <div class="ml-10 node-clickable" style="margin-top: 0.5rem;" data-node-level="3" data-node-type="subsubsection" data-node-title="${subsub.name}">
+            <h4 class="text-base font-medium text-primary">${idx + 1}.${sIdx + 1}.${ssIdx + 1} ${subsub.name}</h4>
+            <p class="text-secondary" style="margin-top: 0.25rem;">${subsub.content}</p>
+          </div>
+        `).join('');
+
+        return `
+          <div class="ml-6 node-clickable" style="margin-top: 0.5rem;" data-node-level="2" data-node-type="subsection" data-node-title="${sub.name}">
+            <h3 class="text-lg font-semibold text-primary">${idx + 1}.${sIdx + 1} ${sub.name}</h3>
+            <p class="text-secondary" style="margin-top: 0.25rem;">${sub.content}</p>
+            ${subsubsHTML}
+          </div>
+        `;
+      }).join('');
 
       return `
         <div style="margin-top: 2rem;">
-          <div class="flex items-baseline gap-3">
+          <div class="flex items-baseline gap-3 node-clickable" data-node-level="1" data-node-type="section" data-node-title="${section.name}">
             <span class="section-number">${idx + 1}.</span>
             <h2 contenteditable="true" class="text-xl font-bold text-primary" data-edit-section-name="${section.id}">${section.name}</h2>
           </div>
@@ -243,23 +253,62 @@ window.Pages.editor = function (container) {
       </div>
     ` : '';
 
+    const imagesHTML = doc.images.length > 0 ? `
+      <div style="margin-top: 2.5rem; padding-top: 2.5rem; border-top: 1px solid var(--border);">
+        <h2 class="text-sm font-bold uppercase text-muted mb-6">Figures</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem;">
+          ${doc.images.map((img, i) => `
+            <figure style="border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; background: var(--bg-elevated);">
+              ${img.url ? `
+                <div style="width: 100%; aspect-ratio: 4 / 3; background: var(--bg-muted); display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                  <img src="${img.url}" alt="${img.alt || img.caption || ('Figure ' + (i + 1))}" loading="lazy" style="width: 100%; height: 100%; object-fit: cover;" />
+                </div>
+              ` : ''}
+              <figcaption style="padding: 0.5rem 0.75rem; font-size: 0.75rem; color: var(--text-secondary);">
+                <span style="font-weight: 600; color: var(--text-primary);">Figure ${i + 1}.</span>
+                <span> ${img.caption || ''}</span>
+              </figcaption>
+            </figure>
+          `).join('')}
+        </div>
+      </div>
+    ` : '';
+
+    const referencesHTML = Array.isArray(doc.references) && doc.references.length > 0 ? `
+      <div style="margin-top: 2.5rem; padding-top: 2.5rem; border-top: 1px solid var(--border);">
+        <h2 class="text-sm font-bold uppercase text-muted mb-4">References</h2>
+        <ol style="padding-left: 1.25rem; display: flex; flex-direction: column; gap: 0.35rem; font-size: 0.8rem; color: var(--text-secondary);">
+          ${doc.references.map((ref, i) => `
+            <li value="${i + 1}">
+              ${ref.citation || ''}
+            </li>
+          `).join('')}
+        </ol>
+      </div>
+    ` : '';
+
     return `
       <div class="editor-panel" id="editor-panel-root">
+        <div class="node-info-bar" id="node-info-bar">
+          <span class="node-info-placeholder">Click any element to inspect its level metadata</span>
+        </div>
         <div class="editor-panel-inner">
           <header style="margin-bottom: 1rem;">
-            <h1 contenteditable="true" class="font-bold text-primary" style="font-size: 1.875rem;" id="edit-title">${doc.title}</h1>
+            <h1 contenteditable="true" class="font-bold text-primary node-clickable" style="font-size: 1.875rem;" id="edit-title" data-node-level="0" data-node-type="title" data-node-title="${doc.title}">${doc.title}</h1>
             <div class="flex flex-wrap gap-4" style="margin-top: 1rem;">
               ${authorsHTML}
             </div>
           </header>
 
-          <div class="abstract-box">
+          <div class="abstract-box node-clickable" data-node-level="0" data-node-type="abstract" data-node-title="Abstract">
             <div class="abstract-label">Abstract</div>
             <div contenteditable="true" class="text-secondary italic leading-relaxed" id="edit-abstract">${doc.abstract}</div>
           </div>
 
           ${sectionsHTML}
           ${tablesHTML}
+          ${imagesHTML}
+          ${referencesHTML}
         </div>
       </div>
     `;
@@ -371,14 +420,26 @@ window.Pages.editor = function (container) {
 
       const subsHTML = section.subsections.length > 0 ? `
         <div style="margin-top: 1rem;">
-          ${section.subsections.map((sub, subIdx) => `
-            <div style="margin-top: 1rem;">
-              <h3 style="font-size: 0.875rem; font-weight: 700; ${fmt.headingTransform === 'none' ? 'font-style: italic;' : ''}">
-                ${fmt.headingNumbered ? `${idx + 1}.${subIdx + 1} ` : ''}${tH(sub.name, fmt.headingTransform)}
-              </h3>
-              <p style="margin-top: 0.25rem; font-size: inherit; line-height: 1.625; text-align: justify;">${sub.content}</p>
-            </div>
-          `).join('')}
+          ${section.subsections.map((sub, subIdx) => {
+            const subsubsHTML = (sub.subsubsections || []).map((subsub, ssIdx) => `
+              <div style="margin-top: 0.75rem;">
+                <h4 style="font-size: 0.8rem; font-weight: 600; ${fmt.headingTransform === 'none' ? 'font-style: italic;' : ''}">
+                  ${fmt.headingNumbered ? `${idx + 1}.${subIdx + 1}.${ssIdx + 1} ` : ''}${tH(subsub.name, fmt.headingTransform)}
+                </h4>
+                <p style="margin-top: 0.25rem; font-size: inherit; line-height: 1.625; text-align: justify;">${subsub.content}</p>
+              </div>
+            `).join('');
+
+            return `
+              <div style="margin-top: 1rem;">
+                <h3 style="font-size: 0.875rem; font-weight: 700; ${fmt.headingTransform === 'none' ? 'font-style: italic;' : ''}">
+                  ${fmt.headingNumbered ? `${idx + 1}.${subIdx + 1} ` : ''}${tH(sub.name, fmt.headingTransform)}
+                </h3>
+                <p style="margin-top: 0.25rem; font-size: inherit; line-height: 1.625; text-align: justify;">${sub.content}</p>
+                ${subsubsHTML}
+              </div>
+            `;
+          }).join('')}
         </div>
       ` : '';
 
@@ -410,7 +471,22 @@ window.Pages.editor = function (container) {
 
     // References
     const fmtCit = Conferences.formatCitation;
-    const refsHTML = `
+    const refs = Array.isArray(doc.references) ? doc.references : [];
+    const refsHTML = refs.length > 0 ? `
+      <div class="break-inside-avoid" style="margin-top: 2rem; padding-top: 1rem; border-top: 1px solid #cbd5e1;">
+        <h2 style="font-weight: 700; margin-bottom: 0.75rem; font-size: ${fmt.headingTransform === 'uppercase' ? '0.75rem' : '0.9rem'}; letter-spacing: ${fmt.headingTransform === 'uppercase' ? '0.04em' : 'normal'};">${tH('References', fmt.headingTransform)}</h2>
+        <div style="font-size: 0.75rem; color: #475569; line-height: 1.625;">
+          ${refs.map((ref, idx) => `
+            <div style="display: flex; gap: 0.5rem; margin-bottom: 0.375rem;">
+              <span style="font-family: monospace; color: ${fmt.accentColor}; flex-shrink: 0;">
+                ${fmt.citationStyle === 'superscript' ? '<sup>' + (idx + 1) + '</sup>' : fmtCit(fmt.citationStyle, idx + 1)}
+              </span>
+              <span>${ref.citation || ''}</span>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    ` : `
       <div class="break-inside-avoid" style="margin-top: 2rem; padding-top: 1rem; border-top: 1px solid #cbd5e1;">
         <h2 style="font-weight: 700; margin-bottom: 0.75rem; font-size: ${fmt.headingTransform === 'uppercase' ? '0.75rem' : '0.9rem'}; letter-spacing: ${fmt.headingTransform === 'uppercase' ? '0.04em' : 'normal'};">${tH('References', fmt.headingTransform)}</h2>
         <div style="font-size: 0.75rem; color: #475569; line-height: 1.625;">
@@ -524,6 +600,49 @@ window.Pages.editor = function (container) {
     });
 
     document.getElementById('retry-load')?.addEventListener('click', fetchManuscript);
+
+    // Node click handlers for level/type metadata
+    document.querySelectorAll('.node-clickable').forEach(el => {
+      el.addEventListener('click', (e) => {
+        // Don't interfere with contenteditable focus
+        if (e.target.closest('[contenteditable]') && document.activeElement === e.target.closest('[contenteditable]')) return;
+
+        const level = parseInt(el.dataset.nodeLevel, 10);
+        const type = el.dataset.nodeType;
+        const title = el.dataset.nodeTitle || '';
+
+        const node = { level, title, type };
+        State.setSelectedNode(node);
+
+        // Update visual selection
+        document.querySelectorAll('.node-clickable.node-selected').forEach(n => n.classList.remove('node-selected'));
+        el.classList.add('node-selected');
+
+        // Update info bar
+        updateNodeInfoBar(node);
+      });
+    });
+  }
+
+  function updateNodeInfoBar(node) {
+    const bar = document.getElementById('node-info-bar');
+    if (!bar) return;
+
+    const levelLabels = { 0: 'Top-level', 1: 'Level 1', 2: 'Level 2', 3: 'Level 3' };
+    const typeColors = {
+      title: '#6366f1', abstract: '#8b5cf6', author: '#ec4899',
+      section: '#3b82f6', subsection: '#06b6d4', subsubsection: '#14b8a6',
+    };
+    const color = typeColors[node.type] || 'var(--brand-from)';
+
+    bar.innerHTML = `
+      <div class="node-info-content">
+        <span class="node-info-badge" style="background: ${color};">${node.type}</span>
+        <span class="node-info-level">${levelLabels[node.level] || 'Level ' + node.level}</span>
+        <span class="node-info-title">${node.title}</span>
+      </div>
+      <code class="node-info-json">{level: ${node.level}, title: "${node.title}", type: "${node.type}"}</code>
+    `;
   }
 
   /* ── Preview ── */

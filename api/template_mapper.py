@@ -120,15 +120,19 @@ def map_document(document: dict, conference: str, layout: str) -> dict:
             "content": _text_to_paragraphs(abstract_text),
         })
 
-    # Body sections
-    for section in document.get("sections", []):
-        heading = section.get("heading", "Untitled")
-        body = (section.get("content") or "").strip()
-        content.append({
-            "type": "section",
-            "title": heading,
-            "content": _text_to_paragraphs(body),
-        })
+    # Body sections (prefer nested hierarchy when available)
+    nested_sections = document.get("nested_sections") or []
+    if nested_sections:
+        content.extend(_map_nested_sections(nested_sections))
+    else:
+        for section in document.get("sections", []):
+            heading = section.get("heading", "Untitled")
+            body = (section.get("content") or "").strip()
+            content.append({
+                "type": "section",
+                "title": heading,
+                "content": _text_to_paragraphs(body),
+            })
 
     # ── Map references ──
     references = _parse_references(document.get("references", ""))
@@ -200,6 +204,39 @@ def _text_to_paragraphs(text: str) -> list[dict]:
     return paragraphs
 
 
+def _map_nested_sections(nested_sections: list[dict]) -> list[dict]:
+    """Map detector nested_sections into Typst section/subsection blocks."""
+    mapped: list[dict] = []
+
+    for sec in nested_sections:
+        section_block = {
+            "type": "section",
+            "title": sec.get("heading", "Untitled"),
+            "content": _text_to_paragraphs((sec.get("content") or "").strip()),
+        }
+
+        for sub in sec.get("subsections", []) or []:
+            subsection_block = {
+                "type": "subsection",
+                "title": sub.get("heading", "Untitled"),
+                "content": _text_to_paragraphs((sub.get("content") or "").strip()),
+            }
+
+            for subsub in sub.get("subsections", []) or []:
+                subsub_block = {
+                    "type": "subsubsection",
+                    "title": subsub.get("heading", "Untitled"),
+                    "content": _text_to_paragraphs((subsub.get("content") or "").strip()),
+                }
+                subsection_block["content"].append(subsub_block)
+
+            section_block["content"].append(subsection_block)
+
+        mapped.append(section_block)
+
+    return mapped
+
+
 def _parse_references(raw_references: str) -> list[dict]:
     """
     Parse a raw references block into structured citation entries.
@@ -259,8 +296,9 @@ def _parse_references(raw_references: str) -> list[dict]:
 
 def _escape_typst(text: str) -> str:
     """Escape special Typst characters in plain text strings."""
-    # In Typst string literals, we need to escape backslashes and quotes
-    return text.replace("\\", "\\\\").replace('"', '\\"')
+    text = text.replace("\\", "\\\\")
+    text = text.replace('"', '\\"')
+    return text
 
 
 def _generate_typst_source(data: dict, conference: str, layout: str) -> str:

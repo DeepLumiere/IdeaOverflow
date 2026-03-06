@@ -129,7 +129,9 @@ def cleanup(output_dir: str) -> None:
 
 def _escape(text: str) -> str:
     """Escape special characters for Typst string literals."""
-    return text.replace("\\", "\\\\").replace('"', '\\"')
+    text = text.replace("\\", "\\\\")
+    text = text.replace('"', '\\"')
+    return text
 
 
 def _build_typst_source(data: dict, conference: str, layout: str) -> str:

@@ -64,6 +64,7 @@
 
         const navItems = [
             { label: 'Home', href: '#/home' },
+            { label: 'Converter', href: '#/converter' },
             { label: 'Editor', href: '#/editor' },
         ];
 
@@ -178,6 +179,7 @@
         registerRoute('/signup', window.Pages.signup);
         registerRoute('/home', window.Pages.home);
         registerRoute('/editor', window.Pages.editor);
+        registerRoute('/converter', window.Pages.converter);
 
         // Initial route
         handleRoute();

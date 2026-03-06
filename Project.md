@@ -1,413 +1,276 @@
-Your current flow assumes **LaTeX generation**, which you already said you **are not using**. So the pipeline must be rewritten around **Typst** and **two template types**:
-
-* **single-column Typst template**
-* **double-column Typst template**
-
-Below is the **correct rewritten architecture** for your system.
 
 ---
 
-# 1. Input Layer
+# Complete Workflow for Agent
 
-**Goal:** Accept the raw research document.
+## 1. Input Document Processing
 
-Supported formats for prototype:
+The system receives a research paper file.
 
-* `.pdf`
-* `.docx`
-* `.txt`
-* `.md`
-
-Example input
+Supported formats:
 
 ```
-upload paper.docx
+PDF
+DOCX
+TXT
+MD
 ```
 
-System action
+Processing flow:
 
 ```
-file → text extractor
+Upload File
+↓
+Text Extraction
+↓
+Text Cleaning
+↓
+Section Detection
+↓
+AST Creation
 ```
 
-Extraction tools
-
-* PDF → `pdfminer` / `PyMuPDF`
-* DOCX → `python-docx`
-* Markdown → markdown parser
-
-Output
+The AST should look like:
 
 ```json
 {
- "raw_text": "Deep Learning for OCR\n\nAbstract\nThis paper..."
+  "title": "...",
+  "abstract": "...",
+  "keywords": [],
+  "authors": [],
+  "sections": []
 }
 ```
 
 ---
 
-# 2. Text Cleaning Layer
+# 2. Convert AST to Schema JSON
 
-Raw documents contain formatting noise.
+Transform the AST into the **final JSON structure required by the Typst template**.
 
-Common issues
-
-* page numbers
-* extra whitespace
-* header/footer artifacts
-* broken lines from PDF extraction
-
-Cleaning operations
-
-* remove page numbers
-* merge broken sentences
-* normalize headings
-* remove duplicate whitespace
-
-Example cleaned text
+Mapping:
 
 ```
-Deep Learning for OCR
-
-Abstract
-This paper studies...
-
-Introduction
-OCR systems...
+AST.title → title
+AST.abstract → abstract
+AST.keywords → index_terms
+AST.authors → authors
+AST.sections → sections
 ```
 
-Output
+Expected JSON format:
 
 ```json
 {
- "clean_text": "..."
-}
-```
-
----
-
-# 3. Section Detection Engine
-
-Goal: identify the logical structure of the research paper.
-
-Typical sections
-
-```
-Title
-Authors
-Abstract
-Keywords
-Introduction
-Related Work
-Methodology
-Experiments
-Results
-Conclusion
-References
-```
-
-Detection logic
-
-### Rule-based detection
-
-Regex patterns detect headings
-
-```
-/^(abstract|introduction|related work|method|results|conclusion)/i
-```
-
-### NLP fallback
-
-If headings are unclear:
-
-Example text
-
-```
-Previous research has explored...
-```
-
-Classifier prediction
-
-```
-RELATED_WORK
-```
-
-Output becomes a **structured document representation (AST)**.
-
-```json
-{
- "title": "...",
- "authors": ["..."],
- "abstract": "...",
- "sections": [
-   {
-     "heading": "Introduction",
-     "content": "..."
-   },
-   {
-     "heading": "Methodology",
-     "content": "..."
-   }
- ]
-}
-```
-
-This structure is the **internal document model** used by the renderer.
-
----
-
-# 4. Template Schema Library
-
-Define templates for different conference formats.
-
-Examples
-
-```
-IEEE
-ACM
-NeurIPS
-Springer
-Elsevier
-```
-
-Each template is implemented as a **Typst template file**.
-
-Two layout variants are supported.
-
-### Single-column template
-
-Example `single_column.typ`
-
-```typst
-#set page(
-  paper: "a4",
-  margin: 1in,
-  columns: 1
-)
-
-#set text(
-  font: "Times New Roman",
-  size: 11pt
-)
-```
-
-### Double-column template
-
-Example `double_column.typ`
-
-```typst
-#set page(
-  paper: "a4",
-  margin: 0.75in,
-  columns: 2
-)
-
-#set text(
-  font: "Times New Roman",
-  size: 10pt
-)
-```
-
-Each template defines:
-
-* font
-* margin
-* column layout
-* heading style
-* numbering rules
-
----
-
-# 5. Template Mapping Engine
-
-Map the parsed document structure into the Typst template.
-
-Mapping rules
-
-```
-document.title → template.title
-document.authors → template.author block
-document.abstract → template.abstract
-document.sections → template.section layout
-document.references → template.references
-```
-
-Example input
-
-```
-Introduction
-OCR systems...
-```
-
-Generated Typst
-
-```typst
-= Introduction
-
-OCR systems...
-```
-
----
-
-# 6. Citation Handling
-
-References are extracted from the document model.
-
-Example raw reference
-
-```
-Vaswani 2017 attention is all you need
-```
-
-Formatted reference (IEEE style)
-
-```
-[1] A. Vaswani et al., "Attention Is All You Need," NeurIPS, 2017.
-```
-
-Tools that may assist
-
-* Crossref API
-* Semantic Scholar
-* citation parsing libraries
-
-Output
-
-```
-formatted_references
-```
-
-These references are inserted into the Typst document.
-
----
-
-# 7. Typst Document Generator
-
-Instead of generating LaTeX, the system generates a **Typst file**.
-
-Example generated `paper.typ`
-
-```typst
-#import "double_column.typ": paper
-
-#paper(
-  title: "Deep Learning for OCR",
-
-  authors: (
-    (name: "Deep Joshi", affiliation: "Nirma University")
-  ),
-
-  abstract: [
-    This paper studies OCR systems.
-  ],
-
-  body: [
-    = Introduction
-    OCR systems are widely used.
-
-    = Methodology
-    We propose a CNN model.
+  "title": "...",
+  "abstract": "...",
+  "index_terms": [],
+  "authors": [],
+  "sections": [
+    {
+      "heading": "Introduction",
+      "content": "..."
+    }
   ]
-)
-```
-
-The template file controls layout.
-
----
-
-# 8. Typst Compilation
-
-Compile Typst to PDF.
-
-Command
-
-```
-typst compile paper.typ
-```
-
-Output
-
-```
-paper_formatted.pdf
+}
 ```
 
 ---
 
-# 9. Frontend Workflow
+# 3. Save Output JSON
 
-User interaction flow
+After generating the structured JSON:
 
-```
-1 Upload research paper
-2 Select conference template
-3 Choose layout (single-column / double-column)
-4 Click Convert
-5 Preview formatted paper
-6 Download PDF
-```
-
-UI modules
+Save the result to a file:
 
 ```
-File upload
-Template selector
-Layout selector
-Preview panel
-Download button
+response.json
+```
+
+Implementation logic:
+
+```
+Generate JSON
+↓
+Validate schema
+↓
+Save response.json
+```
+
+Example code logic:
+
+```
+open("response.json", "w")
+write(json_data)
+```
+
+This file will be used later for generating the PDF.
+
+---
+
+# 4. Project Folder Structure
+
+The system should follow this structure:
+
+```
+project/
+│
+├── parser.py
+├── ai_cleaner.py
+├── ast_compiler.py
+├── app.py
+│
+├── response.json
+│
+├── typst/
+│   │
+│   ├── single-column.typ
+│   ├── double-column.typ
+│   │
+│   └── templates/
+│        ├── ieee.typ
+│        ├── acm.typ
+│        ├── springer.typ
+│        └── elsevier.typ
+```
+
+Explanation:
+
+| File              | Purpose                                        |
+| ----------------- | ---------------------------------------------- |
+| single-column.typ | Base template for single column papers         |
+| double-column.typ | Base template for two-column conference papers |
+| templates folder  | Conference-specific formatting                 |
+
+---
+
+# 5. Convert JSON to Typst Content
+
+Load the generated JSON:
+
+```
+response.json
+```
+
+Then insert its data into the Typst template.
+
+Example logic:
+
+```
+title → document title
+abstract → abstract block
+authors → author block
+sections → section headings and content
+```
+
+Example Typst generation:
+
+```
+= Introduction
+content...
+
+= Methodology
+content...
 ```
 
 ---
 
-# 10. Complete System Pipeline
+# 6. Select Layout Template
+
+The system should choose the layout based on the conference.
 
 ```
-UPLOAD DOCUMENT
-      │
-      ▼
-TEXT EXTRACTION
-      │
-      ▼
-TEXT CLEANING
-      │
-      ▼
-SECTION DETECTION
-      │
-      ▼
-DOCUMENT STRUCTURE (AST)
-      │
-      ▼
-TEMPLATE MAPPING
-      │
-      ▼
-TYPST FILE GENERATION
-      │
-      ▼
-TYPST COMPILATION
-      │
-      ▼
-FORMATTED PDF OUTPUT
+Conference Template
+↓
+Select base layout
+```
+
+Example:
+
+| Conference | Layout            |
+| ---------- | ----------------- |
+| IEEE       | double-column.typ |
+| ACM        | double-column.typ |
+| Springer   | single-column.typ |
+
+---
+
+# 7. Generate Typst File
+
+Using the selected template, generate a Typst file:
+
+```
+paper.typ
+```
+
+This file contains:
+
+```
+template import
+title
+authors
+abstract
+sections
+references
 ```
 
 ---
 
-# Important Practical Note
+# 8. Compile Typst to PDF
 
-For a **prototype**, simplify aggressively:
-
-Avoid initially handling
-
-* tables
-* figures
-* equations
-* complex citations
-
-Start with
+Run the Typst compiler:
 
 ```
-DOCX → text
-sections detected
-Typst template applied
-PDF generated
+typst compile paper.typ output.pdf
 ```
 
-Once that works, add complexity later.
+Output:
+
+```
+output.pdf
+```
+
+This PDF should follow the **journal/conference layout**.
+
+---
+
+# 9. Final Pipeline
+
+```
+Upload Document
+↓
+Text Extraction
+↓
+Text Cleaning
+↓
+Section Detection
+↓
+AST Creation
+↓
+Convert AST → JSON Schema
+↓
+Save response.json
+↓
+Load Typst Template
+↓
+Generate paper.typ
+↓
+Compile Typst
+↓
+Final Conference-style PDF
+```
+
+---
+
+# Important Requirements for the Agent
+
+The system must:
+
+* correctly detect **sections and subsections**
+* produce **structured JSON**
+* save JSON in **response.json**
+* use **Typst templates for formatting**
+* generate **conference-style PDFs**
+
+---
+

@@ -29,6 +29,9 @@ function transformPaperJsonToDoc(raw) {
     const sections = [];
     const tables = [];
     const images = [];
+    const references = Array.isArray(raw.references)
+        ? raw.references.map(r => ({ id: r.id, citation: r.citation }))
+        : [];
     let abstract = '';
 
     function processNested(items, parentId, isSub) {
@@ -84,6 +87,7 @@ function transformPaperJsonToDoc(raw) {
         sections,
         tables,
         images,
+        references,
         updatedAt: now,
     };
 }
@@ -103,6 +107,7 @@ function coerceDoc(input) {
         sections: Array.isArray(input.sections) ? input.sections : [],
         tables: Array.isArray(input.tables) ? input.tables : [],
         images: Array.isArray(input.images) ? input.images : [],
+        references: Array.isArray(input.references) ? input.references : [],
         updatedAt: typeof input.updatedAt === 'number' ? input.updatedAt : now,
     };
 }
@@ -120,6 +125,7 @@ function getDefaultDoc() {
         ],
         tables: [],
         images: [],
+        references: [],
         updatedAt: Date.now(),
     };
 }

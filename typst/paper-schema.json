@@ -1,98 +1,76 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "Typst Academic Paper Schema",
+  "title": "Typst IEEE Paper Schema",
+  "description": "Schema for generating an IEEE academic paper using the charged-ieee Typst template.",
   "type": "object",
   "properties": {
-    "title": { "type": "string", "description": "Paper title. Supports Typst markup." },
+    "title": {
+      "type": "string",
+      "description": "The main title of the research paper."
+    },
+    "abstract": {
+      "type": "string",
+      "description": "A brief summary of the research paper."
+    },
+    "index_terms": {
+      "type": "array",
+      "description": "Keywords or index terms for the paper.",
+      "items": {
+        "type": "string"
+      },
+      "uniqueItems": true
+    },
     "authors": {
       "type": "array",
+      "description": "List of authors contributing to the paper.",
       "items": {
         "type": "object",
         "properties": {
-          "name": { "type": "string" },
-          "affiliation": { "type": "string" }
+          "name": {
+            "type": "string",
+            "description": "Full name of the author."
+          },
+          "department": {
+            "type": "string",
+            "description": "Author's department (e.g., Computer Science)."
+          },
+          "organization": {
+            "type": "string",
+            "description": "Author's university or company."
+          },
+          "location": {
+            "type": "string",
+            "description": "City and Country of the organization."
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "Author's contact email."
+          }
         },
-        "required": ["name", "affiliation"]
-      }
+        "required": ["name", "organization", "email"]
+      },
+      "minItems": 1
     },
-    "content": {
+    "sections": {
       "type": "array",
-      "items": { "$ref": "#/definitions/contentItem" },
-      "description": "The root content array of the document."
-    },
-    "references": {
-      "type": "array",
+      "description": "The main body sections of the document.",
       "items": {
         "type": "object",
         "properties": {
-          "id": { "type": "string", "description": "Citation tag, e.g., 'Smith2024'" },
-          "citation": { "type": "string", "description": "Full citation string. Supports Typst markup." }
+          "heading": {
+            "type": "string",
+            "description": "The title of the section (e.g., Introduction, Methodology)."
+          },
+          "content": {
+            "type": "string",
+            "description": "The text content of the section. Supports Typst markup."
+          }
         },
-        "required": ["id", "citation"]
-      }
+        "required": ["heading", "content"]
+      },
+      "minItems": 1
     }
   },
-  "required": ["title", "authors", "content"],
-
-  "definitions": {
-    "contentItem": {
-      "type": "object",
-      "oneOf": [
-        {
-          "properties": {
-            "type": { "enum": ["section", "subsection", "subsubsection"] },
-            "title": { "type": "string", "description": "Heading text." },
-            "content": {
-              "type": "array",
-              "items": { "$ref": "#/definitions/contentItem" },
-              "description": "Nested items inside this section."
-            }
-          },
-          "required": ["type", "title"]
-        },
-        {
-          "properties": {
-            "type": { "const": "paragraph" },
-            "text": { "type": "string", "description": "Paragraph body text." }
-          },
-          "required": ["type", "text"]
-        },
-        {
-          "properties": {
-            "type": { "const": "equation" },
-            "math": { "type": "string", "description": "Typst math syntax." }
-          },
-          "required": ["type", "math"]
-        },
-        {
-          "properties": {
-            "type": { "const": "image" },
-            "src": { "type": "string", "description": "Path to image file." },
-            "caption": { "type": "string" },
-            "width": { "type": "string" }
-          },
-          "required": ["type", "src"]
-        },
-        {
-          "properties": {
-            "type": { "const": "table" },
-            "columns": { "type": "integer" },
-            "caption": { "type": "string" },
-            "headers": {
-              "type": "array",
-              "items": { "type": "string" }
-            },
-            "data": {
-              "type": "array",
-              "items": {
-                "type": "array",
-                "items": { "type": "string" }
-              }
-            }
-          },
-          "required": ["type", "columns", "data"]
-        }
-      ]
-    }
-  }
+  "required": ["title", "abstract", "authors", "sections"]
 }
