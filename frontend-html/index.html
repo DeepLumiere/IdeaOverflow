@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IdeaOverflow | Paper Builder</title>
+  <meta name="description"
+    content="Build conference-ready papers with a structured editor and live preview. Upload manuscripts, select templates (IEEE, ACM, Springer), and export formatted papers." />
+
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/styles.css" />
+
+  <!-- Theme init (prevent FOUC) -->
+  <script>
+    (function () {
+      try {
+        var stored = localStorage.getItem('io_theme');
+        var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        var theme = stored || (prefersDark ? 'dark' : 'light');
+        if (theme === 'dark') document.documentElement.classList.add('dark');
+        else document.documentElement.classList.remove('dark');
+      } catch (e) { }
+    })();
+  </script>
+</head>
+
+<body>
+  <!-- SPA Root -->
+  <div id="app" class="min-h-screen flex flex-col">
+    <!-- Loading placeholder -->
+    <div style="display: flex; align-items: center; justify-content: center; min-height: 100vh;">
+      <div class="glass-card" style="padding: 1.5rem 2rem; max-width: 28rem;">
+        <div
+          style="height: 0.5rem; width: 7rem; border-radius: 9999px; background: var(--brand-gradient); margin-bottom: 1.5rem;">
+        </div>
+        <p class="text-primary font-medium">Loading your workspace…</p>
+        <p class="text-sm text-muted" style="margin-top: 0.5rem;">Preparing editor state and theme preferences.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Core Modules (order matters) -->
+  <script src="js/state.js?v=2"></script>
+  <script src="js/api.js?v=2"></script>
+  <script src="js/conferences.js?v=2"></script>
+  <script src="js/parser.js?v=2"></script>
+
+  <!-- Page Modules -->
+  <script src="js/pages/login.js?v=2"></script>
+  <script src="js/pages/signup.js?v=2"></script>
+  <script src="js/pages/home.js?v=2"></script>
+  <script src="js/pages/editor.js?v=2"></script>
+
+  <!-- App Bootstrap (last) -->
+  <script src="js/app.js?v=2"></script>
+</body>
+
+</html>

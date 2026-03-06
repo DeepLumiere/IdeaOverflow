@@ -5,7 +5,7 @@ let currentSuggestion = "";
 // --- 1. CORE UTILITIES ---
 function getOverleafText() {
     return Array.from(document.querySelectorAll('.cm-line, .ace_line'))
-                .map(line => line.innerText).join('\n');
+        .map(line => line.innerText).join('\n');
 }
 
 function getSelectedText() {
@@ -25,15 +25,17 @@ function setupAutocomplete() {
 
     document.addEventListener('keyup', (e) => {
         clearTimeout(typingTimer);
-        suggestionBox.style.display = 'none';
-        currentSuggestion = "";
 
         if (e.key === 'Tab' && currentSuggestion !== "") {
             e.preventDefault();
             insertTextSafely(currentSuggestion + " ");
             currentSuggestion = "";
+            suggestionBox.style.display = 'none';
             return;
         }
+
+        suggestionBox.style.display = 'none';
+        currentSuggestion = "";
 
         if (e.key.length === 1 || e.key === 'Backspace') {
             typingTimer = setTimeout(fetchAutocomplete, DONE_TYPING_INTERVAL);
@@ -74,7 +76,7 @@ function fetchAutocomplete() {
             actionType: "autocomplete",
             context: currentParagraph
         }, (res) => {
-            if (res.success && res.answer.length > 5) {
+            if (res && res.success && res.answer && res.answer.length > 5) {
                 currentSuggestion = res.answer;
                 box.innerHTML = `
                     <span style="color:var(--g-text-dim);">${currentSuggestion}</span> 
@@ -99,7 +101,7 @@ function injectUI() {
         <div class="g-header">
             <div class="g-brand">
                 <img src="${logoUrl}" class="g-logo" alt="Logo">
-                <span>Idea<span style="font-weight: 300; opacity: 0.8; font-family: FontAwesome,serif">Overflow</span></span>
+                <span>Idea<span style="font-weight: 300; opacity: 0.8; font-family: FontAwesome,serif"> Overflow</span></span>
             </div>
             <button id="g-theme-btn" class="g-theme-toggle" title="Toggle Light/Dark">🌗</button>
         </div>
@@ -181,7 +183,7 @@ function bindEvents() {
             actionType: "chat",
             context: getOverleafText(),
             query: query
-        }, (res) => appendMsg('chat-msgs', res.answer, 'ai'));
+        }, (res) => appendMsg('chat-msgs', res?.answer || 'Error: No response from server.', 'ai'));
     };
 
     chatInput.addEventListener('keypress', (e) => {
@@ -198,7 +200,7 @@ function bindEvents() {
         const resultBox = document.getElementById('edit-result');
 
         resultBox.classList.remove('hidden');
-        resultBox.innerHTML = `<span style="opacity:0.6 italic">Rewriting...</span>`;
+        resultBox.innerHTML = `<span style="opacity:0.6; font-style:italic;">Rewriting...</span>`;
 
         chrome.runtime.sendMessage({
             action: "callGemini",
@@ -206,7 +208,11 @@ function bindEvents() {
             context: selected,
             query: instructions
         }, (res) => {
-            resultBox.innerHTML = `<strong>Suggested Revision:</strong><br/><br/>${res.answer.replace(/\n/g, '<br/>')}`;
+            if (res && res.answer) {
+                resultBox.innerHTML = `<strong>Suggested Revision:</strong><br/><br/>${res.answer.replace(/\n/g, '<br/>')}`;
+            } else {
+                resultBox.innerHTML = `<strong>Error:</strong> No response from server.`;
+            }
         });
     };
 
@@ -222,7 +228,11 @@ function bindEvents() {
             context: getOverleafText(),
             query: ""
         }, (res) => {
-            resultBox.innerHTML = res.answer.replace(/\n/g, '<br/>');
+            if (res && res.answer) {
+                resultBox.innerHTML = res.answer.replace(/\n/g, '<br/>');
+            } else {
+                resultBox.innerHTML = 'Error: No response from server.';
+            }
         });
     };
 }

@@ -4,30 +4,45 @@
   "version": "1.0.0",
   "description": "AI-powered research assistant for Overleaf with chat, autocomplete, review, and editing features",
   "permissions": [
-    "storage"
+    "activeTab",
+    "storage",
+    "clipboardWrite"
   ],
   "host_permissions": [
-    "https://www.overleaf.com/*",
-    "http://localhost:8000/*"
+    "*://*.overleaf.com/*",
+    "http://localhost:8000/*",
+    "<all_urls>"
   ],
   "background": {
-    "service_worker": "background.js"
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "icons": {
+    "64": "icons/64.png",
+    "128": "icons/128.png"
   },
   "content_scripts": [
     {
-      "matches": ["https://www.overleaf.com/*"],
-      "js": ["content.js"],
-      "css": ["styles.css"],
+      "matches": [
+        "*://*.overleaf.com/project/*"
+      ],
+      "css": [
+        "styles.css"
+      ],
+      "js": [
+        "content.js"
+      ],
       "run_at": "document_idle"
     }
   ],
-  "icons": {
-    "128": "logo.svg"
-  },
   "web_accessible_resources": [
     {
-      "resources": ["logo.svg"],
-      "matches": ["https://www.overleaf.com/*"]
+      "resources": [
+        "logo.svg"
+      ],
+      "matches": [
+        "*://*.overleaf.com/*"
+      ]
     }
   ]
 }
