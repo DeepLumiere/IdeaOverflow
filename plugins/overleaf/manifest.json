@@ -1,0 +1,33 @@
+{
+  "manifest_version": 3,
+  "name": "IdeaOverflow",
+  "version": "0.0",
+  "permissions": ["activeTab", "storage", "clipboardWrite"],
+  "host_permissions": [
+    "*://*.overleaf.com/*",
+    "<all_urls>"
+  ],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "icons": {
+    "64": "icons/64.png",
+    "128": "icons/128.png"
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://*.overleaf.com/project/*"],
+      "css": ["styles.css"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+    ],
+    "web_accessible_resources": [
+      {
+        "resources": ["logo.svg", "icon.svg"],
+        "matches": ["*://*.overleaf.com/*"]
+      }
+  ]
+}
+
