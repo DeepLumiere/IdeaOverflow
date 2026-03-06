@@ -1,0 +1,78 @@
+{
+  "title": "A Novel Approach to JSON-driven Typst Typesetting",
+  "authors": [
+    { "name": "Alice Doe", "affiliation": "University of Typst" },
+    { "name": "Bob Smith", "affiliation": "Institute of Automation" }
+  ],
+  "content": [
+    {
+      "type": "section",
+      "title": "Introduction",
+      "content": [
+        {
+          "type": "paragraph",
+          "text": "This is a demonstration of rendering *Typst syntax* directly from a structured JSON file [@Smith2023]. Typst is fast and supports natively powerful formatting."
+        },
+        {
+          "type": "subsection",
+          "title": "Mathematical Formulation",
+          "content": [
+            {
+              "type": "paragraph",
+              "text": "We define our core principle in the following block equation:"
+            },
+            {
+              "type": "equation",
+              "math": "sum_(i=1)^n i = (n(n+1)) / 2"
+            },
+            {
+              "type": "subsubsection",
+              "title": "Proof details",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "text": "The proof relies on standard induction, as originally detailed by Doe [@Doe2024]. For more details, refer to our references at the end of the document."
+                },
+                {
+                  "type": "paragraph",
+                  "text": "We can easily insert standalone paragraphs without needing a heading attached to them."
+                },
+                {
+                  "type": "image",
+                  "src": "diagram.png",
+                  "caption": "A structural overview of the system showing the data flow. Notice how *Typst markup* works inside captions too!",
+                  "width": "85%"
+                },
+                {
+                  "type": "paragraph",
+                  "text": "Let $x$ be the number of nodes in the network, and let $alpha$ represent the learning rate. As demonstrated in our previous work, the threshold condition $T >= x/2 + pi$ must be satisfied for the system to remain stable."
+                },
+                {
+                  "type": "table",
+                  "columns": 3,
+                  "caption": "Experimental results comparing our method against the baseline. Values in $\"ms\"$.",
+                  "headers": ["Method", "Execution Time ($t$)", "Accuracy"],
+                  "data": [
+                    ["Baseline", "120", "85.2%"],
+                    ["*Proposed*", "*45*", "*98.1%*"],
+                    ["Theoretical Limit", "$< 10$", "100%"]
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "references": [
+    {
+      "id": "Doe2024",
+      "citation": "A. Doe, _The Art of Typst_, 2024."
+    },
+    {
+      "id": "Smith2023",
+      "citation": "B. Smith, *Automating Document Generation*, Journal of Code, 2023."
+    }
+  ]
+}
