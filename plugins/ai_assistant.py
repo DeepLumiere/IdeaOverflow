@@ -1,14 +1,44 @@
 import os
+import json
 from google import genai
 from google.genai import types
 from config import GEMINI_API_KEY
+api_key = GEMINI_API_KEY
+client = genai.Client(api_key=api_key) if api_key else None
+# Preset JSON configuration for conferences
+CONFERENCE_PRESETS = {
+    "ACL": {
+        "name": "Association for Computational Linguistics (ACL)",
+        "structure": "Abstract, Introduction, Background/Related Work, Methodology, Experiments, Results, Discussion, Conclusion, Limitations, Ethics Statement.",
+        "topics": "NLP, Computational Linguistics, Dialogue, Semantics, Syntax, Machine Translation."
+    },
+    "EMNLP": {
+        "name": "Empirical Methods in Natural Language Processing (EMNLP)",
+        "structure": "Abstract, Introduction, Related Work, Data, Methodology, Experimental Setup, Results, Analysis/Discussion, Conclusion, Limitations.",
+        "topics": "Empirical NLP, Text Mining, Information Extraction, Large Language Models, Evaluation."
+    },
+    "CVPR": {
+        "name": "Computer Vision and Pattern Recognition (CVPR)",
+        "structure": "Abstract, Introduction, Related Work, Approach/Method, Experiments, Conclusion. (Strict anonymity/formatting).",
+        "topics": "Computer Vision, Image Processing, Object Detection, 3D Vision, Video Analysis."
+    },
+    "NeurIPS": {
+        "name": "Neural Information Processing Systems (NeurIPS)",
+        "structure": "Abstract, Introduction, Related Work, Method, Experiments, Broader Impact, Conclusion.",
+        "topics": "Machine Learning, Deep Learning, Optimization, Theory, Neuroscience intersections."
+    },
+    "AAAI": {
+        "name": "Association for the Advancement of Artificial Intelligence (AAAI)",
+        "structure": "Abstract, Introduction, Related Work, Problem Formulation, Proposed Method, Experiments, Conclusion.",
+        "topics": "General AI, Reasoning, Multi-agent Systems, Search, Machine Learning, Vision, NLP."
+    }
+}
+
 
 async def ask_gemini(latex_code: str, query: str, action_type: str = "chat") -> str:
-    api_key = GEMINI_API_KEY  # MAKE SURE THIS IS A SECURE ENVIRONMENT VARIABLE
     if not api_key: return "Error: API key missing."
-
-    client = genai.Client(api_key=api_key)
     model = "gemini-2.5-flash"
+
     # Dynamic Prompting based on the feature used
     if action_type == "autocomplete":
         system_prompt = (
@@ -18,10 +48,21 @@ async def ask_gemini(latex_code: str, query: str, action_type: str = "chat") -> 
             f"--- CURRENT PARAGRAPH ---\n{latex_code}\n--- END PARAGRAPH ---"
         )
     elif action_type == "review":
+        # Get the selected conference data, default to a general fallback if not found
+        conf_data = CONFERENCE_PRESETS.get(query, {
+            "name": "General Academic Conference",
+            "structure": "Standard academic structure (Abstract, Intro, Method, Results, Conclusion)",
+            "topics": "General Academic Topics"
+        })
+
         system_prompt = (
-            "You are an expert peer reviewer. Review the following LaTeX document. "
+            f"You are an expert peer reviewer for {conf_data['name']}. Review the following LaTeX document. "
             "Provide a structured critique addressing: 1) Clarity and Flow, 2) Methodology/Argumentation strength, "
             "and 3) LaTeX formatting or structural suggestions. Keep it professional and actionable.\n\n"
+            f"CRITICAL REQUIREMENTS FOR THIS CONFERENCE:\n"
+            f"- Required Structure: {conf_data['structure']}\n"
+            f"- Topics of Interest: {conf_data['topics']}\n"
+            "Evaluate if the paper adheres to these specific requirements.\n\n"
             f"--- DOCUMENT ---\n{latex_code}\n--- END DOCUMENT ---"
         )
     elif action_type == "edit":
@@ -42,7 +83,6 @@ async def ask_gemini(latex_code: str, query: str, action_type: str = "chat") -> 
 
     try:
         response_text = ""
-        # Removed the advanced configs that were crashing the free-tier model
         async for chunk in await client.aio.models.generate_content_stream(
                 model=model,
                 contents=contents
@@ -50,6 +90,5 @@ async def ask_gemini(latex_code: str, query: str, action_type: str = "chat") -> 
             response_text += chunk.text
         return response_text.strip()
     except Exception as e:
-        # If it fails, print the actual error to the backend console so we can read it!
         print(f"Backend Crash Error: {str(e)}")
         return f"Error: {str(e)}"
