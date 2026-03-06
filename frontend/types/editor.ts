@@ -1,4 +1,4 @@
-export type ConferenceId = "IEEE" | "ACM" | "Springer";
+export type ConferenceId = "ieee" | "acm" | "springer" | "arxiv" | "iclr" | "cvpr" | "acl" | "nature";
 
 export type PaperAuthor = {
   name: string;

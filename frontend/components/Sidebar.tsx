@@ -3,6 +3,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight, Image as ImageIcon, Plus, Table2, UserPlus, Layers } from "lucide-react";
 import { useEditor } from "@/context/EditorContext";
+import conferenceTemplates from "@/data/conferences";
 import type { PaperSection } from "@/types/editor";
 
 type Action = "section" | "subsection" | "table" | "image" | "author";
@@ -73,7 +74,7 @@ function Field({
 }
 
 export function Sidebar() {
-  const { doc, updateDoc, panelSizes, setPanelSizes, setJsonSynced } = useEditor();
+  const { doc, updateDoc, panelSizes, setPanelSizes, setJsonSynced, selectedConference, setSelectedConference } = useEditor();
   const collapsed = panelSizes.sidebarCollapsed;
   const [active, setActive] = useState<Action | null>(null);
 
@@ -165,11 +166,72 @@ export function Sidebar() {
 
         {!collapsed && (
           <div className="mt-5 rounded-2xl border border-slate-200/70 dark:border-slate-800 bg-white/60 dark:bg-slate-950/40 p-3">
+            <div className="text-xs font-semibold text-slate-700 dark:text-slate-200 mb-3">Conference Templates</div>
+            <div className="grid grid-cols-2 gap-2">
+              {conferenceTemplates.map((conf) => (
+                <button
+                  key={conf.id}
+                  onClick={() => {
+                    setSelectedConference(conf.id as any);
+                  }}
+                  className={`p-2 rounded-lg text-xs text-center transition border ${selectedConference === conf.id
+                      ? "border-blue-300 bg-blue-50 dark:bg-blue-950 dark:border-blue-700"
+                      : "border-slate-200 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700"
+                    }`}
+                  title={conf.fullName}
+                >
+                  <div className="text-lg">{conf.logo}</div>
+                  <div className="font-medium text-slate-900 dark:text-white text-xs">{conf.name}</div>
+                  <div className="text-xs text-slate-600 dark:text-slate-400">{conf.format}</div>
+                </button>
+              ))}
+            </div>
+
+            {/* Active conference formatting details */}
+            {(() => {
+              const active = conferenceTemplates.find((c) => c.id === selectedConference);
+              if (!active) return null;
+              const citationMap: Record<string, string> = {
+                ieee: "Numbered [1]", acm: "Author-Year", nature: "Superscript",
+                springer: "Numbered [1]", arxiv: "Numbered [1]", iclr: "Numbered [1]",
+                cvpr: "Numbered [1]", acl: "Author-Year",
+              };
+              const fontMap: Record<string, string> = {
+                ieee: "Times New Roman", acm: "Charter", nature: "Georgia",
+                springer: "Computer Modern", arxiv: "Computer Modern", iclr: "Times New Roman",
+                cvpr: "Times New Roman", acl: "Times New Roman",
+              };
+              return (
+                <div className="mt-3 pt-3 border-t border-slate-200/70 dark:border-slate-700 space-y-1.5">
+                  <div className="text-[10px] font-bold text-blue-600 dark:text-blue-400 tracking-wide uppercase">
+                    {active.name} Guidelines
+                  </div>
+                  <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-[10px]">
+                    <div className="text-slate-500 dark:text-slate-400">Layout</div>
+                    <div className="text-slate-800 dark:text-slate-200 font-medium">{active.format}</div>
+                    <div className="text-slate-500 dark:text-slate-400">Citations</div>
+                    <div className="text-slate-800 dark:text-slate-200 font-medium">{citationMap[active.id] ?? "Numbered"}</div>
+                    <div className="text-slate-500 dark:text-slate-400">Font</div>
+                    <div className="text-slate-800 dark:text-slate-200 font-medium">{fontMap[active.id] ?? "Serif"}</div>
+                    <div className="text-slate-500 dark:text-slate-400">Headings</div>
+                    <div className="text-slate-800 dark:text-slate-200 font-medium">
+                      {active.id === "ieee" ? "UPPERCASE" : active.id === "nature" ? "Plain" : "Numbered"}
+                    </div>
+                  </div>
+                </div>
+              );
+            })()}
+          </div>
+        )}
+
+        {!collapsed && (
+          <div className="mt-5 rounded-2xl border border-slate-200/70 dark:border-slate-800 bg-white/60 dark:bg-slate-950/40 p-3">
             <div className="text-xs font-semibold text-slate-700 dark:text-slate-200">Tips</div>
             <ul className="mt-2 text-xs text-slate-600 dark:text-slate-300 space-y-1">
               <li>- Use the shortcuts for faster authoring.</li>
               <li>- JSON panel stays editable; preview updates live.</li>
               <li>- Drag separators to resize panels.</li>
+              <li>- Switch conferences to see formatting changes instantly.</li>
             </ul>
           </div>
         )}

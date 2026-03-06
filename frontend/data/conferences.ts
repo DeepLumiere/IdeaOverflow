@@ -47,6 +47,22 @@ const conferenceTemplates = [
     description: 'ML conference format, IEEE style',
     format: 'Two Column',
   },
+  {
+    id: 'cvpr',
+    name: 'CVPR',
+    fullName: 'IEEE/CVF Computer Vision and Pattern Recognition',
+    logo: '👁️',
+    description: 'Computer vision format, two-column',
+    format: 'Two Column',
+  },
+  {
+    id: 'acl',
+    name: 'ACL',
+    fullName: 'Association for Computational Linguistics',
+    logo: '🗣️',
+    description: 'Natural language processing format',
+    format: 'Single Column',
+  },
 ];
 
 export default conferenceTemplates;

@@ -171,7 +171,7 @@ const defaultPanels: PanelSizes = {
 
 export function EditorProvider({ children }: { children: React.ReactNode }) {
   const [doc, setDocState] = useState<PaperDoc>(defaultPaperDoc);
-  const [selectedConference, setSelectedConferenceState] = useState<ConferenceId>("IEEE");
+  const [selectedConference, setSelectedConferenceState] = useState<ConferenceId>("ieee");
   const [uploadedFile, setUploadedFileState] = useState<UploadedFileMeta | null>(null);
   const [panelSizes, setPanelSizesState] = useState<PanelSizes>(defaultPanels);
   const [isJsonSynced, setJsonSynced] = useState(true);
@@ -184,7 +184,8 @@ export function EditorProvider({ children }: { children: React.ReactNode }) {
     if (storedDoc) setDocState(coerceDoc(storedDoc));
 
     const storedConf = localStorage.getItem(STORAGE.conf) as ConferenceId | null;
-    if (storedConf === "IEEE" || storedConf === "ACM" || storedConf === "Springer") {
+    const validConferences: ConferenceId[] = ["ieee", "acm", "springer", "arxiv", "iclr", "cvpr", "acl", "nature"];
+    if (storedConf && validConferences.includes(storedConf)) {
       setSelectedConferenceState(storedConf);
     }
 

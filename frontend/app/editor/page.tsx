@@ -12,7 +12,11 @@ import { useEditor } from "@/context/EditorContext";
 import type { ConferenceId } from "@/types/editor";
 
 function parseConference(raw: string | null): ConferenceId | null {
-  if (raw === "IEEE" || raw === "ACM" || raw === "Springer") return raw;
+  const validConferences: ConferenceId[] = ["ieee", "acm", "springer", "arxiv", "iclr", "cvpr", "acl", "nature"];
+  const lower = raw?.toLowerCase();
+  if (lower && validConferences.includes(lower as ConferenceId)) {
+    return lower as ConferenceId;
+  }
   return null;
 }
 
@@ -24,12 +28,12 @@ export default function EditorPage() {
   const dragRef = useRef<
     | null
     | {
-        kind: "sidebar" | "json";
-        pointerId: number;
-        startX: number;
-        startSidebar: number;
-        startJson: number;
-      }
+      kind: "sidebar" | "json";
+      pointerId: number;
+      startX: number;
+      startSidebar: number;
+      startJson: number;
+    }
   >(null);
 
   const sizes = useMemo(() => {
