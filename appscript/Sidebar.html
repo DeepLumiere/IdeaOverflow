@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <base target="_top">
+    <style>
+        /* ===== CSS VARIABLES ===== */
+        :root {
+            --gemini-gradient: linear-gradient(135deg, #4285f4 0%, #66f442 100%);
+            --gemini-blue: #4285f4;
+            --bg-dark: rgba(28, 28, 30, 0.95);
+            --text-main: rgba(255, 255, 255, 0.9);
+            --text-dim: #a0a0a0;
+            --border-color: rgba(255, 255, 255, 0.1);
+            --g-bg: var(--bg-dark);
+            --g-text: var(--text-main);
+            --g-text-dim: var(--text-dim);
+            --g-panel-bg: rgba(0, 0, 0, 0.2);
+            --g-border: var(--border-color);
+            --g-input-bg: rgba(255, 255, 255, 0.05);
+            --g-ai-msg: rgba(255, 255, 255, 0.08);
+        }
+
+        /* Light Theme Overrides */
+        body.light-mode {
+            --bg-dark: rgba(250, 250, 252, 0.98);
+            --text-main: rgba(0, 0, 0, 0.9);
+            --text-dim: rgba(0, 0, 0, 0.6);
+            --border-color: rgba(0, 0, 0, 0.1);
+            --g-bg: rgba(250, 250, 252, 0.98);
+            --g-text: var(--text-main);
+            --g-panel-bg: #f0f0f2;
+            --g-border: rgba(0, 0, 0, 0.1);
+            --g-input-bg: #ffffff;
+            --g-ai-msg: #ffffff;
+            --gemini-gradient: linear-gradient(135deg, #1a73e8 0%, #66f442 100%);
+        }
+
+        /* ===== MAIN SIDEBAR CONTAINER ===== */
+        body {
+            margin: 0;
+            padding: 0;
+            background: var(--g-bg);
+            color: var(--g-text);
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+            transition: all 0.4s ease;
+        }
+
+        /* ===== HEADER ===== */
+        .g-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--g-bg);
+            border-bottom: 1px solid var(--g-border);
+            padding: 15px;
+        }
+
+        .g-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 800;
+            font-size: 18px;
+        }
+
+        .g-theme-toggle {
+            background: transparent;
+            border: 1px solid var(--g-border);
+            color: var(--g-text);
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        /* ===== TABS ===== */
+        #gemini-tabs {
+            display: flex;
+            background: rgba(128, 128, 128, 0.1);
+            margin: 10px 15px;
+            padding: 4px;
+            border-radius: 12px;
+            gap: 4px;
+        }
+
+        .g-tab {
+            flex: 1;
+            padding: 8px 0;
+            border: none;
+            border-radius: 8px;
+            background: transparent;
+            color: var(--g-text-dim);
+            font-weight: 600;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .g-tab.active {
+            background: var(--gemini-gradient);
+            color: white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        /* ===== PANELS ===== */
+        .g-panel { display: none; flex: 1; flex-direction: column; overflow: hidden; }
+        .g-panel.active { display: flex; }
+        .g-info { font-size: 12px; padding: 15px; color: var(--g-text-dim); line-height: 1.4; }
+
+        /* ===== CHAT MESSAGES ===== */
+        .g-messages { flex: 1; padding: 15px; gap: 10px; overflow-y: auto; display: flex; flex-direction: column; }
+        .g-msg { padding: 10px 14px; border-radius: 12px; font-size: 13px; max-width: 90%; word-wrap: break-word; animation: slideIn 0.3s ease-out; }
+        .g-msg-user { background: var(--gemini-blue); color: white; align-self: flex-end; border-bottom-right-radius: 2px; }
+        .g-msg-ai { background: var(--g-ai-msg); color: var(--g-text); align-self: flex-start; border-bottom-left-radius: 2px; border: 1px solid var(--g-border); }
+
+        /* ===== INPUTS & BUTTONS ===== */
+        .g-input-area { display: flex; padding: 10px; background: var(--g-panel-bg); border-top: 1px solid var(--g-border); gap: 8px; }
+        .g-input-area input { flex: 1; background: var(--g-input-bg); color: var(--g-text); border: 1px solid var(--g-border); padding: 8px 12px; border-radius: 8px; outline: none; }
+        .g-input-area button { background: var(--gemini-gradient); color: white; border: none; padding: 8px 14px; border-radius: 8px; cursor: pointer; font-weight: 600; }
+
+        .g-btn { background: var(--gemini-gradient); color: white; border: none; padding: 12px; margin: 0 15px 15px; border-radius: 10px; cursor: pointer; font-weight: 600; font-size: 13px; }
+        .g-btn-secondary { background: var(--g-panel-bg); color: var(--g-text); border: 1px solid var(--g-border); }
+
+        textarea, select { background: var(--g-input-bg); color: var(--g-text); border: 1px solid var(--g-border); margin: 0 15px 10px; padding: 10px; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; width: calc(100% - 50px); }
+        textarea { height: 60px; resize: none; }
+
+        .g-result-box { margin: 0 15px 15px; padding: 15px; background: var(--g-panel-bg); border-radius: 8px; font-size: 13px; overflow-y: auto; flex: 1; border-left: 3px solid var(--gemini-blue); line-height: 1.5; }
+        .hidden { display: none !important; }
+
+        @keyframes slideIn { from { transform: translateX(20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+    </style>
+</head>
+<body class="light-mode">
+    <div class="g-header">
+        <div class="g-brand">
+            <svg
+              version="1.1"
+              id="svg1"
+              width="32"
+              height="32"
+              viewBox="0 0 800 800"
+              xmlns="http://www.w3.org/2000/svg"
+              xmlns:svg="http://www.w3.org/2000/svg">
+              <defs
+                id="defs1" />
+              <path
+                style="fill:#4285f4;fill-opacity:1;stroke-width:1.25471"
+                d="m 398.64482,717.11631 c -10.10016,-7.63341 -11.34903,-7.92656 -17.76081,-4.169 -13.50562,7.91481 -16.62761,6.1495 -6.12954,-3.46591 3.92026,-3.59068 7.536,-8.22636 8.45371,-10.83843 2.13348,-6.07245 2.23474,-120.60337 0.11493,-130.03466 -1.73292,-7.71015 -2.1204,-7.42884 5.68844,-4.12969 l 6.49648,2.74467 v 63.17637 c 0,78.49044 -2.58733,71.73167 29.46045,76.95807 22.80791,3.71955 41.1761,11.15391 22.92388,9.27824 -33.83652,-3.47721 -43.02099,-3.10636 -43.81888,1.76927 -0.38335,2.34254 -0.73376,2.25934 -5.42866,-1.28893 z m 41.55092,-76.36291 c 4.66061,-23.7205 -0.83043,-50.88875 -7.52126,-37.21319 -5.57324,11.39129 -11.25825,14.7215 -7.63529,4.47266 2.82765,-7.99903 6.67808,-26.4883 5.92497,-28.4509 -1.12123,-2.92188 -42.3363,-21.94468 -96.30978,-44.45174 -17.56434,-7.32438 -18.19336,-7.74886 -18.19336,-12.27793 0,-5.36585 29.49317,-39.3383 32.67377,-37.6361 1.26129,0.67502 3.45963,1.22732 4.88518,1.22732 3.71563,0 3.86651,-0.25243 -10.66814,17.84863 l -13.26005,16.51373 4.70914,2.41595 c 2.59003,1.32876 20.55527,9.34951 39.92274,17.82388 70.58433,30.88467 67.71929,29.36605 72.15682,38.24668 3.89864,7.80214 10.38604,33.88684 9.54406,38.37498 -1.19831,6.38757 -8.92379,20.86434 -13.34684,25.01065 l -3.99134,3.74159 z m -50.33392,-98.71087 c -2.07028,-1.09857 -3.90041,-2.10621 -4.06694,-2.2392 -0.27575,-0.2202 4.75515,-29.78351 6.6523,-39.09127 0.71351,-3.50057 8.36948,-8.14345 10.2792,-6.23371 1.00422,1.00421 -6.68991,49.65688 -7.8457,49.61118 -0.6901,-0.0272 -2.94858,-0.94844 -5.01886,-2.047 z M 180.25347,522.18288 c 31.17872,-49.80521 80.97782,-79.73616 148.28294,-89.12305 90.09607,-12.5655 134.97086,-46.96751 136.6127,-104.73033 0.22558,-7.93606 0.16322,-12.45304 -0.13855,-10.03771 -6.64406,53.17639 -44.31444,86.88354 -81.73599,73.1367 -4.8127,-1.76794 -7.17827,-4.12741 -4.1381,-4.12741 0.65694,0 2.94256,-2.54079 5.07913,-5.64621 4.40214,-6.39829 4.06508,-6.9389 -1.6521,-2.64978 -10.52661,7.89721 -24.54064,12.4293 -38.43256,12.42897 -14.64329,-3.4e-4 -14.91741,-0.48405 -5.62098,-9.9188 10.05645,-10.20606 10.22389,-11.8666 0.56722,-5.6252 -13.9246,8.9999 -34.74474,15.20804 -44.74164,13.34105 l -3.93212,-0.73436 7.69626,-7.81792 c 11.97481,-12.1641 14.76394,-18.10891 4.68612,-9.98811 -16.36486,13.18696 -48.55107,24.24417 -56.28293,19.33536 -3.26153,-2.07066 21.56453,-34.72267 41.68506,-54.82546 46.62297,-46.58186 93.4519,-70.28797 154.63206,-78.27903 38.66488,-5.05023 41.74875,-27.84697 10.28481,-76.02794 -23.90595,-36.60739 -28.90407,-54.42385 -21.11093,-75.25287 14.10128,-37.689022 71.65086,-32.667392 85.20931,7.43515 3.85868,11.41304 3.45407,17.71675 -1.29479,20.17249 l -3.81638,1.97353 -6.84289,-7.27384 c -3.92569,-4.17292 -7.38411,-9.21741 -8.11242,-11.83286 -1.7102,-6.14154 -4.04941,-7.78502 -12.38528,-8.70162 -3.88278,-0.42694 -8.18883,-1.23726 -9.56902,-1.80069 -2.27166,-0.92737 -2.23315,-0.7209 0.40636,2.17912 1.60369,1.76195 3.86218,5.09894 5.01886,7.41552 1.52448,3.05321 3.48382,4.65161 7.12192,5.81003 5.70528,1.8166 8.36377,4.57566 12.7509,13.23326 8.3966,16.56988 -2.94702,19.31054 -29.01664,7.01051 -9.33707,-4.40535 -9.90865,-3.94591 -2.6448,2.12591 4.40372,3.68106 6.61247,6.95171 9.61985,14.24478 4.7503,11.51979 8.56241,18.41616 21.94451,39.6991 22.22423,35.34548 32.95436,66.73739 35.55595,104.02197 1.00161,14.35458 -0.0447,40.09039 -1.40269,34.50465 -0.41947,-1.72523 -1.7134,-7.5126 -2.87541,-12.86082 -2.52609,-11.62647 -4.40816,-12.56043 -4.40816,-2.1875 0,19.22263 -6.59021,47.14343 -15.14194,64.15197 -6.10967,12.15152 -6.38397,12.09844 -4.11866,-0.79714 0.9698,-5.52075 1.54517,-11.44927 1.27861,-13.1745 l -0.48467,-3.13679 -0.98222,2.94353 c -5.35021,16.03367 -19.8149,38.17898 -32.9493,50.44506 -11.83957,11.05685 -12.61937,10.93668 -6.5166,-1.00426 2.73336,-5.34822 5.33271,-12.18756 5.77632,-15.19854 l 0.80658,-5.47449 -6.14296,6.59247 c -27.79807,29.83219 -74.13738,46.06229 -139.77004,48.9537 -36.13083,1.59172 -48.10263,3.82402 -71.24636,13.28484 -23.53712,9.62163 -44.32979,23.60877 -66.31788,44.61177 -7.45079,7.11697 -12.48648,11.24607 -11.19046,9.17579 z m -1.33433,-31.68154 c 0.3552,-1.20766 1.55134,-5.77634 2.65811,-10.15261 6.58338,-26.03148 20.64561,-55.44229 36.39012,-76.109 8.51722,-11.17996 18.17263,-21.72132 14.9404,-16.31129 -9.97584,16.69738 -13.84552,23.57516 -18.58652,33.03482 -6.52345,13.01619 -18.0225,41.68817 -22.93062,57.17581 -3.16916,10.00025 -3.95859,11.34049 -7.57536,12.86082 -5.20906,2.18967 -5.67289,2.14244 -4.89613,-0.49855 z m 211.91768,-10.03771 c -0.8255,-3.27794 -1.8437,-7.12244 -2.26266,-8.54334 -0.78515,-2.66282 9.54408,-10.40576 32.34184,-24.24388 9.8737,-5.99328 9.96346,-5.93817 3.73398,2.29239 -2.60443,3.44105 -7.98362,12.43654 -11.95374,19.98997 -9.62573,18.31364 -18.78445,22.71499 -21.85942,10.50486 z m -37.83647,-2.92179 c -2.62441,-1.05035 -2.89078,-1.75925 -2.20955,-5.88036 0.42604,-2.57732 0.78082,-5.60025 0.78841,-6.71763 0.0113,-1.61066 2.32436,-2.32792 11.16553,-3.46175 6.13345,-0.78658 16.43779,-2.77209 22.89854,-4.41224 6.46075,-1.64017 11.83171,-2.90548 11.93546,-2.81183 0.10376,0.0936 -7.12452,5.67533 -16.06282,12.40374 -17.10448,12.87558 -20.39376,14.13059 -28.51557,10.88007 z M 242.43287,372.63695 c 0,-2.16742 15.12111,-25.66256 23.26672,-36.1518 45.20922,-58.21659 127.81907,-96.82728 184.07484,-86.03401 12.2763,2.35533 10.51678,3.36094 -7.52828,4.30254 -42.14023,2.19891 -83.27516,16.30933 -121.33134,41.62 -27.52832,18.30875 -55.67842,45.08368 -72.38929,68.853 -3.35096,4.76636 -6.09265,8.10097 -6.09265,7.41027 z M 610.04963,232.0603 c -5.85778,-5.33166 -21.94293,-20.16515 -35.74479,-32.9633 -13.80186,-12.79816 -33.9964,-31.40088 -44.87676,-41.33939 l -19.78246,-18.07 4.42409,-1.52094 c 2.43327,-0.83652 5.33252,-2.27485 6.44277,-3.19629 2.61824,-2.17294 30.69879,26.77094 85.16022,87.77843 19.61302,21.97043 20.60601,24.08294 4.37693,9.31149 z m -25.07972,-15.5596 c -11.38653,-8.9781 -34.11255,-26.7738 -50.50225,-39.54602 -29.06455,-22.64947 -31.14734,-24.55879 -28.54476,-26.16727 0.6901,-0.4265 1.25472,-2.19461 1.25472,-3.92912 v -3.15369 l 3.60548,2.91405 c 1.98302,1.60272 11.46197,9.97182 21.06435,18.59798 9.60237,8.62616 28.14631,25.28249 41.20874,37.01407 41.44328,37.22087 42.25618,38.19455 11.91372,14.27 z"
+                id="path3" />
+            </svg>
+            IdeaOverflow
+        </div>
+        <button id="g-theme-btn" class="g-theme-toggle" title="Toggle Theme">🌗</button>
+    </div>
+
+    <div id="gemini-tabs">
+        <button class="g-tab active" data-tab="chat">Chat</button>
+        <button class="g-tab" data-tab="edit">Edit</button>
+        <button class="g-tab" data-tab="review">Review</button>
+    </div>
+
+    <div id="g-content-chat" class="g-panel active">
+        <div class="g-messages" id="chat-msgs">
+            <div class="g-msg g-msg-ai">Ready to enhance your document. How can I help?</div>
+        </div>
+        <div class="g-input-area">
+            <input type="text" id="chat-input" placeholder="Ask a question..." />
+            <button id="chat-send">Send</button>
+        </div>
+    </div>
+
+    <div id="g-content-edit" class="g-panel">
+        <div class="g-info">Highlight text in Docs to rewrite or summarize it.</div>
+        <textarea id="edit-instructions" placeholder="e.g., 'Make this sound more academic'"></textarea>
+        <button id="edit-btn" class="g-btn">✨ Rewrite Selection</button>
+        <div id="edit-result" class="g-result-box hidden"></div>
+        <button id="apply-edit-btn" class="g-btn g-btn-secondary hidden">Apply to Document</button>
+    </div>
+
+    <div id="g-content-review" class="g-panel">
+        <div class="g-info">Analyze your entire document against standards.</div>
+        <select id="review-conference">
+            <option value="ACL">ACL (NLP)</option>
+            <option value="CVPR">CVPR (Computer Vision)</option>
+            <option value="NeurIPS">NeurIPS (Machine Learning)</option>
+        </select>
+        <button id="review-btn" class="g-btn">📋 Run Analysis</button>
+        <div id="review-result" class="g-result-box hidden"></div>
+    </div>
+
+    <script>
+        // Theme Toggle Logic
+        document.getElementById('g-theme-btn').onclick = () => {
+            document.body.classList.toggle('light-mode');
+        };
+
+        // Tab Switching Logic
+        document.querySelectorAll('.g-tab').forEach(tab => {
+            tab.onclick = (e) => {
+                document.querySelectorAll('.g-tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.g-panel').forEach(p => p.classList.remove('active'));
+                e.target.classList.add('active');
+                document.getElementById(`g-content-${e.target.dataset.tab}`).classList.add('active');
+            };
+        });
+
+        // Chat Utility
+        function appendMsg(text, type) {
+            const div = document.createElement('div');
+            div.className = `g-msg g-msg-${type}`;
+            // Simple markdown bold parsing for chat
+            div.innerHTML = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            const container = document.getElementById('chat-msgs');
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        // CHAT HANDLER
+        document.getElementById('chat-send').onclick = () => {
+            const input = document.getElementById('chat-input');
+            const query = input.value.trim();
+            if (!query) return;
+
+            appendMsg(query, 'user');
+            input.value = '';
+
+            google.script.run.withSuccessHandler(context => {
+                google.script.run.withSuccessHandler(res => {
+                    appendMsg(res.success ? res.answer : "Error processing request.", 'ai');
+                }).callGeminiAPI('chat', context, query);
+            }).getDocText();
+        };
+
+        // EDIT HANDLER
+        let lastEditedText = "";
+        document.getElementById('edit-btn').onclick = () => {
+            const instructions = document.getElementById('edit-instructions').value;
+            const resultBox = document.getElementById('edit-result');
+            const applyBtn = document.getElementById('apply-edit-btn');
+
+            resultBox.classList.remove('hidden');
+            applyBtn.classList.add('hidden');
+            resultBox.innerHTML = `<em>Drafting revision...</em>`;
+
+            google.script.run.withSuccessHandler(selectedText => {
+                if (!selectedText) {
+                    resultBox.innerHTML = `<strong style="color: #ff6b6b">Error: Please highlight text in your document first.</strong>`;
+                    return;
+                }
+
+                google.script.run.withSuccessHandler(res => {
+                    if(res.success) {
+                        lastEditedText = res.answer;
+                        resultBox.innerHTML = `<strong>Suggested Revision:</strong><br/><br/>${res.answer.replace(/\n/g, '<br/>')}`;
+                        applyBtn.classList.remove('hidden');
+                    } else {
+                        resultBox.innerHTML = res.answer;
+                    }
+                }).callGeminiAPI('edit', selectedText, instructions);
+            }).getSelectedText();
+        };
+
+        // APPLY EDIT TO DOCUMENT HANDLER
+        document.getElementById('apply-edit-btn').onclick = () => {
+            if (!lastEditedText) return;
+            document.getElementById('apply-edit-btn').innerText = "Applying...";
+            google.script.run.withSuccessHandler(success => {
+                document.getElementById('apply-edit-btn').innerText = success ? "Applied!" : "Error Applying";
+                setTimeout(() => document.getElementById('apply-edit-btn').innerText = "Apply to Document", 2000);
+            }).replaceSelectedText(lastEditedText);
+        };
+
+        // REVIEW HANDLER
+        document.getElementById('review-btn').onclick = () => {
+            const conference = document.getElementById('review-conference').value;
+            const resultBox = document.getElementById('review-result');
+
+            resultBox.classList.remove('hidden');
+            resultBox.innerHTML = `<em>Analyzing document against ${conference} guidelines...</em>`;
+
+            google.script.run.withSuccessHandler(context => {
+                google.script.run.withSuccessHandler(res => {
+                    if(res.success) {
+                        resultBox.innerHTML = res.answer.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br/>');
+                    } else {
+                        resultBox.innerHTML = res.answer;
+                    }
+                }).callGeminiAPI('review', context, conference);
+            }).getDocText();
+        };
+    </script>
+</body>
+</html>
