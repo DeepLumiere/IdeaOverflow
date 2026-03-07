@@ -29,7 +29,7 @@ app.add_middleware(
 )
 
 # Initialize Gemini — keep your own key here
-client = genai.Client(api_key="AIzaSyAgjXpYstIQ9Xj5rTPYIm_s3iAi4qRAHxI")
+client = genai.Client(api_key="GEMINI_API_KEY")
 
 GEMINI_MODEL = "gemini-3.1-flash-lite-preview"
 
