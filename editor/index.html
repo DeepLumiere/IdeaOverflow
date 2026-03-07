@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Idea Overflow</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;1,9..144,300&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <script src="https://cdn.jsdelivr.net/npm/@editorjs/editorjs@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@editorjs/header@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@editorjs/code@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@editorjs/list@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@editorjs/table@latest"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+
+  <style>
+    /* ════════════════════════════════════════════
+       TOKENS  — all colours as explicit hex so
+       EditorJS overrides never need CSS vars
+    ════════════════════════════════════════════ */
+    :root {
+      --ink:        #ddd8ce;
+      --ink-dim:    #7a7470;
+      --ink-ghost:  #38332f;
+      --paper:      #111009;
+      --panel:      #181510;
+      --surface:    #1c1914;
+      --surface2:   #201d17;
+      --border:     #302b22;
+      --border-hi:  #3d3729;
+      --accent:     #c9a96e;
+      --accent-lo:  #7a6035;
+      --danger:     #d17070;
+      --ok:         #6dc98a;
+      --r:          5px;
+      --sans:       'DM Sans', system-ui, sans-serif;
+      --mono:       'DM Mono', 'Courier New', monospace;
+      --serif:      'Fraunces', Georgia, serif;
+    }
+
+    /* ── Reset ───────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; overflow: hidden; }
+    body {
+      font-family: var(--sans);
+      font-size: 14px;
+      background: var(--paper);
+      color: var(--ink);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #302b22; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #4a4540; }
+
+    /* ════════════════════════════════════════════
+       WELCOME
+    ════════════════════════════════════════════ */
+    #welcome-screen {
+      height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      background:
+        radial-gradient(ellipse 70% 50% at 50% -10%,
+          rgba(201,169,110,.10) 0%, transparent 60%),
+        #111009;
+      animation: fadeUp .45s ease both;
+    }
+    @keyframes fadeUp {
+      from { opacity:0; transform:translateY(14px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+
+    .welcome-badge {
+      width:58px; height:58px;
+      border:1.5px solid #c9a96e; border-radius:14px;
+      display:flex; align-items:center; justify-content:center;
+      font-family: var(--serif); font-size:26px; color:#c9a96e;
+      margin-bottom:22px;
+      box-shadow: 0 0 40px rgba(201,169,110,.14), inset 0 0 20px rgba(201,169,110,.04);
+    }
+    .welcome-title {
+      font-family: var(--serif); font-size:38px;
+      font-weight:300; color:#ddd8ce; letter-spacing:-.4px;
+      margin-bottom:6px;
+    }
+    .welcome-sub { font-size:14px; color:#7a7470; margin-bottom:34px; }
+
+    .welcome-btns {
+      display:flex; flex-direction:column;
+      align-items:center; gap:10px;
+    }
+
+    .welcome-hint {
+      margin-top:40px;
+      font-family: var(--mono); font-size:11px; color:#38332f;
+    }
+    kbd {
+      background:#201d17; border:1px solid #3d3729;
+      border-radius:3px; padding:1px 5px;
+      font-family: var(--mono); font-size:10px; color:#7a7470;
+    }
+
+    /* ════════════════════════════════════════════
+       BUTTONS
+    ════════════════════════════════════════════ */
+    .btn {
+      display:inline-flex; align-items:center; gap:6px;
+      font-family: var(--sans); font-size:13px; font-weight:600;
+      padding:8px 18px; border-radius:var(--r); border:none;
+      cursor:pointer; white-space:nowrap; line-height:1;
+      transition: background .12s, border-color .12s, color .12s, opacity .12s;
+    }
+    .btn:focus-visible { outline:2px solid #c9a96e; outline-offset:2px; }
+
+    .btn-primary {
+      background:#c9a96e; color:#120f09;
+      min-width:200px; justify-content:center;
+    }
+    .btn-primary:hover:not(:disabled) { background:#d6b87e; }
+    .btn-primary:disabled { opacity:.4; cursor:not-allowed; }
+
+    .btn-ghost {
+      background:#1c1914; border:1px solid #3d3729; color:#7a7470;
+      min-width:200px; justify-content:center;
+    }
+    .btn-ghost:hover { border-color:#7a6035; color:#ddd8ce; }
+
+    .btn-sm { padding:6px 12px; font-size:12px; min-width:auto; }
+
+    .btn-icon {
+      background:#1c1914; border:1px solid #302b22; color:#7a7470;
+      padding:5px 11px; font-size:14px; min-width:auto;
+      font-family: var(--mono);
+    }
+    .btn-icon:hover { border-color:#7a6035; color:#ddd8ce; }
+
+    select.g-select {
+      font-family: var(--sans); font-size:13px; font-weight:500;
+      background:#1c1914; border:1px solid #3d3729; color:#7a7470;
+      padding:7px 30px 7px 12px; border-radius:var(--r);
+      cursor:pointer; appearance:none; -webkit-appearance:none;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%237a7470'/%3E%3C/svg%3E");
+      background-repeat:no-repeat; background-position:right 10px center;
+      transition: border-color .12s;
+    }
+    select.g-select:hover { border-color:#7a6035; color:#ddd8ce; }
+    select.g-select option { background:#181510; color:#ddd8ce; }
+
+    /* ════════════════════════════════════════════
+       WORKSPACE SHELL
+    ════════════════════════════════════════════ */
+    #workspace-container {
+      display:none; height:100vh; flex-direction:column;
+    }
+
+    /* Topbar */
+    .topbar {
+      height:50px; flex-shrink:0;
+      background:#181510; border-bottom:1px solid #302b22;
+      display:flex; align-items:center; gap:10px; padding:0 16px;
+    }
+    .brand {
+      font-family: var(--serif); font-size:17px;
+      font-weight:600; font-style:italic; color:#c9a96e;
+      white-space:nowrap; margin-right:4px;
+    }
+    .topbar-sep { width:1px; height:20px; background:#302b22; flex-shrink:0; }
+    .topbar-right {
+      margin-left:auto; display:flex; align-items:center; gap:8px;
+    }
+
+    /* Status bar */
+    .statusbar {
+      height:24px; flex-shrink:0;
+      background:#181510; border-bottom:1px solid #302b22;
+      display:flex; align-items:center;
+      padding:0 14px; gap:16px;
+      font-family: var(--mono); font-size:11px; color:#7a7470;
+    }
+    .status-indicator { display:flex; align-items:center; gap:6px; }
+    .status-dot {
+      width:6px; height:6px; border-radius:50%;
+      background:#38332f; flex-shrink:0;
+    }
+    .status-dot.ready { background:#6dc98a; }
+    .status-dot.busy  { background:#c9a96e; animation:blink .7s ease-in-out infinite; }
+    .status-dot.error { background:#d17070; }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.25} }
+    .statusbar-right { margin-left:auto; }
+
+    /* Split view */
+    .split-view { flex:1; display:flex; overflow:hidden; min-height:0; }
+
+    /* Editor pane */
+    .editor-pane {
+      flex:1; display:flex; flex-direction:column;
+      border-right:1px solid #302b22; min-width:0;
+    }
+
+    /* Meta bar — use explicit hardcoded values */
+    .meta-bar {
+      flex-shrink:0; display:flex; gap:8px;
+      padding:9px 14px;
+      background:#181510; border-bottom:1px solid #302b22;
+    }
+
+    /* CRITICAL: explicit hex on inputs, no CSS vars */
+    input.g-input {
+      flex:1; min-width:0;
+      background:#1c1914 !important;
+      border:1px solid #302b22 !important;
+      border-radius:5px !important;
+      color:#ddd8ce !important;
+      font-family:'DM Sans', system-ui, sans-serif !important;
+      font-size:13px !important;
+      padding:7px 11px !important;
+      -webkit-appearance:none !important;
+      transition:border-color .12s;
+    }
+    input.g-input:focus {
+      outline:none !important;
+      border-color:#7a6035 !important;
+      background:#201d17 !important;
+    }
+    input.g-input::placeholder { color:#3d3729 !important; }
+
+    /* Editor scroll — MUST have explicit background */
+    .editor-scroll {
+      flex:1; overflow-y:auto; overflow-x:hidden;
+      padding:32px 24px;
+      background:#111009;   /* explicit — prevents black bleed-through */
+    }
+    #editorjs { max-width:740px; margin:0 auto; }
+
+    /* PDF pane */
+    .pdf-pane {
+      width:50%; flex-shrink:0; min-width:300px;
+      display:flex; flex-direction:column;
+      background:#0c0b08;
+    }
+
+    .pdf-toolbar {
+      flex-shrink:0; height:38px;
+      background:#181510; border-bottom:1px solid #302b22;
+      display:flex; align-items:center;
+      gap:6px; padding:0 12px;
+    }
+    .zoom-display {
+      font-family: var(--mono); font-size:11px; color:#7a7470;
+      min-width:38px; text-align:center;
+    }
+    .pdf-toolbar-spacer { flex:1; }
+    .page-count {
+      font-family: var(--mono); font-size:11px; color:#7a7470;
+    }
+
+    .pdf-scroll {
+      flex:1; overflow-y:auto;
+      display:flex; flex-direction:column;
+      align-items:center; padding:24px 20px; gap:18px;
+    }
+    .pdf-scroll canvas {
+      display:block; background:#fff;
+      border-radius:2px; max-width:100%;
+      box-shadow:0 4px 28px rgba(0,0,0,.75);
+    }
+
+    .pdf-placeholder {
+      margin-top:80px; text-align:center;
+      color:#38332f; line-height:1.9; font-size:13px;
+    }
+    .pdf-placeholder .icon {
+      display:block; font-size:30px;
+      margin-bottom:12px; opacity:.5;
+    }
+
+    .pdf-skeleton {
+      width:100%; max-width:560px; aspect-ratio:8.5/11;
+      background:linear-gradient(90deg,#1a1714 0%,#221f1a 40%,#1a1714 80%);
+      background-size:200% 100%;
+      animation:shimmer 1.4s ease-in-out infinite;
+      border-radius:2px;
+    }
+    @keyframes shimmer { to { background-position:-200% 0; } }
+
+    /* ════════════════════════════════════════════
+       ERROR PANEL
+    ════════════════════════════════════════════ */
+    #error-panel {
+      display:none;
+      position:fixed; bottom:20px; left:50%;
+      transform:translateX(-50%);
+      width:min(660px, calc(100vw - 40px));
+      background:#170d0d; border:1px solid #5a2525;
+      border-radius:8px;
+      box-shadow:0 12px 40px rgba(0,0,0,.85);
+      z-index:500; overflow:hidden;
+      animation:panelUp .2s ease both;
+    }
+    @keyframes panelUp {
+      from { opacity:0; transform:translateX(-50%) translateY(8px); }
+      to   { opacity:1; transform:translateX(-50%) translateY(0); }
+    }
+    .error-header {
+      display:flex; align-items:center; gap:8px;
+      padding:10px 14px; border-bottom:1px solid #3a1818;
+    }
+    .error-title { flex:1; font-size:13px; font-weight:600; color:#d17070; }
+    .error-close {
+      background:none; border:none; color:#7a7470;
+      cursor:pointer; font-size:17px; line-height:1;
+    }
+    .error-close:hover { color:#ddd8ce; }
+    .error-body {
+      padding:12px 14px;
+      font-family: var(--mono); font-size:12px; color:#e89090;
+      white-space:pre-wrap; word-break:break-word;
+      max-height:200px; overflow-y:auto; line-height:1.65;
+    }
+
+    /* ════════════════════════════════════════════
+       TOASTS — positioned below topbar
+    ════════════════════════════════════════════ */
+    .toast-wrap {
+      position:fixed; top:58px; right:16px;
+      z-index:600; display:flex; flex-direction:column;
+      gap:6px; pointer-events:none;
+    }
+    .toast {
+      background:#201d17; border:1px solid #3d3729;
+      color:#ddd8ce; padding:9px 14px; border-radius:5px;
+      font-size:13px; font-weight:500;
+      box-shadow:0 4px 20px rgba(0,0,0,.55);
+      pointer-events:auto;
+      animation:toastIn .2s ease both, toastOut .25s ease 2.75s both;
+      white-space:nowrap;
+    }
+    .toast.ok  { border-color:#6dc98a; color:#6dc98a; }
+    .toast.err { border-color:#d17070; color:#d17070; }
+    @keyframes toastIn  { from { opacity:0; transform:translateX(10px); } }
+    @keyframes toastOut { to   { opacity:0; transform:translateX(10px); } }
+
+    /* ════════════════════════════════════════════
+       SOURCE DIALOG
+    ════════════════════════════════════════════ */
+    dialog#source-dialog {
+      background:#181510; border:1px solid #3d3729;
+      border-radius:8px; color:#ddd8ce; padding:0;
+      width:min(820px, 92vw); max-height:80vh;
+      box-shadow:0 24px 64px rgba(0,0,0,.85);
+    }
+    dialog#source-dialog::backdrop {
+      background:rgba(0,0,0,.6); backdrop-filter:blur(2px);
+    }
+    .dialog-header {
+      display:flex; align-items:center; gap:8px;
+      padding:11px 16px; border-bottom:1px solid #302b22;
+    }
+    .dialog-title {
+      font-family: var(--mono); font-size:12px;
+      color:#7a7470; flex:1;
+    }
+    #source-textarea {
+      display:block; width:100%; height:56vh;
+      background:#0d0c08; border:none; outline:none;
+      color:#85d9a4; font-family: var(--mono);
+      font-size:12px; padding:16px 18px;
+      resize:none; line-height:1.65;
+    }
+    .dialog-footer {
+      display:flex; justify-content:flex-end; gap:8px;
+      padding:10px 16px; border-top:1px solid #302b22;
+    }
+
+    /* ════════════════════════════════════════════
+       EDITOR.JS OVERRIDES
+       All explicit hex — these MUST override
+       EditorJS default light-theme styles
+    ════════════════════════════════════════════ */
+
+    /* Container background */
+    .codex-editor,
+    .codex-editor__redactor { background:transparent !important; }
+    .codex-editor__redactor { padding-bottom:250px !important; }
+
+    /* Text content */
+    .ce-paragraph { color:#ddd8ce !important; line-height:1.8 !important; }
+    .ce-paragraph[data-placeholder]:empty::before { color:#38332f !important; }
+    .ce-header { color:#ddd8ce !important; }
+    h1.ce-header { font-size:26px !important; }
+    h2.ce-header { font-size:20px !important; }
+    h3.ce-header { font-size:16px !important; }
+
+    /* Toolbar */
+    .ce-toolbar__plus,
+    .ce-toolbar__settings-btn {
+      color:#7a7470 !important; background:transparent !important;
+    }
+    .ce-toolbar__plus:hover,
+    .ce-toolbar__settings-btn:hover {
+      color:#ddd8ce !important; background:#201d17 !important;
+    }
+    .ce-toolbar__actions { background:#181510 !important; }
+
+    /* Tool popover / menu */
+    .ce-popover {
+      background:#201d17 !important;
+      border:1px solid #302b22 !important;
+      box-shadow:0 8px 24px rgba(0,0,0,.65) !important;
+    }
+    .ce-popover-item__title { color:#ddd8ce !important; }
+    .ce-popover-item__secondary-title { color:#7a7470 !important; }
+    .ce-popover-item:hover,
+    .ce-popover-item--focused { background:#272318 !important; }
+    .ce-popover__search .cdx-search-field {
+      background:#111009 !important; border:1px solid #302b22 !important;
+    }
+    .cdx-search-field__input {
+      color:#ddd8ce !important; background:transparent !important;
+    }
+
+    /* Inline toolbar */
+    .ce-inline-toolbar {
+      background:#201d17 !important;
+      border:1px solid #302b22 !important;
+      box-shadow:0 4px 16px rgba(0,0,0,.65) !important;
+    }
+    .ce-inline-tool { color:#7a7470 !important; }
+    .ce-inline-tool:hover,
+    .ce-inline-tool--active { color:#ddd8ce !important; background:#272318 !important; }
+    .ce-inline-toolbar__dropdown { border-right:1px solid #302b22 !important; }
+    .ce-inline-toolbar [contenteditable] { color:#ddd8ce !important; }
+
+    /* Selected block */
+    .ce-block--selected .ce-block__content {
+      background:rgba(201,169,110,.06) !important; border-radius:4px;
+    }
+
+    /* Code block */
+    .ce-code__textarea {
+      background:#0d0c08 !important;
+      border:1px solid #302b22 !important;
+      border-radius:5px !important;
+      color:#85d9a4 !important;
+      font-family:'DM Mono', monospace !important;
+      font-size:13px !important; line-height:1.6 !important;
+      padding:12px !important;
+    }
+
+    /* List */
+    .cdx-list { color:#ddd8ce !important; line-height:1.8 !important; }
+    .cdx-list__item { padding:2px 0 !important; }
+    .cdx-list-settings .cdx-settings-button { color:#7a7470 !important; }
+
+    /* Table */
+    .tc-table { border-color:#302b22 !important; }
+    .tc-cell {
+      border-color:#302b22 !important;
+      color:#ddd8ce !important;
+      background:transparent !important;
+    }
+    .tc-cell:focus {
+      background:#1c1914 !important; outline:none !important;
+    }
+    .tc-row:hover .tc-cell { background:rgba(201,169,110,.03) !important; }
+    .tc-wrap { background:transparent !important; }
+    .tc-toolbox__toggler,
+    .tc-add-column, .tc-add-row { color:#7a7470 !important; }
+    .tc-popover {
+      background:#201d17 !important; border:1px solid #302b22 !important;
+    }
+    .tc-popover__item-label { color:#ddd8ce !important; }
+    .tc-popover__item:hover { background:#272318 !important; }
+
+    /* Settings panel */
+    .cdx-settings-button { color:#7a7470 !important; }
+    .cdx-settings-button--active,
+    .cdx-settings-button:hover { color:#ddd8ce !important; background:#272318 !important; }
+
+    /* Generic cdx-input */
+    .cdx-input {
+      background:#1c1914 !important;
+      border:1px solid #302b22 !important;
+      color:#ddd8ce !important; border-radius:4px !important;
+    }
+    .cdx-input::placeholder { color:#4a4540 !important; }
+
+    .ce-block__content,
+    .ce-toolbar__content { max-width:100% !important; }
+
+    /* ════════════════════════════════════════════
+       IMPORT PROGRESS OVERLAY
+    ════════════════════════════════════════════ */
+    #import-overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.72);
+      backdrop-filter: blur(3px);
+      z-index: 800;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+    }
+    #import-overlay.active { display: flex; }
+
+    .import-card {
+      background: #181510;
+      border: 1px solid #3d3729;
+      border-radius: 10px;
+      padding: 28px 36px;
+      text-align: center;
+      width: min(380px, 90vw);
+      box-shadow: 0 16px 48px rgba(0,0,0,.8);
+    }
+    .import-title {
+      font-family: var(--serif);
+      font-size: 17px; font-weight: 300;
+      color: #ddd8ce; margin-bottom: 6px;
+    }
+    .import-sub {
+      font-family: var(--mono);
+      font-size: 11px; color: #7a7470;
+      margin-bottom: 22px;
+    }
+    .progress-track {
+      height: 4px; border-radius: 2px;
+      background: #302b22; overflow: hidden;
+      margin-bottom: 14px;
+    }
+    .progress-fill {
+      height: 100%; border-radius: 2px;
+      background: #c9a96e;
+      transition: width .4s ease;
+      width: 0%;
+    }
+    .progress-label {
+      font-family: var(--mono); font-size: 11px; color: #7a7470;
+    }
+    .progress-label strong { color: #c9a96e; }
+
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════
+     WELCOME
+══════════════════════════════════════ -->
+<div id="welcome-screen">
+  <div class="welcome-badge">
+      <img src="logo.svg" width="42" height="42" alt="Logo">
+  </div>s
+  <h1 class="welcome-title">Idea Overflow</h1>
+  <p class="welcome-sub">Write, compile, and export academic documents.</p>
+  <div class="welcome-btns">
+    <button class="btn btn-primary" id="new-project-btn">✦&ensp;New Blank Document</button>
+    <input type="file" id="word-upload" accept=".docx" style="display:none">
+    <button class="btn btn-ghost" id="upload-trigger-btn">↑&ensp;Import Word Document (.docx)</button>
+  </div>
+  <p class="welcome-hint">
+    <kbd>Ctrl</kbd>+<kbd>Enter</kbd>&nbsp;compile&nbsp;&nbsp;·&nbsp;&nbsp;<kbd>Ctrl</kbd>+<kbd>S</kbd>&nbsp;download
+  </p>
+</div>
+
+<!-- ══════════════════════════════════════
+     WORKSPACE
+══════════════════════════════════════ -->
+<div id="workspace-container">
+
+  <div class="topbar">
+    <span class="brand">∂ LaTeX Studio</span>
+    <div class="topbar-sep"></div>
+    <select id="template-select" class="g-select" title="Document template">
+      <option value="standard">Standard Article</option>
+      <option value="acl">ACL Template</option>
+      <option value="cvpr">CVPR Template</option>
+    </select>
+    <div class="topbar-right">
+      <button class="btn btn-ghost btn-sm" id="latex-source-btn">&lt;/&gt;&ensp;Source</button>
+      <button class="btn btn-primary btn-sm" id="recompile-btn">▶&ensp;Compile</button>
+      <button class="btn btn-ghost btn-sm" id="save-btn" disabled>↓&ensp;PDF</button>
+    </div>
+  </div>
+
+  <div class="statusbar">
+    <div class="status-indicator">
+      <div class="status-dot" id="status-dot"></div>
+      <span id="status-text">Ready</span>
+    </div>
+    <span class="statusbar-right" id="status-time"></span>
+  </div>
+
+  <div class="split-view">
+
+    <div class="editor-pane">
+      <div class="meta-bar">
+        <input type="text" id="doc-title"  class="g-input" placeholder="Document Title" autocomplete="off">
+        <input type="text" id="doc-author" class="g-input" placeholder="Author Name" autocomplete="off">
+        <input type="text" id="doc-affil"  class="g-input" placeholder="Institution" autocomplete="off">
+      </div>
+      <div class="editor-scroll">
+        <div id="editorjs"></div>
+      </div>
+    </div>
+
+    <div class="pdf-pane">
+      <div class="pdf-toolbar">
+        <button class="btn btn-icon" id="zoom-out-btn">−</button>
+        <span class="zoom-display" id="zoom-display">100%</span>
+        <button class="btn btn-icon" id="zoom-in-btn">+</button>
+        <button class="btn btn-icon" id="zoom-reset-btn" style="font-size:11px">1:1</button>
+        <div class="pdf-toolbar-spacer"></div>
+        <span class="page-count" id="page-count"></span>
+      </div>
+      <div class="pdf-scroll" id="pdf-viewer">
+        <div class="pdf-placeholder">
+          <span class="icon">⬡</span>
+          Click <strong style="color:#7a7470">Compile</strong> to preview your PDF.<br>
+          Use a <strong style="color:#7a7470">Code block</strong> for raw LaTeX.
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Error panel -->
+<div id="error-panel">
+  <div class="error-header">
+    <span class="error-title">⚠&ensp;Compilation Error</span>
+    <button class="error-close" id="error-close-btn">✕</button>
+  </div>
+  <div class="error-body" id="error-body"></div>
+</div>
+
+<!-- Toast container -->
+<div class="toast-wrap" id="toast-wrap"></div>
+
+<!-- LaTeX source dialog -->
+<dialog id="source-dialog">
+  <div class="dialog-header">
+    <span class="dialog-title">Generated LaTeX · main.tex</span>
+    <button class="btn btn-ghost btn-sm" id="copy-source-btn">Copy</button>
+    <button class="btn btn-ghost btn-sm" onclick="document.getElementById('source-dialog').close()">Close</button>
+  </div>
+  <textarea id="source-textarea" readonly spellcheck="false"></textarea>
+  <div class="dialog-footer">
+    <button class="btn btn-ghost btn-sm" onclick="document.getElementById('source-dialog').close()">Dismiss</button>
+  </div>
+</dialog>
+
+<!-- Import progress overlay -->
+<div id="import-overlay">
+  <div class="import-card">
+    <div class="import-title">Converting document…</div>
+    <div class="import-sub" id="import-sub">Preparing chunks</div>
+    <div class="progress-track">
+      <div class="progress-fill" id="progress-fill"></div>
+    </div>
+    <div class="progress-label" id="progress-label">Starting…</div>
+  </div>
+</div>
+
+
+
+<script>
+  // ══════════════════════════════════════
+  //  CONFIG
+  // ══════════════════════════════════════
+  const API = 'http://localhost:8000';
+  pdfjsLib.GlobalWorkerOptions.workerSrc =
+    'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+  // ══════════════════════════════════════
+  //  STATE
+  // ══════════════════════════════════════
+  let editor         = null;
+  let currentPdfBlob = null;
+  let pdfScale       = 1.5;    // 1.5 → 100% label
+  let totalPages     = 0;
+  const SCALE_STEP   = 0.25;
+  const SCALE_MIN    = 0.5;
+  const SCALE_MAX    = 3.5;
+
+  // ══════════════════════════════════════
+  //  UTILS
+  // ══════════════════════════════════════
+  const $  = id => document.getElementById(id);
+
+  // Status bar
+  function setStatus(txt, type) {
+    $('status-text').textContent = txt;
+    $('status-dot').className = 'status-dot' + (type ? ' '+type : '');
+  }
+
+  // Toast
+  function showToast(msg, type) {
+    const wrap = $('toast-wrap');
+    const t = document.createElement('div');
+    t.className = 'toast' + (type ? ' '+type : '');
+    t.textContent = msg;
+    wrap.appendChild(t);
+    setTimeout(() => t.remove(), 3300);
+  }
+
+  // Error panel
+  function showError(msg) {
+    $('error-body').textContent = msg;
+    $('error-panel').style.display = 'block';
+    setStatus('Compilation failed', 'error');
+  }
+  function hideError() { $('error-panel').style.display = 'none'; }
+  $('error-close-btn').addEventListener('click', hideError);
+
+  // ══════════════════════════════════════
+  //  PERSISTENCE
+  // ══════════════════════════════════════
+  const LS = {
+    save() {
+      try {
+        localStorage.setItem('ls_title',  $('doc-title').value);
+        localStorage.setItem('ls_author', $('doc-author').value);
+        localStorage.setItem('ls_affil',  $('doc-affil').value);
+        localStorage.setItem('ls_tpl',    $('template-select').value);
+      } catch(_) {}
+    },
+    restore() {
+      try {
+        $('doc-title').value  = localStorage.getItem('ls_title')  || '';
+        $('doc-author').value = localStorage.getItem('ls_author') || '';
+        $('doc-affil').value  = localStorage.getItem('ls_affil')  || '';
+        const t = localStorage.getItem('ls_tpl');
+        if (t) $('template-select').value = t;
+      } catch(_) {}
+    }
+  };
+  ['doc-title','doc-author','doc-affil'].forEach(id => $(id).addEventListener('input', LS.save));
+  $('template-select').addEventListener('change', LS.save);
+
+  // ══════════════════════════════════════
+  //  EDITOR INIT
+  // ══════════════════════════════════════
+  function initEditor(data) {
+    if (editor) { try { editor.destroy(); } catch(_){} editor = null; }
+    $('editorjs').innerHTML = '';
+
+    editor = new EditorJS({
+      holder: 'editorjs',
+      placeholder: 'Start writing…  Use + to add headers, code, tables.',
+      tools: {
+        header: {
+          class: Header,
+          config: { levels:[1,2,3], defaultLevel:2 }
+        },
+        code: CodeTool,
+        list: {
+          class: EditorjsList,
+          inlineToolbar: true,
+          config: { defaultStyle: 'unordered' }
+        },
+        table: {
+          class: Table,
+          inlineToolbar: true,
+          config: { rows:3, cols:3, withHeadings:true }
+        },
+      },
+      data: data || {
+        blocks:[{ type:'paragraph', data:{ text:'Start writing your document here.' }}]
+      },
+    });
+
+    $('welcome-screen').style.display = 'none';
+    $('workspace-container').style.display = 'flex';
+    LS.restore();
+  }
+
+  // ══════════════════════════════════════
+  //  WELCOME
+  // ══════════════════════════════════════
+  $('new-project-btn').addEventListener('click', () => initEditor(null));
+  $('upload-trigger-btn').addEventListener('click', () => $('word-upload').click());
+
+  // ── Import progress UI helpers ─────────────────────────────────────────────
+  function showImportProgress(sub, pct, label) {
+    $('import-overlay').classList.add('active');
+    $('import-sub').textContent       = sub;
+    $('progress-fill').style.width    = pct + '%';
+    $('progress-label').innerHTML     = label;
+  }
+  function hideImportProgress() {
+    $('import-overlay').classList.remove('active');
+  }
+
+  $('word-upload').addEventListener('change', async e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const btn = $('upload-trigger-btn');
+    btn.disabled = true;
+
+    // Estimate chunks for progress bar (≈7000 chars per chunk,
+    // docx averages ~1.5 bytes/char so rough estimate is file.size / 10500)
+    const estChunks = Math.max(1, Math.round(file.size / 10500));
+    showImportProgress('Reading document…', 5,
+      `Estimated <strong>~${estChunks}</strong> chunk${estChunks !== 1 ? 's' : ''} to process`);
+
+    const form = new FormData();
+    form.append('file', file);
+
+    // Simulate intermediate progress while waiting (server is synchronous)
+    let simPct = 5;
+    const simInterval = setInterval(() => {
+      // Slowly creep to 85% — final jump happens on response
+      if (simPct < 85) {
+        simPct += (85 - simPct) * 0.04;
+        const chunkEst = Math.round((simPct / 100) * estChunks);
+        showImportProgress(
+          'Converting with AI…',
+          simPct,
+          `Processing chunk <strong>${Math.min(chunkEst, estChunks)}</strong> of <strong>~${estChunks}</strong>`
+        );
+      }
+    }, 800);
+
+    try {
+      const res = await fetch(`${API}/api/upload`, { method:'POST', body:form });
+      clearInterval(simInterval);
+
+      if (!res.ok) {
+        const err = await res.json().catch(()=>({}));
+        throw new Error(err.detail || `HTTP ${res.status}`);
+      }
+
+      showImportProgress('Finalising…', 97, 'Building editor blocks…');
+      const data = await res.json();
+
+      const chunks = data.chunks_processed || 1;
+      showImportProgress('Done!', 100,
+        `Processed <strong>${chunks}</strong> chunk${chunks !== 1 ? 's' : ''} · <strong>${(data.blocks||[]).length}</strong> blocks`);
+      await new Promise(r => setTimeout(r, 700));   // brief "Done!" flash
+
+      hideImportProgress();
+      initEditor(data);
+      if (data.title)       $('doc-title').value  = data.title;
+      if (data.author)      $('doc-author').value = data.author;
+      if (data.affiliation) $('doc-affil').value  = data.affiliation;
+      LS.save();
+      showToast(`✓ Imported — ${chunks} chunk${chunks!==1?'s':''}, ${(data.blocks||[]).length} blocks`, 'ok');
+    } catch(err) {
+      clearInterval(simInterval);
+      hideImportProgress();
+      showToast('Import failed: ' + err.message, 'err');
+    } finally {
+      btn.disabled = false;
+      e.target.value = '';
+    }
+  });
+
+  // ══════════════════════════════════════
+  //  PAYLOAD
+  // ══════════════════════════════════════
+  async function buildPayload() {
+    const d = await editor.save();
+    return {
+      template:    $('template-select').value,
+      title:       $('doc-title').value.trim()  || 'Untitled',
+      author:      $('doc-author').value.trim() || '',
+      affiliation: $('doc-affil').value.trim()  || '',
+      blocks:      d.blocks,
+    };
+  }
+
+  // ══════════════════════════════════════
+  //  COMPILE
+  // ══════════════════════════════════════
+  async function compilePDF() {
+    if (!editor) return;
+    const btn = $('recompile-btn');
+    btn.disabled = true; btn.textContent = '⏳ Compiling…';
+    hideError();
+    setStatus('Compiling…', 'busy');
+    $('pdf-viewer').innerHTML = '<div class="pdf-skeleton"></div>';
+    const t0 = performance.now();
+
+    try {
+      const payload = await buildPayload();
+      const res = await fetch(`${API}/api/compile`, {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(()=>({}));
+        throw new Error(err.detail || `Server error HTTP ${res.status}`);
+      }
+      currentPdfBlob = await res.blob();
+      $('save-btn').disabled = false;
+      await renderPDF(currentPdfBlob);
+      const secs = ((performance.now()-t0)/1000).toFixed(1);
+      setStatus(`Compiled in ${secs}s · ${totalPages} page${totalPages!==1?'s':''}`, 'ready');
+      $('status-time').textContent = new Date().toLocaleTimeString();
+      showToast(`✓ PDF ready (${secs}s)`, 'ok');
+    } catch(err) {
+      $('pdf-viewer').innerHTML =
+        `<div class="pdf-placeholder" style="margin-top:60px">
+           <span class="icon" style="color:#d17070">✕</span>
+           Compilation failed.<br>See error panel below.
+         </div>`;
+      showError(err.message);
+    } finally {
+      btn.disabled = false; btn.textContent = '▶ Compile';
+    }
+  }
+  $('recompile-btn').addEventListener('click', compilePDF);
+
+  // ══════════════════════════════════════
+  //  PDF RENDER
+  // ══════════════════════════════════════
+  async function renderPDF(blob) {
+    const viewer = $('pdf-viewer');
+    viewer.innerHTML = ''; $('page-count').textContent = '';
+    const buf  = await blob.arrayBuffer();
+    const pdf  = await pdfjsLib.getDocument({ data:buf }).promise;
+    totalPages = pdf.numPages;
+    for (let n=1; n<=pdf.numPages; n++) {
+      const page     = await pdf.getPage(n);
+      const viewport = page.getViewport({ scale:pdfScale });
+      const canvas   = document.createElement('canvas');
+      canvas.width   = viewport.width;
+      canvas.height  = viewport.height;
+      viewer.appendChild(canvas);
+      await page.render({ canvasContext:canvas.getContext('2d'), viewport }).promise;
+    }
+    $('page-count').textContent =
+      `${pdf.numPages} page${pdf.numPages!==1?'s':''}`;
+  }
+
+  // ══════════════════════════════════════
+  //  ZOOM
+  // ══════════════════════════════════════
+  function updateZoom() {
+    $('zoom-display').textContent = Math.round((pdfScale/1.5)*100)+'%';
+  }
+  async function rerender() {
+    updateZoom();
+    if (currentPdfBlob) await renderPDF(currentPdfBlob);
+  }
+  $('zoom-in-btn').addEventListener('click', async () => {
+    if (pdfScale < SCALE_MAX) { pdfScale = +(pdfScale+SCALE_STEP).toFixed(2); await rerender(); }
+  });
+  $('zoom-out-btn').addEventListener('click', async () => {
+    if (pdfScale > SCALE_MIN) { pdfScale = +(pdfScale-SCALE_STEP).toFixed(2); await rerender(); }
+  });
+  $('zoom-reset-btn').addEventListener('click', async () => {
+    pdfScale = 1.5; await rerender();
+  });
+
+  // ══════════════════════════════════════
+  //  DOWNLOAD
+  // ══════════════════════════════════════
+  function downloadPDF() {
+    if (!currentPdfBlob) return;
+    const fname = ($('doc-title').value.trim()||'document')
+      .replace(/[^\w\s-]/g,'').replace(/\s+/g,'_') + '.pdf';
+    const url = URL.createObjectURL(currentPdfBlob);
+    const a = Object.assign(document.createElement('a'),
+      { href:url, download:fname, style:'display:none' });
+    document.body.appendChild(a);
+    a.click(); URL.revokeObjectURL(url); a.remove();
+    showToast('PDF downloaded', 'ok');
+  }
+  $('save-btn').addEventListener('click', downloadPDF);
+
+  // ══════════════════════════════════════
+  //  SOURCE DIALOG
+  // ══════════════════════════════════════
+  $('latex-source-btn').addEventListener('click', async () => {
+    if (!editor) return;
+    try {
+      const p = await buildPayload();
+      const res = await fetch(`${API}/api/latex`, {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify(p),
+      });
+      if (!res.ok) throw new Error('Failed to generate source');
+      const { source } = await res.json();
+      $('source-textarea').value = source;
+      $('source-dialog').showModal();
+    } catch(err) { showToast(err.message, 'err'); }
+  });
+
+  $('copy-source-btn').addEventListener('click', () =>
+    navigator.clipboard.writeText($('source-textarea').value)
+      .then(()=>showToast('Copied','ok'))
+      .catch(()=>showToast('Copy failed','err'))
+  );
+
+  // ══════════════════════════════════════
+  //  KEYBOARD SHORTCUTS
+  // ══════════════════════════════════════
+  document.addEventListener('keydown', e => {
+    const mod = e.ctrlKey || e.metaKey;
+    if (mod && e.key==='Enter') { e.preventDefault(); compilePDF(); }
+    if (mod && e.key==='s')     { e.preventDefault(); downloadPDF(); }
+    if (e.key==='Escape') {
+      hideError();
+      try { $('source-dialog').close(); } catch(_){}
+    }
+  });
+</script>
+</body>
+</html>
