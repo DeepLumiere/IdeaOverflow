@@ -29,9 +29,9 @@ app.add_middleware(
 )
 
 # Initialize Gemini — keep your own key here
-client = genai.Client(api_key="API_KEY_HERE")
+client = genai.Client(api_key="AIzaSyAgjXpYstIQ9Xj5rTPYIm_s3iAi4qRAHxI")
 
-GEMINI_MODEL = "gemini-2.5-flash"
+GEMINI_MODEL = "gemini-3.1-flash-lite-preview"
 
 # ─── Pydantic Models ─────────────────────────────────────────────────────────
 
@@ -46,6 +46,7 @@ class Author(BaseModel):
 class CompileRequest(BaseModel):
     template: str
     title: str
+    abstract: str = ""         # user-provided abstract
     author: str = ""          # legacy single-author (kept for compat)
     affiliation: str = ""     # legacy affiliation
     authors: list[Author] = [] # new multi-author list
@@ -59,7 +60,7 @@ class CompileRequest(BaseModel):
             raise ValueError(f"template must be one of {allowed}")
         return v
 
-    @field_validator("title", "author", "affiliation")
+    @field_validator("title", "author", "affiliation", "abstract")
     @classmethod
     def strip_fields(cls, v: str) -> str:
         return v.strip()
@@ -78,6 +79,7 @@ class RephraseRequest(BaseModel):
 class ReviewRequest(BaseModel):
     template: str
     title: str
+    abstract: str = ""
     authors: list[Author] = []
     blocks: list[EditorBlock]
 
@@ -132,6 +134,91 @@ def clean_html(raw: str) -> str:
     raw = re.sub(r"<br\s*/?>", "\n", raw)
     raw = re.sub(r"<[^>]+>", "", raw)
     return raw.strip()
+
+
+# Detects whether a string already contains raw LaTeX math or commands
+_MATH_HINT = re.compile(
+    r'(\$[^$]+\$'          # inline $...$
+    r'|\\\[[\s\S]*?\\\]'   # display \[...\]
+    r'|\\begin\{[^}]+\}'   # \begin{env}
+    r'|\\[a-zA-Z]+'        # any \command
+    r'|[_^]\{)',            # subscript/superscript _{ or ^{
+    re.DOTALL
+)
+
+# Commands that are ONLY valid inside math mode — must be wrapped in $...$
+_MATH_ONLY_CMDS = re.compile(
+    r'(?<!\$)'                          # not already after a $
+    r'(\\(?:mathcal|mathbb|mathbf|mathit|mathsf|mathtt|mathfrak|mathscr'
+    r'|boldsymbol|hat|bar|vec|dot|ddot|tilde|widehat|widetilde'
+    r'|overline|underline|overbrace|underbrace'
+    r'|sum|prod|int|oint|iint|iiint|lim|inf|sup'
+    r'|frac|dfrac|tfrac|binom|sqrt'
+    r'|alpha|beta|gamma|delta|epsilon|varepsilon|zeta|eta|theta|vartheta'
+    r'|iota|kappa|lambda|mu|nu|xi|pi|varpi|rho|varrho|sigma|varsigma'
+    r'|tau|upsilon|phi|varphi|chi|psi|omega'
+    r'|Gamma|Delta|Theta|Lambda|Xi|Pi|Sigma|Upsilon|Phi|Psi|Omega'
+    r'|partial|nabla|infty|pm|mp|times|div|cdot|circ|bullet'
+    r'|leq|geq|neq|ll|gg|approx|equiv|sim|simeq|cong|propto'
+    r'|leftarrow|rightarrow|Leftarrow|Rightarrow|leftrightarrow|Leftrightarrow'
+    r'|forall|exists|in|notin|subset|supset|subseteq|supseteq|cup|cap'
+    r'|land|lor|lnot|neg|wedge|vee'
+    r'|ldots|cdots|vdots|ddots'
+    r'|left|right|big|Big|bigg|Bigg'
+    r'){(?:[^{}]|\{[^{}]*\})*})'        # followed by {content}
+    r'(?!\$)',                           # not already before a $
+)
+
+def _wrap_bare_math(text: str) -> str:
+    """Wrap math-only commands that appear outside $...$ in inline math delimiters."""
+    # We work segment by segment, skipping already-math regions
+    result = []
+    pos = 0
+    # Find existing math regions to skip
+    math_regions = []
+    for m in re.finditer(r'\$\$[\s\S]*?\$\$|\$[^$\n]+?\$|\\\[[\s\S]*?\\\]', text):
+        math_regions.append((m.start(), m.end()))
+
+    def in_math(start, end):
+        return any(ms <= start and end <= me for ms, me in math_regions)
+
+    for m in _MATH_ONLY_CMDS.finditer(text):
+        if not in_math(m.start(), m.end()):
+            result.append(text[pos:m.start()])
+            result.append(f'${m.group(0)}$')
+            pos = m.end()
+    result.append(text[pos:])
+    return ''.join(result)
+
+
+def _is_raw_latex(text: str) -> bool:
+    return bool(_MATH_HINT.search(text))
+
+
+def render_paragraph(raw: str) -> str:
+    """
+    Render an Editor.js paragraph block to LaTeX.
+
+    - Strips HTML tags first.
+    - If the text already contains LaTeX commands / math, pass it through
+      with only unicode normalisation (do NOT escape _ { } ^ $ etc.),
+      but fix any math-only commands used outside math mode.
+    - Otherwise fully sanitize for plain prose.
+    """
+    text = clean_html(raw)
+    if not text:
+        return ""
+    # Unicode normalization is always safe
+    for char, replacement in _UNICODE_REPLACEMENTS.items():
+        text = text.replace(char, replacement)
+    if _is_raw_latex(text):
+        # Fix math-only commands sitting outside $...$
+        text = _wrap_bare_math(text)
+        return text   # trust it as raw LaTeX
+    # Plain prose — escape special chars
+    for char, replacement in _LATEX_ESCAPES:
+        text = text.replace(char, replacement)
+    return text
 
 
 # ─── Author Formatting ────────────────────────────────────────────────────────
@@ -191,7 +278,8 @@ ACL_TEMPLATE = r"""\documentclass[11pt]{article}
 \usepackage{booktabs}
 \usepackage{array}
 \usepackage{longtable}
-\usepackage{microtype}
+\usepackage[activate={true,nocompatibility},final,tracking=true,kerning=true,spacing=true,factor=1100,stretch=10,shrink=10]{microtype}
+\microtypecontext{spacing=nonfrench}
 \begin{document}
 
 \title{[[TITLE]]}
@@ -200,7 +288,7 @@ ACL_TEMPLATE = r"""\documentclass[11pt]{article}
 }
 \maketitle
 \begin{abstract}
-	Generated abstract from editor content.
+[[ABSTRACT]]
 \end{abstract}
 
 %%BODY%%
@@ -221,11 +309,16 @@ CVPR_TEMPLATE = r"""\documentclass[10pt,twocolumn,letterpaper]{article}
 \usepackage{booktabs}
 \usepackage{array}
 \usepackage{longtable}
+\usepackage[pagebackref=true,breaklinks=true,letterpaper=true,colorlinks,bookmarks=false]{hyperref}
 \begin{document}
 
 \title{[[TITLE]]}
 \author{[[AUTHORS]]}
 \maketitle
+
+\begin{abstract}
+[[ABSTRACT]]
+\end{abstract}
 
 %%BODY%%
 
@@ -239,7 +332,6 @@ STANDARD_TEMPLATE = r"""\documentclass[12pt]{article}
 \usepackage{booktabs}
 \usepackage{array}
 \usepackage{longtable}
-\usepackage{microtype}
 \usepackage{geometry}
 \geometry{margin=1in}
 \title{[[TITLE]]}
@@ -409,13 +501,13 @@ def _list_items_to_latex(items: list, ordered: bool, depth: int = 0) -> str:
     lines = [f"{indent}\\begin{{{env}}}"]
     for item in items:
         if isinstance(item, dict):
-            text = sanitize_latex(clean_html(item.get("content", "")))
+            text = render_paragraph(item.get("content", ""))
             lines.append(f"{indent}  \\item {text}")
             nested = item.get("items", [])
             if nested:
                 lines.append(_list_items_to_latex(nested, ordered, depth + 1))
         else:
-            lines.append(f"{indent}  \\item {sanitize_latex(clean_html(str(item)))}")
+            lines.append(f"{indent}  \\item {render_paragraph(str(item))}")
     lines.append(f"{indent}\\end{{{env}}}")
     return "\n".join(lines)
 
@@ -451,6 +543,11 @@ def _table_to_latex(table_data: dict) -> str:
 
 def construct_latex(request: CompileRequest) -> str:
     body_parts: list[str] = []
+    abstract_text = render_paragraph(request.abstract) if request.abstract else ""
+
+    # Templates that have a dedicated \begin{abstract} environment
+    templates_with_abstract = {"acl", "cvpr"}
+    skip_abstract_header = request.template in templates_with_abstract
 
     for block in request.blocks:
         btype = block.type
@@ -458,13 +555,17 @@ def construct_latex(request: CompileRequest) -> str:
 
         if btype == "paragraph":
             raw = data.get("text", "")
-            text = sanitize_latex(clean_html(raw))
+            text = render_paragraph(raw)
             if text:
                 body_parts.append(f"{text}\n")
 
         elif btype == "header":
             level = int(data.get("level", 2))
-            text = sanitize_latex(clean_html(data.get("text", "")))
+            raw_text = clean_html(data.get("text", ""))
+            # Skip "Abstract" section header when the template handles it natively
+            if skip_abstract_header and raw_text.strip().lower() == "abstract":
+                continue
+            text = sanitize_latex(raw_text)
             cmd = {1: "section", 2: "subsection", 3: "subsubsection"}.get(level, "subsubsection")
             if text:
                 body_parts.append(f"\\{cmd}{{{text}}}\n")
@@ -496,12 +597,12 @@ def construct_latex(request: CompileRequest) -> str:
     tpl = TEMPLATES.get(request.template, STANDARD_TEMPLATE)
     result = (
         tpl
-        .replace("[[TITLE]]",   sanitize_latex(request.title))
-        .replace("[[AUTHORS]]", authors_latex)
-        # Legacy placeholders (keep in case someone still uses old templates)
+        .replace("[[TITLE]]",       sanitize_latex(request.title))
+        .replace("[[AUTHORS]]",     authors_latex)
         .replace("[[AUTHOR]]",      sanitize_latex(authors[0].name if authors else ""))
         .replace("[[AFFILIATION]]", sanitize_latex(authors[0].affiliation if authors else ""))
-        .replace("%%BODY%%",    body)
+        .replace("[[ABSTRACT]]",    abstract_text)
+        .replace("%%BODY%%",        body)
     )
     return result
 
