@@ -8,8 +8,11 @@ NirMa HackaMined'26 Project — A platform to capture, organize, and transform o
 - [Our Solution](#our-solution)
 - [Key Features](#key-features)
 - [Tech Stack](#tech-stack)
-- [Project Layout (Conceptual)](#project-layout-conceptual)
-- [How It Works (High-Level)](#how-it-works-high-level)
+- [Project Layout](#project-layout)
+- [Dependencies](#dependencies)
+- [Installation](#installation)
+- [Running the Project](#running-the-project)
+- [How It Works](#how-it-works)
 - [Potential Use Cases](#potential-use-cases)
 - [Future Enhancements](#future-enhancements)
 - [Team](#team)
@@ -34,104 +37,290 @@ Preparing documents that follow specific academic or institutional standards is 
 Consequently, users often submit documents that require multiple rounds of corrections, wasting time for both authors and reviewers.
 
 ## Our Solution
-Idea OverFlow provides a semi-automated way to structure and validate documents:
-- Users upload a draft document.
-- The system compares it with a standard reference template.
-- It detects missing sections, misordered sections, and basic formatting inconsistencies.
-- The system generates human-readable suggestions and allows users to edit and reorganize sections within the platform.
+Idea OverFlow is a semi-automated document preparation platform that takes a user's rough, vague content and transforms it into a polished, conference-ready paper — without requiring any knowledge of LaTeX or complex formatting tools.
 
-Example suggestions:
-- "Add a ‘Related Work’ section after ‘Introduction’."
-- "Rename this heading to match the expected format."
-- "Move this subsection under Methodology."
+Here is what it does end-to-end:
+
+1. A user uploads their rough draft.
+2. The system detects the target conference format (e.g., IEEE, ACM) and auto-formats the content accordingly.
+3. It scores the document, reviews its structure, suggests missing parts, and lets the user make edits — all in one place.
+4. The user downloads a properly formatted PDF, ready for submission.
+
+Example suggestions the system might give:
+- "Add a 'Related Work' section after 'Introduction' — required by IEEE format."
+- "Your Abstract exceeds the 150-word limit for this conference."
+- "The 'Methodology' section is present but lacks a subsection on experimental setup."
 
 ## Key Features
-1. Idea Capture
-   - Quickly jot down ideas, notes, and rough content.
-   - Keep ideas centralized rather than scattered.
 
-2. Idea Organization
-   - Group related ideas into sections (Problem, Motivation, Approach).
-   - Convert raw ideas into a structured outline.
+### 1. Vague-to-Formatted Conversion
+- Paste rough, unformatted text and have it automatically structured and formatted to match a target conference style (IEEE, ACM, Springer, etc.).
+- The system maps content to the correct sections, applies the right heading hierarchy, column layout, font rules, and spacing — no LaTeX knowledge needed.
 
-3. Document Structure Analysis
-   - Compare a draft with a reference template (conference/journal format).
-   - Detect missing or misordered sections and inconsistent heading levels.
+### 2. AI-Powered Content Rephrasing
+- Get AI-generated suggestions to rephrase sentences for clarity, conciseness, and academic tone.
+- Helps users improve writing quality without changing the core meaning of their content.
 
-4. Smart Suggestions
-   - Generate actionable suggestions to add, rename, or reorder sections.
+### 3. Document Scoring
+- Receive a **score** for your document based on how well it conforms to the target conference's formatting and structural requirements.
+- The score breaks down into categories: structure completeness, formatting compliance, section ordering, and length guidelines.
+- Helps users quickly understand how "submission-ready" their document is at a glance.
 
-5. Collaboration
-   - Multiple users can add ideas, edit the structure, and review suggestions together.
+### 4. Structure Review & Missing Parts Detection
+- Automatically compare your document against the expected structure of the target conference.
+- Get a clear report of:
+  - **Missing required sections** (e.g., Abstract, Conclusion, References)
+  - **Out-of-order sections**
+  - **Sections that need more content** based on the conference's typical expectations
 
-6. Idea & Document Tracking
-   - Track the evolution of an idea from raw thought → structured outline → polished document.
-   - Maintain a change or revision history (conceptual, implementation may vary).
+### 5. Easy-to-Use Built-in Editor
+- Edit your document directly inside the platform using a simple, button-based UI — no LaTeX commands required.
+- Features include:
+  - Add / remove / rename sections with one click
+  - Bold, italic, headings, bullet points, and other common formatting via a familiar toolbar
+  - Real-time preview of how the document will look in the final formatted output
+
+### 6. Formatted PDF Download
+- Once satisfied, download your document as a properly formatted PDF that matches the chosen conference template.
+- No manual LaTeX compilation or template wrangling needed.
+
+### 7. Platform Plugins (Overleaf & Google Docs)
+- Use Idea OverFlow's capabilities directly inside the tools you already work with, via browser plugins:
+  - **Overleaf Plugin** — Get real-time structure suggestions, section scoring, and AI review without leaving your LaTeX editor.
+  - **Google Docs Plugin** — Format, review, and chat with the AI assistant about your document content right inside Google Docs.
+- Plugin features include:
+  - Inline editing suggestions and one-click apply
+  - AI chat sidebar to ask questions about your document (e.g., "What is missing in my methodology section?")
+  - Live document review against the target conference template
 
 ## Tech Stack
-- Languages: Python (backend, analysis), JavaScript (frontend).
-- Libraries/Frameworks: File handling/parsing libraries in Python; frontend UI libraries as needed.
-- Note: NLP/ML libraries may be introduced for advanced suggestion generation.
 
-## Project Layout (Conceptual)
+| Layer | Technology | Purpose |
+|---|---|---|
+| Backend (Editor) | Python 3.11+, FastAPI | REST API for LaTeX compilation, rephrasing, document review, and scoring |
+| Backend (Plugin) | Python 3.11+, FastAPI | REST API consumed by the browser extension for AI chat, review, and edit actions |
+| AI / LLM | Google Gemini API (`google-generativeai`) | Content rephrasing, structure review, missing section detection, AI chat |
+| LaTeX Engine | `pdflatex` (TeX Live / MiKTeX) | Compiles generated `.tex` files into downloadable PDFs |
+| LaTeX Parsing | `pylatexenc` | Encodes/decodes LaTeX special characters |
+| Document Parsing | `python-docx` (`docx`) | Parses uploaded `.docx` files for structure extraction |
+| Frontend (Editor) | HTML, CSS, JavaScript | Browser-based document editor UI (no framework, served statically) |
+| Editor Blocks | Editor.js (CDN) | Block-based rich-text editing (headers, lists, tables, code blocks) |
+| Browser Extension | JavaScript, Manifest V3 | Overleaf plugin — injects sidebar for editing, review, and AI chat |
+| Google Docs Add-on | Google Apps Script (`.gs`) | Sidebar add-on for reviewing and rephrasing content inside Google Docs |
+| Validation | Pydantic v2 | Request/response validation in the FastAPI backends |
+| Serving | Uvicorn | ASGI server for both FastAPI backends |
+
+---
+
+## Project Layout
+
 ```
-paper-format-prototype/
+IdeaOverflow/
 │
-├── src/              # Core source code
-│   ├── comparison/   # Logic to compare user docs vs templates
-│   ├── parsing/      # Document parsing & structure extraction
-│   ├── suggestions/  # Suggestion generation and scoring
-│   └── api/          # (Optional) API endpoints or service layer
+├── editor/                    # Core web editor — the main platform
+│   ├── index.html             # Full browser-based editor UI (served as a static file)
+│   ├── main.py                # FastAPI backend — LaTeX compile, rephrase, review, score
+│   ├── acl.sty                # ACL LaTeX style file (bundled for pdflatex)
+│   └── logo.svg
 │
-├── templates/        # Standard paper templates for comparison
-│   ├── ieee/
-│   ├── acm/
-│   └── custom/
+├── plugins/                   # Browser extension for Overleaf
+│   ├── manifest.json          # Chrome Extension Manifest V3 config
+│   ├── content.js             # Injected script — adds the IdeaOverflow sidebar to Overleaf
+│   ├── background.js          # Extension service worker
+│   ├── styles.css             # Sidebar styles injected into Overleaf
+│   ├── main.py                # FastAPI backend consumed by the extension
+│   ├── ai_assistant.py        # Gemini AI logic — chat, review, edit, autocomplete
+│   ├── config.py              # API key configuration (set your Gemini key here)
+│   ├── logo.svg
+│   └── icons/
+│       ├── 64.png
+│       └── 128.png
 │
-├── uploads/          # Uploaded user documents
-├── suggestions/      # Generated reports and suggestion outputs
-├── notebooks/        # Experiments and prototypes
-├── requirements.txt
+├── appscript/                 # Google Docs Add-on
+│   ├── Code.gs                # Apps Script backend — reads/writes document content
+│   ├── Sidebar.html           # Sidebar UI rendered inside Google Docs
+│   └── appscript.json         # Apps Script project manifest
+│
+├── videos/                    # Demo videos
+│   ├── color.mp4
+│   ├── google_docs.mp4
+│   ├── overleaf_chat.mp4
+│   ├── overleaf_edits.mp4
+│   └── overleaf_review.mp4
+│
+├── requirements.txt           # Python dependencies for both backends
+├── LICENSE
 └── README.md
 ```
 
-> Note: The actual repository may contain additional components (plugins, editor integrations, Google Apps Script). The above structure describes the core idea-format checking engine.
+---
 
-## How It Works (High-Level)
-1. Template Definition
-   - Templates define required and optional sections and their hierarchy, stored in JSON/YAML.
+## Dependencies
 
-2. Document Parsing
-   - Users upload .docx, .pdf, or .txt files (supported formats depend on implementation).
-   - The system extracts headings, subheadings, order, and nesting to produce a structured representation.
+### System Requirements
+- **Python 3.11 or higher**
+- **pdflatex** — required to compile `.tex` files to PDF. Install one of:
+  - **TeX Live** (Linux/macOS): `sudo apt install texlive-full` or `brew install --cask mactex`
+  - **MiKTeX** (Windows): Download from [miktex.org](https://miktex.org/download)
+  - **TinyTeX** (lightweight): `pip install pylatex` then `tlmgr install scheme-small`
+- **Google Chrome** (or any Chromium-based browser) — for the browser extension
+- **Google Account** — for the Google Docs Add-on
 
-3. Comparison Engine
-   - Compares parsed structure with the template to find missing or misordered sections and extras.
+### Python Packages (`requirements.txt`)
+```
+fastapi>=0.100.0
+uvicorn[standard]
+pylatexenc>=3.0
+python-multipart
+pydantic>=2.0
+google-generativeai>=0.4.0
+```
+> `python-docx` is used in the editor backend but is not currently listed in `requirements.txt`. Install it manually as shown below.
 
-4. Suggestion Generation
-   - Produces human-readable suggestions: add/rename/move sections to align with the template.
+### API Keys
+- A **Google Gemini API key** is required for AI features (rephrasing, review, scoring, AI chat).
+- Get a free key at [aistudio.google.com](https://aistudio.google.com/app/apikey).
 
-5. User Interaction
-   - Users can accept suggestions, edit headings, or manually adjust structure in the UI.
+---
+
+## Installation
+
+### 1. Clone the Repository
+```bash
+git clone https://github.com/your-username/IdeaOverflow.git
+cd IdeaOverflow
+```
+
+### 2. Create and Activate a Virtual Environment (Recommended)
+```bash
+# Windows
+python -m venv venv
+venv\Scripts\activate
+
+# macOS / Linux
+python -m venv venv
+source venv/bin/activate
+```
+
+### 3. Install Python Dependencies
+```bash
+pip install -r requirements.txt
+pip install python-docx
+```
+
+### 4. Configure API Keys
+
+**Editor backend** — open `editor/main.py` and replace the placeholder key on line 32:
+```python
+client = genai.Client(api_key="YOUR_GEMINI_API_KEY")
+```
+
+**Plugin backend** — open `plugins/config.py` and replace the placeholder:
+```python
+GEMINI_API_KEY = "YOUR_GEMINI_API_KEY"
+```
+
+> **Security tip:** Instead of hardcoding keys, set them as environment variables:
+> ```bash
+> # Windows PowerShell
+> $env:GEMINI_API_KEY = "your-key-here"
+> ```
+> Then load them in Python with `os.environ.get("GEMINI_API_KEY")`.
+
+### 5. Verify pdflatex is Installed
+```bash
+pdflatex --version
+```
+If this command is not found, install a TeX distribution as described in [System Requirements](#dependencies) above.
+
+---
+
+## Running the Project
+
+The project has **two independent backends** and **one static frontend**. You will typically run all three together.
+
+### Start the Editor Backend
+```bash
+cd editor
+uvicorn main:app --reload --port 8000
+```
+The API will be available at `http://localhost:8000`.  
+Interactive API docs (Swagger UI): `http://localhost:8000/docs`
+
+### Start the Plugin Backend
+```bash
+cd plugins
+uvicorn main:app --reload --port 8001
+```
+The plugin API will be available at `http://localhost:8001`.
+
+### Open the Editor UI
+Open `editor/index.html` directly in your browser.  
+> The frontend makes API calls to `http://localhost:8000` by default.
+
+### Load the Browser Extension (Overleaf Plugin)
+1. Open Chrome and navigate to `chrome://extensions/`.
+2. Enable **Developer mode** (toggle in the top-right corner).
+3. Click **Load unpacked**.
+4. Select the `plugins/` folder from this repository.
+5. The IdeaOverflow icon will appear in your Chrome toolbar.
+6. Open any Overleaf project — the sidebar will inject automatically.
+> The extension sends requests to the plugin backend at `http://localhost:8001`. Make sure it is running.
+
+### Set Up the Google Docs Add-on
+1. Go to [script.google.com](https://script.google.com) and create a new project.
+2. Copy the contents of `appscript/Code.gs` into the script editor.
+3. Create a new HTML file named `Sidebar` and paste the contents of `appscript/Sidebar.html`.
+4. Click **Deploy → Test deployments** to run the add-on in a linked Google Doc.
+5. In the Google Doc, go to **Extensions → IdeaOverflow → Open IdeaOverflow** to open the sidebar.
+> The Apps Script backend makes outbound requests to your Gemini API key configured inside `Sidebar.html`.
+
+---
+
+## How It Works
+
+1. **Write or Upload** — The user types content into the editor or uploads a `.docx` file.
+2. **Select Target Conference** — The user selects a conference template (ACL, CVPR, NeurIPS, IEEE, etc.).
+3. **Auto-Format** — The backend maps content to conference-specific LaTeX sections and generates a `.tex` file.
+4. **Score & Review** — Gemini AI evaluates the document and returns:
+   - A completeness, writing quality, technical depth, and structure score (1–10 each).
+   - A section-by-section breakdown of what is present, fair, or missing.
+   - A list of actionable recommendations.
+5. **Rephrase** — Selected text can be sent to Gemini for academic-tone rewriting.
+6. **Edit** — The user adjusts sections using the block editor (no LaTeX needed).
+7. **Compile & Download** — The backend calls `pdflatex` and streams the compiled PDF back to the browser.
+
+---
 
 ## Potential Use Cases
-- Students writing lab reports, research papers, or assignments.
-- Researchers preparing conference or journal submissions.
-- Teachers/institutions automatically checking student submissions.
-- Teams drafting structured documents (proposals, design docs, reports).
+- Students writing research papers or lab reports that must follow a conference format.
+- Researchers preparing first drafts for ACL, CVPR, NeurIPS, AAAI, EMNLP, or journal submissions.
+- Academic advisors reviewing student work against target venue requirements.
+- Teams collaboratively drafting structured technical documents.
+
+---
 
 ## Future Enhancements
-- NLP to classify and reassign mislabelled content into likely sections.
-- Integration with Google Docs, Overleaf, or other editors.
-- Live suggestions via browser extensions or editor plugins.
-- Advanced checks for citations, references, figure/table formatting, and section-wise word limits.
+- Support for more conference and journal templates (ICLR, ICML, Springer LNCS, Elsevier).
+- Citation and reference formatting checks (BibTeX integration).
+- Section-wise word count and page limit enforcement.
+- Figure and table caption validation.
+- Google Docs plugin extended to support PDF download and scoring.
+- User accounts and cloud-saved document history.
+
+---
 
 ## Team
-- Deep Joshi — 24BCE152
-- Hasti Vaghela — 24BCE154
-- Het Agrawal — 24BCE156
-- Man Patel — 24BCE155
-- Ziyankhan Pathan — 24BCE146
+
+| Name | Roll No. |
+|---|---|
+| Deep Joshi | 24BCE152 |
+| Hasti Vaghela | 24BCE154 |
+| Het Agrawal | 24BCE156 |
+| Man Patel | 24BCE155 |
+| Ziyankhan Pathan | 24BCE146 |
+
+---
 
 ## Conclusion
-Idea OverFlow helps move users from unstructured brainstorming to guideline-compliant documents by comparing drafts with templates and generating clear, actionable suggestions—saving time and improving submission quality.
+Idea OverFlow bridges the gap between raw ideas and conference-ready academic papers. By combining a block-based editor, AI-powered review and rephrasing, conference-specific LaTeX formatting, and platform plugins for Overleaf and Google Docs, it removes the friction of LaTeX, formatting rules, and structural guesswork — so researchers and students can focus entirely on the quality of their work.

@@ -216,26 +216,58 @@
       font-size: 11px; font-weight: 700; line-height: 18px;
     }
 
+    /* ════════ ABSTRACT BAR ════════ */
+    .abstract-bar {
+      flex-shrink: 0;
+      background: #181510; border-bottom: 1px solid #302b22;
+      padding: 8px 14px;
+      display: none; /* shown only for ACL / CVPR */
+    }
+    .abstract-bar.visible { display: block; }
+    textarea.g-abstract {
+      width: 100%; min-width: 0;
+      background: #1c1914 !important;
+      border: 1px solid #302b22 !important;
+      border-radius: 5px !important;
+      color: #ddd8ce !important;
+      font-family: 'DM Sans', system-ui, sans-serif !important;
+      font-size: 13px !important;
+      padding: 8px 11px !important;
+      resize: vertical;
+      line-height: 1.65;
+      transition: border-color .12s;
+      -webkit-appearance: none !important;
+    }
+    textarea.g-abstract:focus {
+      outline: none !important;
+      border-color: #7a6035 !important;
+      background: #201d17 !important;
+    }
+    textarea.g-abstract::placeholder { color: #3d3729 !important; }
+
     /* ════════ SECTION GUIDE STRIP ════════ */
     .section-guide-strip {
       flex-shrink: 0;
       background: #161410; border-bottom: 1px solid #272318;
-      padding: 0 14px;
       overflow: hidden;
-      transition: height .2s ease, padding .2s ease;
+      max-height: 0;
+      transition: max-height .3s ease;
     }
-    .section-guide-strip.collapsed { height: 0; padding-top: 0; padding-bottom: 0; }
-    .section-guide-strip.expanded  { height: auto; }
+    .section-guide-strip.collapsed { max-height: 0; }
+    .section-guide-strip.expanded  { max-height: 500px; }
 
     .guide-inner {
-      padding: 10px 0;
-      display: flex; gap: 16px; align-items: flex-start;
+      padding: 10px 14px;
+      display: flex; flex-direction: column; gap: 10px;
     }
 
-    .guide-col { display: flex; flex-direction: column; gap: 6px; }
+    .guide-row {
+      display: flex; flex-direction: column; gap: 5px;
+    }
+    .guide-col { display: flex; flex-direction: column; gap: 5px; }
     .guide-col-label {
       font-family: var(--mono); font-size: 10px; color: #4a4540;
-      text-transform: uppercase; letter-spacing: .06em; margin-bottom: 2px;
+      text-transform: uppercase; letter-spacing: .06em;
     }
     .guide-blocks { display: flex; flex-wrap: wrap; gap: 5px; }
     .guide-block-btn {
@@ -423,6 +455,8 @@
       width: min(580px, 94vw); max-height: 85vh;
       box-shadow: 0 24px 64px rgba(0,0,0,.85);
       overflow: hidden;
+    }
+    dialog#authors-dialog[open] {
       display: flex; flex-direction: column;
     }
     dialog#authors-dialog::backdrop { background: rgba(0,0,0,.65); backdrop-filter: blur(3px); }
@@ -564,6 +598,8 @@
       width: min(720px, 95vw); max-height: 88vh;
       box-shadow: 0 24px 64px rgba(0,0,0,.85);
       overflow: hidden;
+    }
+    dialog#review-dialog[open] {
       display: flex; flex-direction: column;
     }
     dialog#review-dialog::backdrop { background: rgba(0,0,0,.65); backdrop-filter: blur(3px); }
@@ -808,11 +844,15 @@
           <span class="author-count-badge" id="author-count-badge">1</span>
         </button>
       </div>
+      <!-- Abstract bar (shown for ACL/CVPR) -->
+      <div class="abstract-bar" id="abstract-bar">
+        <textarea id="doc-abstract" class="g-abstract" placeholder="Abstract — write a concise summary of your paper (required for ACL / CVPR)…" rows="3" autocomplete="off"></textarea>
+      </div>
 
       <!-- Section guide strip -->
       <div class="section-guide-strip collapsed" id="section-guide-strip">
         <div class="guide-inner">
-          <div class="guide-col">
+          <div class="guide-row">
             <div class="guide-col-label">Insert Block</div>
             <div class="guide-blocks">
               <button class="guide-block-btn" onclick="insertGuideBlock('header',1)"><span class="gbicon">H1</span> Section</button>
@@ -824,7 +864,7 @@
               <button class="guide-block-btn" onclick="insertGuideBlock('table')"><span class="gbicon">⊞</span> Table</button>
             </div>
           </div>
-          <div class="guide-col" style="flex:1; min-width:0;">
+          <div class="guide-row">
             <div class="guide-col-label" id="template-sections-label">Template Sections</div>
             <div class="guide-sections" id="template-sections-chips">
               <!-- Populated by JS -->
@@ -883,11 +923,11 @@
   <div class="dialog-header">
     <span class="dialog-title">Generated LaTeX · main.tex</span>
     <button class="btn btn-ghost btn-sm" id="copy-source-btn">Copy</button>
-    <button class="btn btn-ghost btn-sm" onclick="document.getElementById('source-dialog').close()">Close</button>
+    <button class="btn btn-ghost btn-sm" id="source-dialog-close-btn">Close</button>
   </div>
   <textarea id="source-textarea" readonly spellcheck="false"></textarea>
   <div class="dialog-footer">
-    <button class="btn btn-ghost btn-sm" onclick="document.getElementById('source-dialog').close()">Dismiss</button>
+    <button class="btn btn-ghost btn-sm" id="source-dialog-dismiss-btn">Dismiss</button>
   </div>
 </dialog>
 
@@ -895,14 +935,14 @@
 <dialog id="authors-dialog">
   <div class="dialog-header">
     <span class="dialog-title">👤 Manage Authors</span>
-    <button class="btn btn-ghost btn-sm" onclick="document.getElementById('authors-dialog').close()">Close</button>
+    <button class="btn btn-ghost btn-sm" id="authors-dialog-close-btn">Close</button>
   </div>
   <div class="authors-scroll" id="authors-scroll">
     <!-- Author cards injected here -->
   </div>
   <button class="add-author-btn" id="add-author-btn">+ Add Author</button>
   <div class="authors-footer">
-    <button class="btn btn-ghost btn-sm" onclick="document.getElementById('authors-dialog').close()">Cancel</button>
+    <button class="btn btn-ghost btn-sm" id="authors-dialog-cancel-btn">Cancel</button>
     <button class="btn btn-primary btn-sm" id="save-authors-btn">Save Authors</button>
   </div>
 </dialog>
@@ -934,7 +974,7 @@
 <dialog id="review-dialog">
   <div class="dialog-header">
     <span class="dialog-title" id="review-dialog-title">◈ Paper Review</span>
-    <button class="btn btn-ghost btn-sm" onclick="document.getElementById('review-dialog').close()">Close</button>
+    <button class="btn btn-ghost btn-sm" id="review-dialog-close-btn">Close</button>
   </div>
   <div id="review-meta" class="review-meta" style="display:none"></div>
   <div class="review-scroll" id="review-scroll">
@@ -1014,20 +1054,29 @@ function showError(msg) {
 function hideError() { $('error-panel').style.display = 'none'; }
 $('error-close-btn').addEventListener('click', hideError);
 
+// Dialog close buttons
+$('source-dialog-close-btn').addEventListener('click', () => $('source-dialog').close());
+$('source-dialog-dismiss-btn').addEventListener('click', () => $('source-dialog').close());
+$('authors-dialog-close-btn').addEventListener('click', () => $('authors-dialog').close());
+$('authors-dialog-cancel-btn').addEventListener('click', () => $('authors-dialog').close());
+$('review-dialog-close-btn').addEventListener('click', () => $('review-dialog').close());
+
 // ══════════════════════════════════════
 //  PERSISTENCE
 // ══════════════════════════════════════
 const LS = {
   save() {
     try {
-      localStorage.setItem('ls_title',   $('doc-title').value);
-      localStorage.setItem('ls_tpl',     $('template-select').value);
-      localStorage.setItem('ls_authors', JSON.stringify(authorList));
+      localStorage.setItem('ls_title',    $('doc-title').value);
+      localStorage.setItem('ls_abstract', $('doc-abstract').value);
+      localStorage.setItem('ls_tpl',      $('template-select').value);
+      localStorage.setItem('ls_authors',  JSON.stringify(authorList));
     } catch(_) {}
   },
   restore() {
     try {
-      $('doc-title').value  = localStorage.getItem('ls_title')  || '';
+      $('doc-title').value    = localStorage.getItem('ls_title')    || '';
+      $('doc-abstract').value = localStorage.getItem('ls_abstract') || '';
       const t = localStorage.getItem('ls_tpl');
       if (t) $('template-select').value = t;
       const a = localStorage.getItem('ls_authors');
@@ -1035,12 +1084,24 @@ const LS = {
       if (!authorList.length) authorList = [{ name:'', affiliation:'' }];
       updateAuthorBadge();
       renderTemplateSections();
+      updateAbstractBar();
     } catch(_) {}
   }
 };
 
 $('doc-title').addEventListener('input', LS.save);
-$('template-select').addEventListener('change', () => { LS.save(); renderTemplateSections(); });
+$('doc-abstract').addEventListener('input', LS.save);
+$('template-select').addEventListener('change', () => { LS.save(); renderTemplateSections(); updateAbstractBar(); });
+
+function updateAbstractBar() {
+  const tpl = $('template-select').value;
+  const bar = $('abstract-bar');
+  if (tpl === 'acl' || tpl === 'cvpr') {
+    bar.classList.add('visible');
+  } else {
+    bar.classList.remove('visible');
+  }
+}
 
 // ══════════════════════════════════════
 //  AUTHOR MANAGEMENT
@@ -1265,6 +1326,7 @@ function initEditor(data) {
   $('welcome-screen').style.display = 'none';
   $('workspace-container').style.display = 'flex';
   LS.restore();
+  updateAbstractBar();
 }
 
 // ══════════════════════════════════════
@@ -1321,6 +1383,7 @@ $('word-upload').addEventListener('change', async e => {
     hideImportProgress();
     initEditor(data);
     if (data.title) $('doc-title').value = data.title;
+    if (data.abstract) $('doc-abstract').value = data.abstract;
     if (data.author) {
       authorList = [{ name: data.author, affiliation: data.affiliation || '' }];
       updateAuthorBadge();
@@ -1346,6 +1409,7 @@ async function buildPayload() {
   return {
     template:    $('template-select').value,
     title:       $('doc-title').value.trim() || 'Untitled',
+    abstract:    $('doc-abstract').value.trim() || '',
     // Legacy fields (for server compat)
     author:      validAuthors[0]?.name || '',
     affiliation: validAuthors[0]?.affiliation || '',
