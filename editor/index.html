@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Idea Overflow</title>
+    <link rel="icon" type="image/x-icon" href="logo.svg">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;1,9..144,300&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
@@ -16,10 +17,6 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 
   <style>
-    /* ════════════════════════════════════════════
-       TOKENS  — all colours as explicit hex so
-       EditorJS overrides never need CSS vars
-    ════════════════════════════════════════════ */
     :root {
       --ink:        #ddd8ce;
       --ink-dim:    #7a7470;
@@ -34,13 +31,13 @@
       --accent-lo:  #7a6035;
       --danger:     #d17070;
       --ok:         #6dc98a;
+      --warn:       #d4a84b;
       --r:          5px;
       --sans:       'DM Sans', system-ui, sans-serif;
       --mono:       'DM Mono', 'Courier New', monospace;
       --serif:      'Fraunces', Georgia, serif;
     }
 
-    /* ── Reset ───────────────────────────────── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html, body { height: 100%; overflow: hidden; }
     body {
@@ -56,9 +53,7 @@
     ::-webkit-scrollbar-thumb { background: #302b22; border-radius: 3px; }
     ::-webkit-scrollbar-thumb:hover { background: #4a4540; }
 
-    /* ════════════════════════════════════════════
-       WELCOME
-    ════════════════════════════════════════════ */
+    /* ════════ WELCOME ════════ */
     #welcome-screen {
       height: 100vh;
       display: flex; flex-direction: column;
@@ -73,7 +68,6 @@
       from { opacity:0; transform:translateY(14px); }
       to   { opacity:1; transform:translateY(0); }
     }
-
     .welcome-badge {
       width:58px; height:58px;
       border:1.5px solid #c9a96e; border-radius:14px;
@@ -88,12 +82,7 @@
       margin-bottom:6px;
     }
     .welcome-sub { font-size:14px; color:#7a7470; margin-bottom:34px; }
-
-    .welcome-btns {
-      display:flex; flex-direction:column;
-      align-items:center; gap:10px;
-    }
-
+    .welcome-btns { display:flex; flex-direction:column; align-items:center; gap:10px; }
     .welcome-hint {
       margin-top:40px;
       font-family: var(--mono); font-size:11px; color:#38332f;
@@ -104,9 +93,7 @@
       font-family: var(--mono); font-size:10px; color:#7a7470;
     }
 
-    /* ════════════════════════════════════════════
-       BUTTONS
-    ════════════════════════════════════════════ */
+    /* ════════ BUTTONS ════════ */
     .btn {
       display:inline-flex; align-items:center; gap:6px;
       font-family: var(--sans); font-size:13px; font-weight:600;
@@ -115,28 +102,26 @@
       transition: background .12s, border-color .12s, color .12s, opacity .12s;
     }
     .btn:focus-visible { outline:2px solid #c9a96e; outline-offset:2px; }
-
-    .btn-primary {
-      background:#c9a96e; color:#120f09;
-      min-width:200px; justify-content:center;
-    }
+    .btn-primary { background:#c9a96e; color:#120f09; min-width:200px; justify-content:center; }
     .btn-primary:hover:not(:disabled) { background:#d6b87e; }
     .btn-primary:disabled { opacity:.4; cursor:not-allowed; }
-
     .btn-ghost {
       background:#1c1914; border:1px solid #3d3729; color:#7a7470;
       min-width:200px; justify-content:center;
     }
     .btn-ghost:hover { border-color:#7a6035; color:#ddd8ce; }
-
     .btn-sm { padding:6px 12px; font-size:12px; min-width:auto; }
-
     .btn-icon {
       background:#1c1914; border:1px solid #302b22; color:#7a7470;
       padding:5px 11px; font-size:14px; min-width:auto;
       font-family: var(--mono);
     }
     .btn-icon:hover { border-color:#7a6035; color:#ddd8ce; }
+    .btn-accent {
+      background: rgba(201,169,110,.12); border:1px solid #7a6035; color:#c9a96e;
+      min-width:auto;
+    }
+    .btn-accent:hover { background: rgba(201,169,110,.2); border-color:#c9a96e; }
 
     select.g-select {
       font-family: var(--sans); font-size:13px; font-weight:500;
@@ -150,14 +135,9 @@
     select.g-select:hover { border-color:#7a6035; color:#ddd8ce; }
     select.g-select option { background:#181510; color:#ddd8ce; }
 
-    /* ════════════════════════════════════════════
-       WORKSPACE SHELL
-    ════════════════════════════════════════════ */
-    #workspace-container {
-      display:none; height:100vh; flex-direction:column;
-    }
+    /* ════════ WORKSPACE SHELL ════════ */
+    #workspace-container { display:none; height:100vh; flex-direction:column; }
 
-    /* Topbar */
     .topbar {
       height:50px; flex-shrink:0;
       background:#181510; border-bottom:1px solid #302b22;
@@ -169,11 +149,8 @@
       white-space:nowrap; margin-right:4px;
     }
     .topbar-sep { width:1px; height:20px; background:#302b22; flex-shrink:0; }
-    .topbar-right {
-      margin-left:auto; display:flex; align-items:center; gap:8px;
-    }
+    .topbar-right { margin-left:auto; display:flex; align-items:center; gap:8px; }
 
-    /* Status bar */
     .statusbar {
       height:24px; flex-shrink:0;
       background:#181510; border-bottom:1px solid #302b22;
@@ -182,17 +159,13 @@
       font-family: var(--mono); font-size:11px; color:#7a7470;
     }
     .status-indicator { display:flex; align-items:center; gap:6px; }
-    .status-dot {
-      width:6px; height:6px; border-radius:50%;
-      background:#38332f; flex-shrink:0;
-    }
+    .status-dot { width:6px; height:6px; border-radius:50%; background:#38332f; flex-shrink:0; }
     .status-dot.ready { background:#6dc98a; }
     .status-dot.busy  { background:#c9a96e; animation:blink .7s ease-in-out infinite; }
     .status-dot.error { background:#d17070; }
     @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.25} }
     .statusbar-right { margin-left:auto; }
 
-    /* Split view */
     .split-view { flex:1; display:flex; overflow:hidden; min-height:0; }
 
     /* Editor pane */
@@ -201,14 +174,12 @@
       border-right:1px solid #302b22; min-width:0;
     }
 
-    /* Meta bar — use explicit hardcoded values */
+    /* Meta bar */
     .meta-bar {
-      flex-shrink:0; display:flex; gap:8px;
+      flex-shrink:0; display:flex; gap:8px; align-items:center;
       padding:9px 14px;
       background:#181510; border-bottom:1px solid #302b22;
     }
-
-    /* CRITICAL: explicit hex on inputs, no CSS vars */
     input.g-input {
       flex:1; min-width:0;
       background:#1c1914 !important;
@@ -228,13 +199,108 @@
     }
     input.g-input::placeholder { color:#3d3729 !important; }
 
-    /* Editor scroll — MUST have explicit background */
+    /* Authors button in meta bar */
+    #authors-btn {
+      flex-shrink: 0;
+      display: inline-flex; align-items: center; gap: 6px;
+      background: #1c1914; border: 1px solid #302b22;
+      border-radius: 5px; padding: 7px 12px;
+      font-family: var(--sans); font-size: 13px; font-weight: 600;
+      color: #7a7470; cursor: pointer; white-space: nowrap;
+      transition: border-color .12s, color .12s;
+    }
+    #authors-btn:hover { border-color: #7a6035; color: #ddd8ce; }
+    #authors-btn .author-count-badge {
+      background: #c9a96e; color: #120f09;
+      border-radius: 10px; padding: 0 6px;
+      font-size: 11px; font-weight: 700; line-height: 18px;
+    }
+
+    /* ════════ SECTION GUIDE STRIP ════════ */
+    .section-guide-strip {
+      flex-shrink: 0;
+      background: #161410; border-bottom: 1px solid #272318;
+      padding: 0 14px;
+      overflow: hidden;
+      transition: height .2s ease, padding .2s ease;
+    }
+    .section-guide-strip.collapsed { height: 0; padding-top: 0; padding-bottom: 0; }
+    .section-guide-strip.expanded  { height: auto; }
+
+    .guide-inner {
+      padding: 10px 0;
+      display: flex; gap: 16px; align-items: flex-start;
+    }
+
+    .guide-col { display: flex; flex-direction: column; gap: 6px; }
+    .guide-col-label {
+      font-family: var(--mono); font-size: 10px; color: #4a4540;
+      text-transform: uppercase; letter-spacing: .06em; margin-bottom: 2px;
+    }
+    .guide-blocks { display: flex; flex-wrap: wrap; gap: 5px; }
+    .guide-block-btn {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: #1c1914; border: 1px solid #302b22;
+      border-radius: 4px; padding: 4px 9px;
+      font-family: var(--sans); font-size: 12px; font-weight: 500; color: #7a7470;
+      cursor: pointer; transition: border-color .1s, color .1s, background .1s;
+      white-space: nowrap;
+    }
+    .guide-block-btn:hover { border-color: #7a6035; color: #ddd8ce; background: #201d17; }
+    .guide-block-btn .gbicon { font-size: 11px; opacity: .7; }
+
+    /* Template section chips */
+    .guide-sections { display: flex; flex-wrap: wrap; gap: 5px; }
+    .section-chip {
+      display: inline-flex; align-items: center; gap: 5px;
+      border-radius: 4px; padding: 4px 9px;
+      font-family: var(--sans); font-size: 11px; font-weight: 500;
+      cursor: pointer; border: 1px solid; transition: all .1s;
+      white-space: nowrap;
+    }
+    .section-chip.present  { background: rgba(109,201,138,.08); border-color: rgba(109,201,138,.3); color: #6dc98a; }
+    .section-chip.missing  { background: rgba(201,169,110,.06); border-color: #3d3729; color: #7a7470; }
+    .section-chip.required { background: rgba(209,112,112,.07); border-color: rgba(209,112,112,.35); color: #d17070; }
+    .section-chip:hover     { opacity: .8; transform: scale(1.02); }
+    .chip-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+
+    /* Guide toggle button (in topbar area) */
+    #guide-toggle-btn {
+      background: #1c1914; border: 1px solid #302b22; color: #7a7470;
+      font-size: 12px; padding: 5px 10px; border-radius: 4px; cursor: pointer;
+      font-family: var(--sans); font-weight: 500;
+      transition: border-color .12s, color .12s;
+    }
+    #guide-toggle-btn:hover { border-color: #7a6035; color: #ddd8ce; }
+    #guide-toggle-btn.active { border-color: #7a6035; color: #c9a96e; }
+
+    /* ════════ EDITOR SCROLL ════════ */
     .editor-scroll {
       flex:1; overflow-y:auto; overflow-x:hidden;
       padding:32px 24px;
-      background:#111009;   /* explicit — prevents black bleed-through */
+      background:#111009;
     }
     #editorjs { max-width:740px; margin:0 auto; }
+
+    /* Editor empty hint */
+    .editor-empty-hint {
+      max-width: 500px; margin: 40px auto 0;
+      background: #161410; border: 1px dashed #302b22;
+      border-radius: 8px; padding: 22px 24px;
+      text-align: center; color: #4a4540;
+      font-size: 13px; line-height: 1.7;
+      pointer-events: none;
+    }
+    .editor-empty-hint .hint-title {
+      font-family: var(--serif); font-size: 16px;
+      color: #5a5450; margin-bottom: 10px; display: block;
+    }
+    .editor-empty-hint kbd {
+      background: #1c1914; border: 1px solid #302b22;
+      border-radius: 3px; padding: 1px 5px;
+      font-family: var(--mono); font-size: 10px; color: #5a5450;
+    }
+    #editor-hint { display: none; }
 
     /* PDF pane */
     .pdf-pane {
@@ -242,7 +308,6 @@
       display:flex; flex-direction:column;
       background:#0c0b08;
     }
-
     .pdf-toolbar {
       flex-shrink:0; height:38px;
       background:#181510; border-bottom:1px solid #302b22;
@@ -254,10 +319,7 @@
       min-width:38px; text-align:center;
     }
     .pdf-toolbar-spacer { flex:1; }
-    .page-count {
-      font-family: var(--mono); font-size:11px; color:#7a7470;
-    }
-
+    .page-count { font-family: var(--mono); font-size:11px; color:#7a7470; }
     .pdf-scroll {
       flex:1; overflow-y:auto;
       display:flex; flex-direction:column;
@@ -268,16 +330,11 @@
       border-radius:2px; max-width:100%;
       box-shadow:0 4px 28px rgba(0,0,0,.75);
     }
-
     .pdf-placeholder {
       margin-top:80px; text-align:center;
       color:#38332f; line-height:1.9; font-size:13px;
     }
-    .pdf-placeholder .icon {
-      display:block; font-size:30px;
-      margin-bottom:12px; opacity:.5;
-    }
-
+    .pdf-placeholder .icon { display:block; font-size:30px; margin-bottom:12px; opacity:.5; }
     .pdf-skeleton {
       width:100%; max-width:560px; aspect-ratio:8.5/11;
       background:linear-gradient(90deg,#1a1714 0%,#221f1a 40%,#1a1714 80%);
@@ -287,9 +344,7 @@
     }
     @keyframes shimmer { to { background-position:-200% 0; } }
 
-    /* ════════════════════════════════════════════
-       ERROR PANEL
-    ════════════════════════════════════════════ */
+    /* ════════ ERROR PANEL ════════ */
     #error-panel {
       display:none;
       position:fixed; bottom:20px; left:50%;
@@ -305,15 +360,9 @@
       from { opacity:0; transform:translateX(-50%) translateY(8px); }
       to   { opacity:1; transform:translateX(-50%) translateY(0); }
     }
-    .error-header {
-      display:flex; align-items:center; gap:8px;
-      padding:10px 14px; border-bottom:1px solid #3a1818;
-    }
+    .error-header { display:flex; align-items:center; gap:8px; padding:10px 14px; border-bottom:1px solid #3a1818; }
     .error-title { flex:1; font-size:13px; font-weight:600; color:#d17070; }
-    .error-close {
-      background:none; border:none; color:#7a7470;
-      cursor:pointer; font-size:17px; line-height:1;
-    }
+    .error-close { background:none; border:none; color:#7a7470; cursor:pointer; font-size:17px; line-height:1; }
     .error-close:hover { color:#ddd8ce; }
     .error-body {
       padding:12px 14px;
@@ -322,9 +371,7 @@
       max-height:200px; overflow-y:auto; line-height:1.65;
     }
 
-    /* ════════════════════════════════════════════
-       TOASTS — positioned below topbar
-    ════════════════════════════════════════════ */
+    /* ════════ TOASTS ════════ */
     .toast-wrap {
       position:fixed; top:58px; right:16px;
       z-index:600; display:flex; flex-direction:column;
@@ -344,26 +391,19 @@
     @keyframes toastIn  { from { opacity:0; transform:translateX(10px); } }
     @keyframes toastOut { to   { opacity:0; transform:translateX(10px); } }
 
-    /* ════════════════════════════════════════════
-       SOURCE DIALOG
-    ════════════════════════════════════════════ */
+    /* ════════ SOURCE DIALOG ════════ */
     dialog#source-dialog {
       background:#181510; border:1px solid #3d3729;
       border-radius:8px; color:#ddd8ce; padding:0;
       width:min(820px, 92vw); max-height:80vh;
       box-shadow:0 24px 64px rgba(0,0,0,.85);
     }
-    dialog#source-dialog::backdrop {
-      background:rgba(0,0,0,.6); backdrop-filter:blur(2px);
-    }
+    dialog#source-dialog::backdrop { background:rgba(0,0,0,.6); backdrop-filter:blur(2px); }
     .dialog-header {
       display:flex; align-items:center; gap:8px;
       padding:11px 16px; border-bottom:1px solid #302b22;
     }
-    .dialog-title {
-      font-family: var(--mono); font-size:12px;
-      color:#7a7470; flex:1;
-    }
+    .dialog-title { font-family: var(--mono); font-size:12px; color:#7a7470; flex:1; }
     #source-textarea {
       display:block; width:100%; height:56vh;
       background:#0d0c08; border:none; outline:none;
@@ -376,57 +416,305 @@
       padding:10px 16px; border-top:1px solid #302b22;
     }
 
-    /* ════════════════════════════════════════════
-       EDITOR.JS OVERRIDES
-       All explicit hex — these MUST override
-       EditorJS default light-theme styles
-    ════════════════════════════════════════════ */
+    /* ════════ AUTHORS DIALOG ════════ */
+    dialog#authors-dialog {
+      background: #181510; border: 1px solid #3d3729;
+      border-radius: 10px; color: #ddd8ce; padding: 0;
+      width: min(580px, 94vw); max-height: 85vh;
+      box-shadow: 0 24px 64px rgba(0,0,0,.85);
+      overflow: hidden;
+      display: flex; flex-direction: column;
+    }
+    dialog#authors-dialog::backdrop { background: rgba(0,0,0,.65); backdrop-filter: blur(3px); }
+    dialog#authors-dialog .dialog-header { flex-shrink: 0; }
 
-    /* Container background */
+    .authors-scroll {
+      flex: 1; overflow-y: auto;
+      padding: 16px;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .author-card {
+      background: #1c1914; border: 1px solid #302b22;
+      border-radius: 7px; padding: 12px 14px;
+      display: flex; flex-direction: column; gap: 8px;
+      position: relative;
+    }
+    .author-card-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 2px;
+    }
+    .author-card-num {
+      font-family: var(--mono); font-size: 11px; color: #4a4540;
+      font-weight: 500;
+    }
+    .author-remove-btn {
+      background: none; border: none; color: #4a4540;
+      cursor: pointer; font-size: 16px; line-height: 1;
+      padding: 0 2px;
+      transition: color .12s;
+    }
+    .author-remove-btn:hover { color: #d17070; }
+    .author-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .author-field label {
+      display: block; font-family: var(--mono); font-size: 10px;
+      color: #4a4540; text-transform: uppercase; letter-spacing: .06em;
+      margin-bottom: 4px;
+    }
+    .author-field input {
+      width: 100%;
+      background: #111009 !important;
+      border: 1px solid #302b22 !important;
+      border-radius: 4px !important;
+      color: #ddd8ce !important;
+      font-family: 'DM Sans', sans-serif !important;
+      font-size: 13px !important;
+      padding: 6px 10px !important;
+      transition: border-color .12s;
+    }
+    .author-field input:focus {
+      outline: none !important; border-color: #7a6035 !important;
+    }
+    .author-field input::placeholder { color: #3d3729 !important; }
+
+    .add-author-btn {
+      display: flex; align-items: center; justify-content: center; gap: 7px;
+      background: transparent; border: 1px dashed #302b22;
+      border-radius: 7px; padding: 11px;
+      font-family: var(--sans); font-size: 13px; color: #4a4540;
+      cursor: pointer; transition: border-color .12s, color .12s;
+    }
+    .add-author-btn:hover { border-color: #7a6035; color: #c9a96e; }
+
+    .authors-footer {
+      flex-shrink: 0; display: flex; justify-content: flex-end; gap: 8px;
+      padding: 12px 16px; border-top: 1px solid #302b22;
+    }
+
+    /* ════════ REPHRASE POPUP ════════ */
+    #rephrase-popup {
+      position: fixed; z-index: 700;
+      background: #1c1914; border: 1px solid #3d3729;
+      border-radius: 7px; padding: 8px 10px;
+      display: none; align-items: center; gap: 7px;
+      box-shadow: 0 8px 28px rgba(0,0,0,.7);
+      pointer-events: auto;
+      animation: popIn .15s ease both;
+    }
+    #rephrase-popup.visible { display: flex; }
+    @keyframes popIn { from { opacity:0; transform: scale(.92) translateY(4px); } }
+
+    #rephrase-popup select {
+      background: #111009; border: 1px solid #302b22;
+      border-radius: 4px; color: #7a7470;
+      font-family: var(--sans); font-size: 12px;
+      padding: 4px 24px 4px 8px; cursor: pointer;
+      appearance: none; -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5'%3E%3Cpath d='M0 0l4 5 4-5z' fill='%237a7470'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 8px center;
+    }
+    #rephrase-popup select:focus { outline: none; border-color: #7a6035; }
+    #rephrase-popup select option { background: #181510; color: #ddd8ce; }
+
+    #rephrase-btn {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: rgba(201,169,110,.12); border: 1px solid #7a6035;
+      border-radius: 4px; padding: 5px 11px;
+      font-family: var(--sans); font-size: 12px; font-weight: 600; color: #c9a96e;
+      cursor: pointer; transition: background .12s;
+      white-space: nowrap;
+    }
+    #rephrase-btn:hover { background: rgba(201,169,110,.22); }
+    #rephrase-btn:disabled { opacity: .5; cursor: not-allowed; }
+
+    #rephrase-dismiss {
+      background: none; border: none; color: #4a4540;
+      cursor: pointer; font-size: 15px; line-height: 1;
+      padding: 0 2px;
+    }
+    #rephrase-dismiss:hover { color: #7a7470; }
+
+    /* Rephrase preview area */
+    #rephrase-preview-wrap {
+      display: none;
+      position: fixed; z-index: 700;
+      background: #1c1914; border: 1px solid #3d3729;
+      border-radius: 8px; padding: 14px;
+      width: min(420px, 90vw);
+      box-shadow: 0 12px 40px rgba(0,0,0,.8);
+      animation: popIn .15s ease both;
+    }
+    #rephrase-preview-wrap.visible { display: block; }
+    .rephrase-preview-label {
+      font-family: var(--mono); font-size: 10px; color: #4a4540;
+      text-transform: uppercase; letter-spacing: .06em; margin-bottom: 8px;
+    }
+    #rephrase-preview-text {
+      font-size: 13px; color: #ddd8ce; line-height: 1.7;
+      max-height: 160px; overflow-y: auto;
+      border: 1px solid #302b22; border-radius: 5px;
+      padding: 10px 12px; background: #111009;
+      margin-bottom: 10px;
+    }
+    .rephrase-preview-actions { display: flex; justify-content: flex-end; gap: 7px; }
+
+    /* ════════ REVIEW DIALOG ════════ */
+    dialog#review-dialog {
+      background: #181510; border: 1px solid #3d3729;
+      border-radius: 10px; color: #ddd8ce; padding: 0;
+      width: min(720px, 95vw); max-height: 88vh;
+      box-shadow: 0 24px 64px rgba(0,0,0,.85);
+      overflow: hidden;
+      display: flex; flex-direction: column;
+    }
+    dialog#review-dialog::backdrop { background: rgba(0,0,0,.65); backdrop-filter: blur(3px); }
+    dialog#review-dialog .dialog-header { flex-shrink: 0; }
+
+    .review-scroll { flex: 1; overflow-y: auto; padding: 16px; }
+    .review-loading {
+      text-align: center; padding: 60px 20px;
+      font-family: var(--serif); font-size: 17px; font-weight: 300; color: #7a7470;
+    }
+    .review-loading-dot {
+      display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+      background: #c9a96e; animation: blink .7s ease-in-out infinite;
+      margin: 0 3px;
+    }
+    .review-loading-dot:nth-child(2) { animation-delay: .2s; }
+    .review-loading-dot:nth-child(3) { animation-delay: .4s; }
+
+    /* Score cards */
+    .review-section-title {
+      font-family: var(--mono); font-size: 11px; color: #4a4540;
+      text-transform: uppercase; letter-spacing: .07em;
+      margin-bottom: 10px; margin-top: 18px;
+    }
+    .review-section-title:first-child { margin-top: 0; }
+
+    .score-grid {
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;
+      margin-bottom: 4px;
+    }
+    .score-card {
+      background: #1c1914; border: 1px solid #302b22;
+      border-radius: 8px; padding: 13px 14px;
+    }
+    .score-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+    .score-label { font-size: 12px; font-weight: 600; color: #7a7470; }
+    .score-value {
+      font-family: var(--serif); font-size: 22px; font-weight: 600;
+    }
+    .score-value.high  { color: #6dc98a; }
+    .score-value.mid   { color: #d4a84b; }
+    .score-value.low   { color: #d17070; }
+    .score-bar-track {
+      height: 3px; background: #302b22; border-radius: 2px;
+      margin-bottom: 7px; overflow: hidden;
+    }
+    .score-bar-fill {
+      height: 100%; border-radius: 2px;
+      transition: width .5s ease;
+    }
+    .score-bar-fill.high { background: #6dc98a; }
+    .score-bar-fill.mid  { background: #d4a84b; }
+    .score-bar-fill.low  { background: #d17070; }
+    .score-comment { font-size: 12px; color: #5a5450; line-height: 1.5; }
+
+    /* Section compliance */
+    .section-compliance-grid {
+      display: flex; flex-wrap: wrap; gap: 7px;
+    }
+    .compliance-chip {
+      display: inline-flex; align-items: center; gap: 6px;
+      border-radius: 5px; padding: 5px 10px;
+      font-size: 12px; font-weight: 500; border: 1px solid;
+    }
+    .compliance-chip.good    { background: rgba(109,201,138,.08); border-color: rgba(109,201,138,.3); color: #6dc98a; }
+    .compliance-chip.fair    { background: rgba(212,168,75,.08); border-color: rgba(212,168,75,.3); color: #d4a84b; }
+    .compliance-chip.needs_work { background: rgba(209,112,112,.08); border-color: rgba(209,112,112,.3); color: #d17070; }
+    .compliance-chip.missing { background: rgba(209,112,112,.05); border-color: rgba(209,112,112,.4); color: #d17070; }
+    .compliance-chip .chip-icon { font-size: 11px; }
+    .compliance-note { font-size: 11px; color: #4a4540; }
+
+    /* Recommendations */
+    .recommendations-list {
+      list-style: none; display: flex; flex-direction: column; gap: 8px;
+    }
+    .recommendations-list li {
+      display: flex; align-items: flex-start; gap: 9px;
+      background: #1c1914; border: 1px solid #302b22;
+      border-radius: 6px; padding: 10px 12px;
+      font-size: 13px; line-height: 1.55; color: #9a9490;
+    }
+    .recommendations-list li::before {
+      content: '→'; color: #c9a96e; font-family: var(--mono);
+      flex-shrink: 0; margin-top: 1px;
+    }
+
+    /* Overall */
+    .overall-card {
+      background: rgba(201,169,110,.05); border: 1px solid #3d3729;
+      border-radius: 8px; padding: 14px 16px;
+      font-size: 13px; color: #9a9490; line-height: 1.65;
+    }
+
+    /* Review meta */
+    .review-meta {
+      display: flex; gap: 12px; flex-wrap: wrap;
+      padding: 10px 14px; background: #111009;
+      border-bottom: 1px solid #272318;
+      font-family: var(--mono); font-size: 11px; color: #4a4540;
+    }
+    .review-meta-item strong { color: #7a7470; }
+
+    /* ════════ IMPORT OVERLAY ════════ */
+    #import-overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.72); backdrop-filter: blur(3px);
+      z-index: 800;
+      flex-direction: column; align-items: center; justify-content: center; gap: 20px;
+    }
+    #import-overlay.active { display: flex; }
+    .import-card {
+      background: #181510; border: 1px solid #3d3729;
+      border-radius: 10px; padding: 28px 36px;
+      text-align: center; width: min(380px, 90vw);
+      box-shadow: 0 16px 48px rgba(0,0,0,.8);
+    }
+    .import-title { font-family: var(--serif); font-size: 17px; font-weight: 300; color: #ddd8ce; margin-bottom: 6px; }
+    .import-sub { font-family: var(--mono); font-size: 11px; color: #7a7470; margin-bottom: 22px; }
+    .progress-track { height: 4px; border-radius: 2px; background: #302b22; overflow: hidden; margin-bottom: 14px; }
+    .progress-fill { height: 100%; border-radius: 2px; background: #c9a96e; transition: width .4s ease; width: 0%; }
+    .progress-label { font-family: var(--mono); font-size: 11px; color: #7a7470; }
+    .progress-label strong { color: #c9a96e; }
+
+    /* ════════ EDITORJS OVERRIDES ════════ */
     .codex-editor,
     .codex-editor__redactor { background:transparent !important; }
     .codex-editor__redactor { padding-bottom:250px !important; }
-
-    /* Text content */
     .ce-paragraph { color:#ddd8ce !important; line-height:1.8 !important; }
     .ce-paragraph[data-placeholder]:empty::before { color:#38332f !important; }
     .ce-header { color:#ddd8ce !important; }
     h1.ce-header { font-size:26px !important; }
     h2.ce-header { font-size:20px !important; }
     h3.ce-header { font-size:16px !important; }
-
-    /* Toolbar */
     .ce-toolbar__plus,
-    .ce-toolbar__settings-btn {
-      color:#7a7470 !important; background:transparent !important;
-    }
+    .ce-toolbar__settings-btn { color:#7a7470 !important; background:transparent !important; }
     .ce-toolbar__plus:hover,
-    .ce-toolbar__settings-btn:hover {
-      color:#ddd8ce !important; background:#201d17 !important;
-    }
+    .ce-toolbar__settings-btn:hover { color:#ddd8ce !important; background:#201d17 !important; }
     .ce-toolbar__actions { background:#181510 !important; }
-
-    /* Tool popover / menu */
     .ce-popover {
-      background:#201d17 !important;
-      border:1px solid #302b22 !important;
+      background:#201d17 !important; border:1px solid #302b22 !important;
       box-shadow:0 8px 24px rgba(0,0,0,.65) !important;
     }
     .ce-popover-item__title { color:#ddd8ce !important; }
     .ce-popover-item__secondary-title { color:#7a7470 !important; }
     .ce-popover-item:hover,
     .ce-popover-item--focused { background:#272318 !important; }
-    .ce-popover__search .cdx-search-field {
-      background:#111009 !important; border:1px solid #302b22 !important;
-    }
-    .cdx-search-field__input {
-      color:#ddd8ce !important; background:transparent !important;
-    }
-
-    /* Inline toolbar */
+    .ce-popover__search .cdx-search-field { background:#111009 !important; border:1px solid #302b22 !important; }
+    .cdx-search-field__input { color:#ddd8ce !important; background:transparent !important; }
     .ce-inline-toolbar {
-      background:#201d17 !important;
-      border:1px solid #302b22 !important;
+      background:#201d17 !important; border:1px solid #302b22 !important;
       box-shadow:0 4px 16px rgba(0,0,0,.65) !important;
     }
     .ce-inline-tool { color:#7a7470 !important; }
@@ -434,126 +722,41 @@
     .ce-inline-tool--active { color:#ddd8ce !important; background:#272318 !important; }
     .ce-inline-toolbar__dropdown { border-right:1px solid #302b22 !important; }
     .ce-inline-toolbar [contenteditable] { color:#ddd8ce !important; }
-
-    /* Selected block */
-    .ce-block--selected .ce-block__content {
-      background:rgba(201,169,110,.06) !important; border-radius:4px;
-    }
-
-    /* Code block */
+    .ce-block--selected .ce-block__content { background:rgba(201,169,110,.06) !important; border-radius:4px; }
     .ce-code__textarea {
-      background:#0d0c08 !important;
-      border:1px solid #302b22 !important;
-      border-radius:5px !important;
-      color:#85d9a4 !important;
+      background:#0d0c08 !important; border:1px solid #302b22 !important;
+      border-radius:5px !important; color:#85d9a4 !important;
       font-family:'DM Mono', monospace !important;
-      font-size:13px !important; line-height:1.6 !important;
-      padding:12px !important;
+      font-size:13px !important; line-height:1.6 !important; padding:12px !important;
     }
-
-    /* List */
     .cdx-list { color:#ddd8ce !important; line-height:1.8 !important; }
     .cdx-list__item { padding:2px 0 !important; }
     .cdx-list-settings .cdx-settings-button { color:#7a7470 !important; }
-
-    /* Table */
     .tc-table { border-color:#302b22 !important; }
-    .tc-cell {
-      border-color:#302b22 !important;
-      color:#ddd8ce !important;
-      background:transparent !important;
-    }
-    .tc-cell:focus {
-      background:#1c1914 !important; outline:none !important;
-    }
+    .tc-cell { border-color:#302b22 !important; color:#ddd8ce !important; background:transparent !important; }
+    .tc-cell:focus { background:#1c1914 !important; outline:none !important; }
     .tc-row:hover .tc-cell { background:rgba(201,169,110,.03) !important; }
     .tc-wrap { background:transparent !important; }
-    .tc-toolbox__toggler,
-    .tc-add-column, .tc-add-row { color:#7a7470 !important; }
-    .tc-popover {
-      background:#201d17 !important; border:1px solid #302b22 !important;
-    }
+    .tc-toolbox__toggler, .tc-add-column, .tc-add-row { color:#7a7470 !important; }
+    .tc-popover { background:#201d17 !important; border:1px solid #302b22 !important; }
     .tc-popover__item-label { color:#ddd8ce !important; }
     .tc-popover__item:hover { background:#272318 !important; }
-
-    /* Settings panel */
     .cdx-settings-button { color:#7a7470 !important; }
     .cdx-settings-button--active,
     .cdx-settings-button:hover { color:#ddd8ce !important; background:#272318 !important; }
-
-    /* Generic cdx-input */
-    .cdx-input {
-      background:#1c1914 !important;
-      border:1px solid #302b22 !important;
-      color:#ddd8ce !important; border-radius:4px !important;
-    }
+    .cdx-input { background:#1c1914 !important; border:1px solid #302b22 !important; color:#ddd8ce !important; border-radius:4px !important; }
     .cdx-input::placeholder { color:#4a4540 !important; }
-
     .ce-block__content,
     .ce-toolbar__content { max-width:100% !important; }
-
-    /* ════════════════════════════════════════════
-       IMPORT PROGRESS OVERLAY
-    ════════════════════════════════════════════ */
-    #import-overlay {
-      display: none;
-      position: fixed; inset: 0;
-      background: rgba(0,0,0,.72);
-      backdrop-filter: blur(3px);
-      z-index: 800;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 20px;
-    }
-    #import-overlay.active { display: flex; }
-
-    .import-card {
-      background: #181510;
-      border: 1px solid #3d3729;
-      border-radius: 10px;
-      padding: 28px 36px;
-      text-align: center;
-      width: min(380px, 90vw);
-      box-shadow: 0 16px 48px rgba(0,0,0,.8);
-    }
-    .import-title {
-      font-family: var(--serif);
-      font-size: 17px; font-weight: 300;
-      color: #ddd8ce; margin-bottom: 6px;
-    }
-    .import-sub {
-      font-family: var(--mono);
-      font-size: 11px; color: #7a7470;
-      margin-bottom: 22px;
-    }
-    .progress-track {
-      height: 4px; border-radius: 2px;
-      background: #302b22; overflow: hidden;
-      margin-bottom: 14px;
-    }
-    .progress-fill {
-      height: 100%; border-radius: 2px;
-      background: #c9a96e;
-      transition: width .4s ease;
-      width: 0%;
-    }
-    .progress-label {
-      font-family: var(--mono); font-size: 11px; color: #7a7470;
-    }
-    .progress-label strong { color: #c9a96e; }
-
   </style>
 </head>
 <body>
 
-<!-- ══════════════════════════════════════
-     WELCOME
-══════════════════════════════════════ -->
+<!-- ══════════════ WELCOME ══════════════ -->
 <div id="welcome-screen">
   <div class="welcome-badge">
-      <img src="logo.svg" width="42" height="42" alt="Logo">
-  </div>s
+    <img src="logo.svg" width="42" height="42" alt="Logo" onerror="this.parentNode.innerHTML='∂'">
+  </div>
   <h1 class="welcome-title">Idea Overflow</h1>
   <p class="welcome-sub">Write, compile, and export academic documents.</p>
   <div class="welcome-btns">
@@ -566,20 +769,20 @@
   </p>
 </div>
 
-<!-- ══════════════════════════════════════
-     WORKSPACE
-══════════════════════════════════════ -->
+<!-- ══════════════ WORKSPACE ══════════════ -->
 <div id="workspace-container">
 
   <div class="topbar">
-    <span class="brand">∂ LaTeX Studio</span>
+    <span class="brand">Idea Overflow</span>
     <div class="topbar-sep"></div>
     <select id="template-select" class="g-select" title="Document template">
       <option value="standard">Standard Article</option>
       <option value="acl">ACL Template</option>
       <option value="cvpr">CVPR Template</option>
     </select>
+    <button id="guide-toggle-btn" title="Show/hide section guide">⊞ Sections</button>
     <div class="topbar-right">
+      <button class="btn btn-ghost btn-sm btn-accent" id="review-btn">◈&ensp;Review</button>
       <button class="btn btn-ghost btn-sm" id="latex-source-btn">&lt;/&gt;&ensp;Source</button>
       <button class="btn btn-primary btn-sm" id="recompile-btn">▶&ensp;Compile</button>
       <button class="btn btn-ghost btn-sm" id="save-btn" disabled>↓&ensp;PDF</button>
@@ -595,16 +798,52 @@
   </div>
 
   <div class="split-view">
-
     <div class="editor-pane">
+
+      <!-- Meta bar with title + authors -->
       <div class="meta-bar">
-        <input type="text" id="doc-title"  class="g-input" placeholder="Document Title" autocomplete="off">
-        <input type="text" id="doc-author" class="g-input" placeholder="Author Name" autocomplete="off">
-        <input type="text" id="doc-affil"  class="g-input" placeholder="Institution" autocomplete="off">
+        <input type="text" id="doc-title" class="g-input" placeholder="Document Title" autocomplete="off" style="flex:2">
+        <button id="authors-btn" title="Manage authors">
+          <span>👤 Authors</span>
+          <span class="author-count-badge" id="author-count-badge">1</span>
+        </button>
       </div>
-      <div class="editor-scroll">
+
+      <!-- Section guide strip -->
+      <div class="section-guide-strip collapsed" id="section-guide-strip">
+        <div class="guide-inner">
+          <div class="guide-col">
+            <div class="guide-col-label">Insert Block</div>
+            <div class="guide-blocks">
+              <button class="guide-block-btn" onclick="insertGuideBlock('header',1)"><span class="gbicon">H1</span> Section</button>
+              <button class="guide-block-btn" onclick="insertGuideBlock('header',2)"><span class="gbicon">H2</span> Subsection</button>
+              <button class="guide-block-btn" onclick="insertGuideBlock('header',3)"><span class="gbicon">H3</span> Sub-sub</button>
+              <button class="guide-block-btn" onclick="insertGuideBlock('paragraph')"><span class="gbicon">¶</span> Paragraph</button>
+              <button class="guide-block-btn" onclick="insertGuideBlock('list')"><span class="gbicon">≡</span> List</button>
+              <button class="guide-block-btn" onclick="insertGuideBlock('code')"><span class="gbicon">{}</span> Raw LaTeX</button>
+              <button class="guide-block-btn" onclick="insertGuideBlock('table')"><span class="gbicon">⊞</span> Table</button>
+            </div>
+          </div>
+          <div class="guide-col" style="flex:1; min-width:0;">
+            <div class="guide-col-label" id="template-sections-label">Template Sections</div>
+            <div class="guide-sections" id="template-sections-chips">
+              <!-- Populated by JS -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Editor -->
+      <div class="editor-scroll" id="editor-scroll">
         <div id="editorjs"></div>
+        <div id="editor-hint" class="editor-empty-hint">
+          <span class="hint-title">Getting Started</span>
+          Click the <strong style="color:#5a5450">+ button</strong> that appears on the left when you hover a line — or use the <strong style="color:#5a5450">Sections</strong> strip above to insert blocks.<br><br>
+          <kbd>Tab</kbd> to change heading level &nbsp;·&nbsp; <kbd>/</kbd> to search blocks<br><br>
+          Use a <strong style="color:#5a5450">Raw LaTeX</strong> block for equations, custom environments, or anything not in the toolbar.
+        </div>
       </div>
+
     </div>
 
     <div class="pdf-pane">
@@ -620,11 +859,10 @@
         <div class="pdf-placeholder">
           <span class="icon">⬡</span>
           Click <strong style="color:#7a7470">Compile</strong> to preview your PDF.<br>
-          Use a <strong style="color:#7a7470">Code block</strong> for raw LaTeX.
+          Use a <strong style="color:#7a7470">Raw LaTeX</strong> block for equations.
         </div>
       </div>
     </div>
-
   </div>
 </div>
 
@@ -653,6 +891,63 @@
   </div>
 </dialog>
 
+<!-- Authors dialog -->
+<dialog id="authors-dialog">
+  <div class="dialog-header">
+    <span class="dialog-title">👤 Manage Authors</span>
+    <button class="btn btn-ghost btn-sm" onclick="document.getElementById('authors-dialog').close()">Close</button>
+  </div>
+  <div class="authors-scroll" id="authors-scroll">
+    <!-- Author cards injected here -->
+  </div>
+  <button class="add-author-btn" id="add-author-btn">+ Add Author</button>
+  <div class="authors-footer">
+    <button class="btn btn-ghost btn-sm" onclick="document.getElementById('authors-dialog').close()">Cancel</button>
+    <button class="btn btn-primary btn-sm" id="save-authors-btn">Save Authors</button>
+  </div>
+</dialog>
+
+<!-- Rephrase popup (floats near selection) -->
+<div id="rephrase-popup">
+  <select id="rephrase-style" title="Rephrase style">
+    <option value="academic">Academic</option>
+    <option value="simpler">Simpler</option>
+    <option value="concise">Concise</option>
+    <option value="elaborate">Elaborate</option>
+    <option value="fluent">Fluent</option>
+  </select>
+  <button id="rephrase-btn">✦ Rephrase</button>
+  <button id="rephrase-dismiss" title="Dismiss">✕</button>
+</div>
+
+<!-- Rephrase preview -->
+<div id="rephrase-preview-wrap">
+  <div class="rephrase-preview-label">Rephrased text — accept or dismiss</div>
+  <div id="rephrase-preview-text"></div>
+  <div class="rephrase-preview-actions">
+    <button class="btn btn-ghost btn-sm" id="rephrase-reject-btn">✕ Discard</button>
+    <button class="btn btn-primary btn-sm" id="rephrase-accept-btn">✓ Accept</button>
+  </div>
+</div>
+
+<!-- Review dialog -->
+<dialog id="review-dialog">
+  <div class="dialog-header">
+    <span class="dialog-title" id="review-dialog-title">◈ Paper Review</span>
+    <button class="btn btn-ghost btn-sm" onclick="document.getElementById('review-dialog').close()">Close</button>
+  </div>
+  <div id="review-meta" class="review-meta" style="display:none"></div>
+  <div class="review-scroll" id="review-scroll">
+    <div class="review-loading" id="review-loading">
+      Analysing your paper with Gemini
+      <span class="review-loading-dot"></span>
+      <span class="review-loading-dot"></span>
+      <span class="review-loading-dot"></span>
+    </div>
+    <div id="review-content" style="display:none"></div>
+  </div>
+</dialog>
+
 <!-- Import progress overlay -->
 <div id="import-overlay">
   <div class="import-card">
@@ -665,352 +960,770 @@
   </div>
 </div>
 
-
-
 <script>
-  // ══════════════════════════════════════
-  //  CONFIG
-  // ══════════════════════════════════════
-  const API = 'http://localhost:8000';
-  pdfjsLib.GlobalWorkerOptions.workerSrc =
-    'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+// ══════════════════════════════════════
+//  CONFIG
+// ══════════════════════════════════════
+const API = 'http://localhost:8000';
+pdfjsLib.GlobalWorkerOptions.workerSrc =
+  'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-  // ══════════════════════════════════════
-  //  STATE
-  // ══════════════════════════════════════
-  let editor         = null;
-  let currentPdfBlob = null;
-  let pdfScale       = 1.5;    // 1.5 → 100% label
-  let totalPages     = 0;
-  const SCALE_STEP   = 0.25;
-  const SCALE_MIN    = 0.5;
-  const SCALE_MAX    = 3.5;
+// ══════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════
+let editor         = null;
+let currentPdfBlob = null;
+let pdfScale       = 1.5;
+let totalPages     = 0;
+const SCALE_STEP   = 0.25;
+const SCALE_MIN    = 0.5;
+const SCALE_MAX    = 3.5;
 
-  // ══════════════════════════════════════
-  //  UTILS
-  // ══════════════════════════════════════
-  const $  = id => document.getElementById(id);
+// Authors state
+let authorList = [{ name: '', affiliation: '' }];
+let draftAuthorList = [];  // scratch while dialog is open
 
-  // Status bar
-  function setStatus(txt, type) {
-    $('status-text').textContent = txt;
-    $('status-dot').className = 'status-dot' + (type ? ' '+type : '');
+// Rephrase state
+let savedSelection = null;
+let rephrasedText  = '';
+
+// ══════════════════════════════════════
+//  UTILS
+// ══════════════════════════════════════
+const $ = id => document.getElementById(id);
+
+function setStatus(txt, type) {
+  $('status-text').textContent = txt;
+  $('status-dot').className = 'status-dot' + (type ? ' '+type : '');
+}
+
+function showToast(msg, type) {
+  const wrap = $('toast-wrap');
+  const t = document.createElement('div');
+  t.className = 'toast' + (type ? ' '+type : '');
+  t.textContent = msg;
+  wrap.appendChild(t);
+  setTimeout(() => t.remove(), 3300);
+}
+
+function showError(msg) {
+  $('error-body').textContent = msg;
+  $('error-panel').style.display = 'block';
+  setStatus('Compilation failed', 'error');
+}
+function hideError() { $('error-panel').style.display = 'none'; }
+$('error-close-btn').addEventListener('click', hideError);
+
+// ══════════════════════════════════════
+//  PERSISTENCE
+// ══════════════════════════════════════
+const LS = {
+  save() {
+    try {
+      localStorage.setItem('ls_title',   $('doc-title').value);
+      localStorage.setItem('ls_tpl',     $('template-select').value);
+      localStorage.setItem('ls_authors', JSON.stringify(authorList));
+    } catch(_) {}
+  },
+  restore() {
+    try {
+      $('doc-title').value  = localStorage.getItem('ls_title')  || '';
+      const t = localStorage.getItem('ls_tpl');
+      if (t) $('template-select').value = t;
+      const a = localStorage.getItem('ls_authors');
+      if (a) authorList = JSON.parse(a);
+      if (!authorList.length) authorList = [{ name:'', affiliation:'' }];
+      updateAuthorBadge();
+      renderTemplateSections();
+    } catch(_) {}
   }
+};
 
-  // Toast
-  function showToast(msg, type) {
-    const wrap = $('toast-wrap');
-    const t = document.createElement('div');
-    t.className = 'toast' + (type ? ' '+type : '');
-    t.textContent = msg;
-    wrap.appendChild(t);
-    setTimeout(() => t.remove(), 3300);
-  }
+$('doc-title').addEventListener('input', LS.save);
+$('template-select').addEventListener('change', () => { LS.save(); renderTemplateSections(); });
 
-  // Error panel
-  function showError(msg) {
-    $('error-body').textContent = msg;
-    $('error-panel').style.display = 'block';
-    setStatus('Compilation failed', 'error');
-  }
-  function hideError() { $('error-panel').style.display = 'none'; }
-  $('error-close-btn').addEventListener('click', hideError);
+// ══════════════════════════════════════
+//  AUTHOR MANAGEMENT
+// ══════════════════════════════════════
+function updateAuthorBadge() {
+  const validCount = authorList.filter(a => a.name.trim()).length;
+  $('author-count-badge').textContent = validCount || authorList.length;
+}
 
-  // ══════════════════════════════════════
-  //  PERSISTENCE
-  // ══════════════════════════════════════
-  const LS = {
-    save() {
-      try {
-        localStorage.setItem('ls_title',  $('doc-title').value);
-        localStorage.setItem('ls_author', $('doc-author').value);
-        localStorage.setItem('ls_affil',  $('doc-affil').value);
-        localStorage.setItem('ls_tpl',    $('template-select').value);
-      } catch(_) {}
-    },
-    restore() {
-      try {
-        $('doc-title').value  = localStorage.getItem('ls_title')  || '';
-        $('doc-author').value = localStorage.getItem('ls_author') || '';
-        $('doc-affil').value  = localStorage.getItem('ls_affil')  || '';
-        const t = localStorage.getItem('ls_tpl');
-        if (t) $('template-select').value = t;
-      } catch(_) {}
-    }
-  };
-  ['doc-title','doc-author','doc-affil'].forEach(id => $(id).addEventListener('input', LS.save));
-  $('template-select').addEventListener('change', LS.save);
+function renderAuthorCards() {
+  const scroll = $('authors-scroll');
+  scroll.innerHTML = '';
+  draftAuthorList.forEach((a, i) => {
+    const card = document.createElement('div');
+    card.className = 'author-card';
+    card.innerHTML = `
+      <div class="author-card-header">
+        <span class="author-card-num">Author ${i + 1}</span>
+        ${draftAuthorList.length > 1
+          ? `<button class="author-remove-btn" data-idx="${i}" title="Remove author">✕</button>`
+          : ''}
+      </div>
+      <div class="author-fields">
+        <div class="author-field">
+          <label>Name</label>
+          <input type="text" value="${escHtml(a.name)}" placeholder="Full Name"
+            data-idx="${i}" data-field="name" autocomplete="off">
+        </div>
+        <div class="author-field">
+          <label>Institution</label>
+          <input type="text" value="${escHtml(a.affiliation)}" placeholder="University / Lab"
+            data-idx="${i}" data-field="affiliation" autocomplete="off">
+        </div>
+      </div>`;
+    scroll.appendChild(card);
+  });
 
-  // ══════════════════════════════════════
-  //  EDITOR INIT
-  // ══════════════════════════════════════
-  function initEditor(data) {
-    if (editor) { try { editor.destroy(); } catch(_){} editor = null; }
-    $('editorjs').innerHTML = '';
-
-    editor = new EditorJS({
-      holder: 'editorjs',
-      placeholder: 'Start writing…  Use + to add headers, code, tables.',
-      tools: {
-        header: {
-          class: Header,
-          config: { levels:[1,2,3], defaultLevel:2 }
-        },
-        code: CodeTool,
-        list: {
-          class: EditorjsList,
-          inlineToolbar: true,
-          config: { defaultStyle: 'unordered' }
-        },
-        table: {
-          class: Table,
-          inlineToolbar: true,
-          config: { rows:3, cols:3, withHeadings:true }
-        },
-      },
-      data: data || {
-        blocks:[{ type:'paragraph', data:{ text:'Start writing your document here.' }}]
-      },
+  // Remove buttons
+  scroll.querySelectorAll('.author-remove-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      draftAuthorList.splice(+btn.dataset.idx, 1);
+      renderAuthorCards();
     });
-
-    $('welcome-screen').style.display = 'none';
-    $('workspace-container').style.display = 'flex';
-    LS.restore();
-  }
-
-  // ══════════════════════════════════════
-  //  WELCOME
-  // ══════════════════════════════════════
-  $('new-project-btn').addEventListener('click', () => initEditor(null));
-  $('upload-trigger-btn').addEventListener('click', () => $('word-upload').click());
-
-  // ── Import progress UI helpers ─────────────────────────────────────────────
-  function showImportProgress(sub, pct, label) {
-    $('import-overlay').classList.add('active');
-    $('import-sub').textContent       = sub;
-    $('progress-fill').style.width    = pct + '%';
-    $('progress-label').innerHTML     = label;
-  }
-  function hideImportProgress() {
-    $('import-overlay').classList.remove('active');
-  }
-
-  $('word-upload').addEventListener('change', async e => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const btn = $('upload-trigger-btn');
-    btn.disabled = true;
-
-    // Estimate chunks for progress bar (≈7000 chars per chunk,
-    // docx averages ~1.5 bytes/char so rough estimate is file.size / 10500)
-    const estChunks = Math.max(1, Math.round(file.size / 10500));
-    showImportProgress('Reading document…', 5,
-      `Estimated <strong>~${estChunks}</strong> chunk${estChunks !== 1 ? 's' : ''} to process`);
-
-    const form = new FormData();
-    form.append('file', file);
-
-    // Simulate intermediate progress while waiting (server is synchronous)
-    let simPct = 5;
-    const simInterval = setInterval(() => {
-      // Slowly creep to 85% — final jump happens on response
-      if (simPct < 85) {
-        simPct += (85 - simPct) * 0.04;
-        const chunkEst = Math.round((simPct / 100) * estChunks);
-        showImportProgress(
-          'Converting with AI…',
-          simPct,
-          `Processing chunk <strong>${Math.min(chunkEst, estChunks)}</strong> of <strong>~${estChunks}</strong>`
-        );
-      }
-    }, 800);
-
-    try {
-      const res = await fetch(`${API}/api/upload`, { method:'POST', body:form });
-      clearInterval(simInterval);
-
-      if (!res.ok) {
-        const err = await res.json().catch(()=>({}));
-        throw new Error(err.detail || `HTTP ${res.status}`);
-      }
-
-      showImportProgress('Finalising…', 97, 'Building editor blocks…');
-      const data = await res.json();
-
-      const chunks = data.chunks_processed || 1;
-      showImportProgress('Done!', 100,
-        `Processed <strong>${chunks}</strong> chunk${chunks !== 1 ? 's' : ''} · <strong>${(data.blocks||[]).length}</strong> blocks`);
-      await new Promise(r => setTimeout(r, 700));   // brief "Done!" flash
-
-      hideImportProgress();
-      initEditor(data);
-      if (data.title)       $('doc-title').value  = data.title;
-      if (data.author)      $('doc-author').value = data.author;
-      if (data.affiliation) $('doc-affil').value  = data.affiliation;
-      LS.save();
-      showToast(`✓ Imported — ${chunks} chunk${chunks!==1?'s':''}, ${(data.blocks||[]).length} blocks`, 'ok');
-    } catch(err) {
-      clearInterval(simInterval);
-      hideImportProgress();
-      showToast('Import failed: ' + err.message, 'err');
-    } finally {
-      btn.disabled = false;
-      e.target.value = '';
-    }
   });
 
-  // ══════════════════════════════════════
-  //  PAYLOAD
-  // ══════════════════════════════════════
-  async function buildPayload() {
-    const d = await editor.save();
-    return {
-      template:    $('template-select').value,
-      title:       $('doc-title').value.trim()  || 'Untitled',
-      author:      $('doc-author').value.trim() || '',
-      affiliation: $('doc-affil').value.trim()  || '',
-      blocks:      d.blocks,
-    };
+  // Input listeners
+  scroll.querySelectorAll('input').forEach(inp => {
+    inp.addEventListener('input', () => {
+      draftAuthorList[+inp.dataset.idx][inp.dataset.field] = inp.value;
+    });
+  });
+}
+
+function escHtml(s) {
+  return String(s)
+    .replace(/&/g,'&amp;').replace(/"/g,'&quot;')
+    .replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+$('authors-btn').addEventListener('click', () => {
+  draftAuthorList = authorList.map(a => ({ ...a }));
+  renderAuthorCards();
+  $('authors-dialog').showModal();
+});
+
+$('add-author-btn').addEventListener('click', () => {
+  if (draftAuthorList.length >= 10) {
+    showToast('Maximum 10 authors', 'err');
+    return;
+  }
+  draftAuthorList.push({ name: '', affiliation: '' });
+  renderAuthorCards();
+  // Scroll to new card
+  setTimeout(() => {
+    $('authors-scroll').scrollTo({ top: 99999, behavior: 'smooth' });
+  }, 50);
+});
+
+$('save-authors-btn').addEventListener('click', () => {
+  authorList = draftAuthorList.filter(a => a.name.trim() || a.affiliation.trim());
+  if (!authorList.length) authorList = [{ name: '', affiliation: '' }];
+  updateAuthorBadge();
+  LS.save();
+  $('authors-dialog').close();
+  showToast(`Authors saved (${authorList.length})`, 'ok');
+});
+
+// ══════════════════════════════════════
+//  SECTION GUIDE
+// ══════════════════════════════════════
+const TEMPLATE_SECTIONS = {
+  standard: {
+    required:    ['Introduction', 'Conclusion'],
+    recommended: ['Related Work', 'Methodology', 'Results', 'Discussion'],
+  },
+  acl: {
+    required:    ['Abstract', 'Introduction', 'Limitations'],
+    recommended: ['Related Work', 'Methodology', 'Experiments', 'Results', 'Conclusion', 'Ethical Considerations'],
+  },
+  cvpr: {
+    required:    ['Abstract', 'Introduction', 'Compute Budget'],
+    recommended: ['Related Work', 'Method', 'Experiments', 'Results', 'Conclusion'],
+  },
+};
+
+let guideVisible = false;
+
+$('guide-toggle-btn').addEventListener('click', () => {
+  guideVisible = !guideVisible;
+  const strip = $('section-guide-strip');
+  strip.classList.toggle('collapsed', !guideVisible);
+  strip.classList.toggle('expanded', guideVisible);
+  $('guide-toggle-btn').classList.toggle('active', guideVisible);
+});
+
+async function renderTemplateSections() {
+  const tpl = $('template-select').value;
+  const defs = TEMPLATE_SECTIONS[tpl] || TEMPLATE_SECTIONS.standard;
+
+  // Collect current headers from editor
+  let currentHeaders = [];
+  if (editor) {
+    try {
+      const saved = await editor.save();
+      currentHeaders = saved.blocks
+        .filter(b => b.type === 'header')
+        .map(b => (b.data.text || '').replace(/<[^>]+>/g,'').toLowerCase());
+    } catch(_) {}
   }
 
-  // ══════════════════════════════════════
-  //  COMPILE
-  // ══════════════════════════════════════
-  async function compilePDF() {
-    if (!editor) return;
-    const btn = $('recompile-btn');
-    btn.disabled = true; btn.textContent = '⏳ Compiling…';
+  const chips = $('template-sections-chips');
+  chips.innerHTML = '';
+
+  const allSections = [
+    ...defs.required.map(s => ({ name: s, type: 'required' })),
+    ...defs.recommended.map(s => ({ name: s, type: 'recommended' })),
+  ];
+
+  allSections.forEach(({ name, type }) => {
+    const present = currentHeaders.some(h => h.includes(name.toLowerCase()));
+    const chip = document.createElement('button');
+    chip.className = 'section-chip ' + (present ? 'present' : type === 'required' ? 'required' : 'missing');
+    chip.title = present
+      ? `"${name}" found in document`
+      : (type === 'required' ? `Required — click to insert` : `Recommended — click to insert`);
+    chip.innerHTML = `<span class="chip-dot"></span>${name}${present ? ' ✓' : ''}`;
+    chip.addEventListener('click', () => {
+      if (!present) insertSectionHeader(name);
+    });
+    chips.appendChild(chip);
+  });
+
+  $('template-sections-label').textContent =
+    `${tpl.toUpperCase()} Sections`;
+}
+
+function insertSectionHeader(name) {
+  if (!editor) return;
+  editor.blocks.insert('header', { text: name, level: 1 });
+  editor.blocks.insert('paragraph', { text: '' });
+  showToast(`Inserted "${name}" section`, 'ok');
+  setTimeout(renderTemplateSections, 400);
+}
+
+function insertGuideBlock(type, level) {
+  if (!editor) return;
+  if (type === 'header') {
+    editor.blocks.insert('header', { text: '', level: level || 2 });
+  } else if (type === 'paragraph') {
+    editor.blocks.insert('paragraph', { text: '' });
+  } else if (type === 'list') {
+    editor.blocks.insert('list', { style: 'unordered', items: [''] });
+  } else if (type === 'code') {
+    editor.blocks.insert('code', { code: '' });
+  } else if (type === 'table') {
+    editor.blocks.insert('table', { withHeadings: true, content: [['Header 1','Header 2','Header 3'],['','','']] });
+  }
+  // Focus the editor
+  setTimeout(() => {
+    const edEl = $('editorjs');
+    if (edEl) edEl.focus();
+  }, 100);
+}
+
+// ══════════════════════════════════════
+//  EDITOR INIT
+// ══════════════════════════════════════
+function initEditor(data) {
+  if (editor) { try { editor.destroy(); } catch(_){} editor = null; }
+  $('editorjs').innerHTML = '';
+
+  editor = new EditorJS({
+    holder: 'editorjs',
+    placeholder: 'Start writing…  or use the Sections toolbar above.',
+    tools: {
+      header: { class: Header, config: { levels:[1,2,3], defaultLevel:2 } },
+      code:   CodeTool,
+      list:   { class: EditorjsList, inlineToolbar: true, config: { defaultStyle: 'unordered' } },
+      table:  { class: Table, inlineToolbar: true, config: { rows:3, cols:3, withHeadings:true } },
+    },
+    data: data || {
+      blocks:[{ type:'paragraph', data:{ text:'' }}]
+    },
+    onChange: () => {
+      // Show/hide empty hint
+      if (editor) {
+        editor.save().then(d => {
+          const isEmpty = d.blocks.length <= 1 &&
+            (!d.blocks[0] || (d.blocks[0].type === 'paragraph' && !(d.blocks[0].data.text||'').trim()));
+          $('editor-hint').style.display = isEmpty ? 'block' : 'none';
+        }).catch(()=>{});
+      }
+      renderTemplateSections();
+    },
+  });
+
+  editor.isReady.then(() => {
+    $('editor-hint').style.display = 'block';
+    renderTemplateSections();
+  });
+
+  $('welcome-screen').style.display = 'none';
+  $('workspace-container').style.display = 'flex';
+  LS.restore();
+}
+
+// ══════════════════════════════════════
+//  WELCOME
+// ══════════════════════════════════════
+$('new-project-btn').addEventListener('click', () => initEditor(null));
+$('upload-trigger-btn').addEventListener('click', () => $('word-upload').click());
+
+function showImportProgress(sub, pct, label) {
+  $('import-overlay').classList.add('active');
+  $('import-sub').textContent    = sub;
+  $('progress-fill').style.width = pct + '%';
+  $('progress-label').innerHTML  = label;
+}
+function hideImportProgress() { $('import-overlay').classList.remove('active'); }
+
+$('word-upload').addEventListener('change', async e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const btn = $('upload-trigger-btn');
+  btn.disabled = true;
+  const estChunks = Math.max(1, Math.round(file.size / 10500));
+  showImportProgress('Reading document…', 5,
+    `Estimated <strong>~${estChunks}</strong> chunk${estChunks !== 1 ? 's' : ''} to process`);
+
+  const form = new FormData();
+  form.append('file', file);
+
+  let simPct = 5;
+  const simInterval = setInterval(() => {
+    if (simPct < 85) {
+      simPct += (85 - simPct) * 0.04;
+      const chunkEst = Math.round((simPct / 100) * estChunks);
+      showImportProgress(
+        'Converting with AI…', simPct,
+        `Processing chunk <strong>${Math.min(chunkEst, estChunks)}</strong> of <strong>~${estChunks}</strong>`
+      );
+    }
+  }, 800);
+
+  try {
+    const res = await fetch(`${API}/api/upload`, { method:'POST', body:form });
+    clearInterval(simInterval);
+    if (!res.ok) {
+      const err = await res.json().catch(()=>({}));
+      throw new Error(err.detail || `HTTP ${res.status}`);
+    }
+    showImportProgress('Finalising…', 97, 'Building editor blocks…');
+    const data = await res.json();
+    const chunks = data.chunks_processed || 1;
+    showImportProgress('Done!', 100,
+      `Processed <strong>${chunks}</strong> chunk${chunks !== 1 ? 's' : ''} · <strong>${(data.blocks||[]).length}</strong> blocks`);
+    await new Promise(r => setTimeout(r, 700));
+    hideImportProgress();
+    initEditor(data);
+    if (data.title) $('doc-title').value = data.title;
+    if (data.author) {
+      authorList = [{ name: data.author, affiliation: data.affiliation || '' }];
+      updateAuthorBadge();
+    }
+    LS.save();
+    showToast(`✓ Imported — ${chunks} chunk${chunks!==1?'s':''}, ${(data.blocks||[]).length} blocks`, 'ok');
+  } catch(err) {
+    clearInterval(simInterval);
+    hideImportProgress();
+    showToast('Import failed: ' + err.message, 'err');
+  } finally {
+    btn.disabled = false;
+    e.target.value = '';
+  }
+});
+
+// ══════════════════════════════════════
+//  PAYLOAD
+// ══════════════════════════════════════
+async function buildPayload() {
+  const d = await editor.save();
+  const validAuthors = authorList.filter(a => a.name.trim());
+  return {
+    template:    $('template-select').value,
+    title:       $('doc-title').value.trim() || 'Untitled',
+    // Legacy fields (for server compat)
+    author:      validAuthors[0]?.name || '',
+    affiliation: validAuthors[0]?.affiliation || '',
+    // New multi-author
+    authors:     validAuthors.length ? validAuthors : [{ name: '', affiliation: '' }],
+    blocks:      d.blocks,
+  };
+}
+
+// ══════════════════════════════════════
+//  COMPILE
+// ══════════════════════════════════════
+async function compilePDF() {
+  if (!editor) return;
+  const btn = $('recompile-btn');
+  btn.disabled = true; btn.textContent = '⏳ Compiling…';
+  hideError();
+  setStatus('Compiling…', 'busy');
+  $('pdf-viewer').innerHTML = '<div class="pdf-skeleton"></div>';
+  const t0 = performance.now();
+
+  try {
+    const payload = await buildPayload();
+    const res = await fetch(`${API}/api/compile`, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(()=>({}));
+      throw new Error(err.detail || `Server error HTTP ${res.status}`);
+    }
+    currentPdfBlob = await res.blob();
+    $('save-btn').disabled = false;
+    await renderPDF(currentPdfBlob);
+    const secs = ((performance.now()-t0)/1000).toFixed(1);
+    setStatus(`Compiled in ${secs}s · ${totalPages} page${totalPages!==1?'s':''}`, 'ready');
+    $('status-time').textContent = new Date().toLocaleTimeString();
+    showToast(`✓ PDF ready (${secs}s)`, 'ok');
+  } catch(err) {
+    $('pdf-viewer').innerHTML =
+      `<div class="pdf-placeholder" style="margin-top:60px">
+         <span class="icon" style="color:#d17070">✕</span>
+         Compilation failed.<br>See error panel below.
+       </div>`;
+    showError(err.message);
+  } finally {
+    btn.disabled = false; btn.textContent = '▶ Compile';
+  }
+}
+$('recompile-btn').addEventListener('click', compilePDF);
+
+// ══════════════════════════════════════
+//  PDF RENDER
+// ══════════════════════════════════════
+async function renderPDF(blob) {
+  const viewer = $('pdf-viewer');
+  viewer.innerHTML = ''; $('page-count').textContent = '';
+  const buf  = await blob.arrayBuffer();
+  const pdf  = await pdfjsLib.getDocument({ data:buf }).promise;
+  totalPages = pdf.numPages;
+  for (let n=1; n<=pdf.numPages; n++) {
+    const page     = await pdf.getPage(n);
+    const viewport = page.getViewport({ scale:pdfScale });
+    const canvas   = document.createElement('canvas');
+    canvas.width   = viewport.width;
+    canvas.height  = viewport.height;
+    viewer.appendChild(canvas);
+    await page.render({ canvasContext:canvas.getContext('2d'), viewport }).promise;
+  }
+  $('page-count').textContent =
+    `${pdf.numPages} page${pdf.numPages!==1?'s':''}`;
+}
+
+// ══════════════════════════════════════
+//  ZOOM
+// ══════════════════════════════════════
+function updateZoom() {
+  $('zoom-display').textContent = Math.round((pdfScale/1.5)*100)+'%';
+}
+async function rerender() {
+  updateZoom();
+  if (currentPdfBlob) await renderPDF(currentPdfBlob);
+}
+$('zoom-in-btn').addEventListener('click',    async () => { if (pdfScale < SCALE_MAX) { pdfScale = +(pdfScale+SCALE_STEP).toFixed(2); await rerender(); } });
+$('zoom-out-btn').addEventListener('click',   async () => { if (pdfScale > SCALE_MIN) { pdfScale = +(pdfScale-SCALE_STEP).toFixed(2); await rerender(); } });
+$('zoom-reset-btn').addEventListener('click', async () => { pdfScale = 1.5; await rerender(); });
+
+// ══════════════════════════════════════
+//  DOWNLOAD
+// ══════════════════════════════════════
+function downloadPDF() {
+  if (!currentPdfBlob) return;
+  const fname = ($('doc-title').value.trim()||'document')
+    .replace(/[^\w\s-]/g,'').replace(/\s+/g,'_') + '.pdf';
+  const url = URL.createObjectURL(currentPdfBlob);
+  const a = Object.assign(document.createElement('a'), { href:url, download:fname, style:'display:none' });
+  document.body.appendChild(a);
+  a.click(); URL.revokeObjectURL(url); a.remove();
+  showToast('PDF downloaded', 'ok');
+}
+$('save-btn').addEventListener('click', downloadPDF);
+
+// ══════════════════════════════════════
+//  SOURCE DIALOG
+// ══════════════════════════════════════
+$('latex-source-btn').addEventListener('click', async () => {
+  if (!editor) return;
+  try {
+    const p = await buildPayload();
+    const res = await fetch(`${API}/api/latex`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(p),
+    });
+    if (!res.ok) throw new Error('Failed to generate source');
+    const { source } = await res.json();
+    $('source-textarea').value = source;
+    $('source-dialog').showModal();
+  } catch(err) { showToast(err.message, 'err'); }
+});
+$('copy-source-btn').addEventListener('click', () =>
+  navigator.clipboard.writeText($('source-textarea').value)
+    .then(()=>showToast('Copied','ok'))
+    .catch(()=>showToast('Copy failed','err'))
+);
+
+// ══════════════════════════════════════
+//  REPHRASE
+// ══════════════════════════════════════
+let rephrasePopupPinned = false;
+
+function positionPopup(el, rect) {
+  const margin = 8;
+  let top = rect.top - el.offsetHeight - margin;
+  if (top < margin) top = rect.bottom + margin;
+  let left = rect.left + (rect.width / 2) - (el.offsetWidth / 2);
+  left = Math.max(margin, Math.min(left, window.innerWidth - el.offsetWidth - margin));
+  el.style.top  = top  + 'px';
+  el.style.left = left + 'px';
+}
+
+document.addEventListener('selectionchange', () => {
+  if (rephrasePopupPinned) return;
+  const sel = window.getSelection();
+  if (!sel || sel.isCollapsed || sel.rangeCount === 0) {
+    $('rephrase-popup').classList.remove('visible');
+    return;
+  }
+  const range = sel.getRangeAt(0);
+  const editorEl = $('editorjs');
+  if (!editorEl || !editorEl.contains(range.commonAncestorContainer)) {
+    $('rephrase-popup').classList.remove('visible');
+    return;
+  }
+  const text = sel.toString().trim();
+  if (text.length < 8) {
+    $('rephrase-popup').classList.remove('visible');
+    return;
+  }
+  savedSelection = range.cloneRange();
+  const popup = $('rephrase-popup');
+  popup.classList.add('visible');
+  // Position after paint
+  requestAnimationFrame(() => {
+    const rect = range.getBoundingClientRect();
+    positionPopup(popup, rect);
+  });
+});
+
+$('rephrase-dismiss').addEventListener('click', () => {
+  $('rephrase-popup').classList.remove('visible');
+  rephrasePopupPinned = false;
+});
+
+$('rephrase-btn').addEventListener('click', async () => {
+  if (!savedSelection) return;
+  const selectedText = savedSelection.toString().trim();
+  if (!selectedText) return;
+  rephrasePopupPinned = true;
+
+  const btn = $('rephrase-btn');
+  btn.disabled = true;
+  btn.textContent = '…';
+  const style = $('rephrase-style').value;
+
+  try {
+    const res = await fetch(`${API}/api/rephrase`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: selectedText, style }),
+    });
+    if (!res.ok) {
+      const e = await res.json().catch(()=>({}));
+      throw new Error(e.detail || 'Rephrase failed');
+    }
+    const { rephrased } = await res.json();
+    rephrasedText = rephrased;
+
+    // Show preview panel
+    const previewWrap = $('rephrase-preview-wrap');
+    $('rephrase-preview-text').textContent = rephrased;
+    previewWrap.classList.add('visible');
+
+    // Position preview near selection
+    const selRange = savedSelection;
+    const rect = selRange.getBoundingClientRect();
+    requestAnimationFrame(() => positionPopup(previewWrap, rect));
+
+    $('rephrase-popup').classList.remove('visible');
+  } catch(err) {
+    showToast('Rephrase failed: ' + err.message, 'err');
+    rephrasePopupPinned = false;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '✦ Rephrase';
+  }
+});
+
+$('rephrase-accept-btn').addEventListener('click', () => {
+  if (!savedSelection || !rephrasedText) return;
+  try {
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(savedSelection);
+    // Replace the selection
+    if (!document.execCommand('insertText', false, rephrasedText)) {
+      // Fallback for browsers that don't support execCommand
+      savedSelection.deleteContents();
+      savedSelection.insertNode(document.createTextNode(rephrasedText));
+    }
+    showToast('Text replaced ✓', 'ok');
+  } catch(e) {
+    showToast('Could not replace text automatically — copy from preview.', 'err');
+  }
+  $('rephrase-preview-wrap').classList.remove('visible');
+  rephrasePopupPinned = false;
+  savedSelection = null;
+  rephrasedText = '';
+});
+
+$('rephrase-reject-btn').addEventListener('click', () => {
+  $('rephrase-preview-wrap').classList.remove('visible');
+  rephrasePopupPinned = false;
+  savedSelection = null;
+  rephrasedText = '';
+});
+
+// ══════════════════════════════════════
+//  REVIEW
+// ══════════════════════════════════════
+$('review-btn').addEventListener('click', async () => {
+  if (!editor) return;
+  const dialog = $('review-dialog');
+  $('review-loading').style.display = 'block';
+  $('review-content').style.display = 'none';
+  $('review-meta').style.display = 'none';
+  dialog.showModal();
+
+  try {
+    const payload = await buildPayload();
+    const res = await fetch(`${API}/api/review`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) {
+      const e = await res.json().catch(()=>({}));
+      throw new Error(e.detail || `HTTP ${res.status}`);
+    }
+    const data = await res.json();
+    renderReviewResults(data);
+  } catch(err) {
+    $('review-loading').innerHTML = `<span style="color:#d17070">⚠ ${err.message}</span>`;
+  }
+});
+
+function scoreClass(n) {
+  if (n >= 8) return 'high';
+  if (n >= 5) return 'mid';
+  return 'low';
+}
+
+function renderReviewResults(data) {
+  const tpl = $('template-select').value.toUpperCase();
+  $('review-dialog-title').textContent = `◈ Paper Review — ${data.template_name || tpl}`;
+
+  // Meta bar
+  const meta = $('review-meta');
+  meta.innerHTML = `
+    <span><strong>Template:</strong> ${data.template_name || tpl}</span>
+    <span><strong>Words:</strong> ~${(data.word_count || 0).toLocaleString()}</span>
+    <span><strong>Sections found:</strong> ${(data.sections_found || []).length}</span>
+  `;
+  meta.style.display = 'flex';
+
+  // Scores summary
+  const scores = data.scores || {};
+  const scoreNames = {
+    completeness:    'Completeness',
+    writing_quality: 'Writing Quality',
+    technical_depth: 'Technical Depth',
+    structure:       'Structure',
+  };
+  let scoresHtml = '<div class="score-grid">';
+  Object.entries(scoreNames).forEach(([key, label]) => {
+    const s = scores[key] || { score: 0, comment: '' };
+    const cls = scoreClass(s.score);
+    const pct = (s.score / 10) * 100;
+    scoresHtml += `
+      <div class="score-card">
+        <div class="score-card-header">
+          <span class="score-label">${label}</span>
+          <span class="score-value ${cls}">${s.score}<span style="font-size:13px;opacity:.5">/10</span></span>
+        </div>
+        <div class="score-bar-track"><div class="score-bar-fill ${cls}" style="width:${pct}%"></div></div>
+        <div class="score-comment">${s.comment || ''}</div>
+      </div>`;
+  });
+  scoresHtml += '</div>';
+
+  // Section compliance
+  const sectionCheck = data.section_check || {};
+  const requiredSections = data.required_sections || [];
+  let complianceHtml = '<div class="section-compliance-grid">';
+  Object.entries(sectionCheck).forEach(([name, info]) => {
+    const isRequired = requiredSections.map(s=>s.toLowerCase()).includes(name.toLowerCase());
+    const iconMap = { good: '✓', fair: '~', needs_work: '!', missing: '✕' };
+    const icon = iconMap[info.quality] || '?';
+    const reqBadge = (isRequired && info.quality === 'missing') ? ' ★REQUIRED' : (isRequired ? ' ★' : '');
+    complianceHtml += `
+      <span class="compliance-chip ${info.quality}" title="${info.note || ''}">
+        <span class="chip-icon">${icon}</span>
+        ${name.charAt(0).toUpperCase() + name.slice(1)}${reqBadge}
+      </span>`;
+  });
+  complianceHtml += '</div>';
+
+  // Recommendations
+  const recs = data.recommendations || [];
+  let recsHtml = '<ul class="recommendations-list">';
+  recs.forEach(r => { recsHtml += `<li>${r}</li>`; });
+  recsHtml += '</ul>';
+
+  // Overall
+  const overall = data.overall_assessment || '';
+
+  $('review-content').innerHTML = `
+    <div class="review-section-title">Scores</div>
+    ${scoresHtml}
+    <div class="review-section-title">Section Compliance</div>
+    ${complianceHtml}
+    <div class="review-section-title">Recommendations</div>
+    ${recsHtml}
+    <div class="review-section-title">Overall Assessment</div>
+    <div class="overall-card">${overall}</div>
+  `;
+
+  $('review-loading').style.display = 'none';
+  $('review-content').style.display = 'block';
+}
+
+// ══════════════════════════════════════
+//  KEYBOARD SHORTCUTS
+// ══════════════════════════════════════
+document.addEventListener('keydown', e => {
+  const mod = e.ctrlKey || e.metaKey;
+  if (mod && e.key === 'Enter') { e.preventDefault(); compilePDF(); }
+  if (mod && e.key === 's')     { e.preventDefault(); downloadPDF(); }
+  if (e.key === 'Escape') {
     hideError();
-    setStatus('Compiling…', 'busy');
-    $('pdf-viewer').innerHTML = '<div class="pdf-skeleton"></div>';
-    const t0 = performance.now();
-
-    try {
-      const payload = await buildPayload();
-      const res = await fetch(`${API}/api/compile`, {
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body: JSON.stringify(payload),
-      });
-      if (!res.ok) {
-        const err = await res.json().catch(()=>({}));
-        throw new Error(err.detail || `Server error HTTP ${res.status}`);
-      }
-      currentPdfBlob = await res.blob();
-      $('save-btn').disabled = false;
-      await renderPDF(currentPdfBlob);
-      const secs = ((performance.now()-t0)/1000).toFixed(1);
-      setStatus(`Compiled in ${secs}s · ${totalPages} page${totalPages!==1?'s':''}`, 'ready');
-      $('status-time').textContent = new Date().toLocaleTimeString();
-      showToast(`✓ PDF ready (${secs}s)`, 'ok');
-    } catch(err) {
-      $('pdf-viewer').innerHTML =
-        `<div class="pdf-placeholder" style="margin-top:60px">
-           <span class="icon" style="color:#d17070">✕</span>
-           Compilation failed.<br>See error panel below.
-         </div>`;
-      showError(err.message);
-    } finally {
-      btn.disabled = false; btn.textContent = '▶ Compile';
-    }
+    $('rephrase-popup').classList.remove('visible');
+    $('rephrase-preview-wrap').classList.remove('visible');
+    rephrasePopupPinned = false;
+    try { $('source-dialog').close();  } catch(_){}
+    try { $('authors-dialog').close(); } catch(_){}
+    try { $('review-dialog').close();  } catch(_){}
   }
-  $('recompile-btn').addEventListener('click', compilePDF);
-
-  // ══════════════════════════════════════
-  //  PDF RENDER
-  // ══════════════════════════════════════
-  async function renderPDF(blob) {
-    const viewer = $('pdf-viewer');
-    viewer.innerHTML = ''; $('page-count').textContent = '';
-    const buf  = await blob.arrayBuffer();
-    const pdf  = await pdfjsLib.getDocument({ data:buf }).promise;
-    totalPages = pdf.numPages;
-    for (let n=1; n<=pdf.numPages; n++) {
-      const page     = await pdf.getPage(n);
-      const viewport = page.getViewport({ scale:pdfScale });
-      const canvas   = document.createElement('canvas');
-      canvas.width   = viewport.width;
-      canvas.height  = viewport.height;
-      viewer.appendChild(canvas);
-      await page.render({ canvasContext:canvas.getContext('2d'), viewport }).promise;
-    }
-    $('page-count').textContent =
-      `${pdf.numPages} page${pdf.numPages!==1?'s':''}`;
-  }
-
-  // ══════════════════════════════════════
-  //  ZOOM
-  // ══════════════════════════════════════
-  function updateZoom() {
-    $('zoom-display').textContent = Math.round((pdfScale/1.5)*100)+'%';
-  }
-  async function rerender() {
-    updateZoom();
-    if (currentPdfBlob) await renderPDF(currentPdfBlob);
-  }
-  $('zoom-in-btn').addEventListener('click', async () => {
-    if (pdfScale < SCALE_MAX) { pdfScale = +(pdfScale+SCALE_STEP).toFixed(2); await rerender(); }
-  });
-  $('zoom-out-btn').addEventListener('click', async () => {
-    if (pdfScale > SCALE_MIN) { pdfScale = +(pdfScale-SCALE_STEP).toFixed(2); await rerender(); }
-  });
-  $('zoom-reset-btn').addEventListener('click', async () => {
-    pdfScale = 1.5; await rerender();
-  });
-
-  // ══════════════════════════════════════
-  //  DOWNLOAD
-  // ══════════════════════════════════════
-  function downloadPDF() {
-    if (!currentPdfBlob) return;
-    const fname = ($('doc-title').value.trim()||'document')
-      .replace(/[^\w\s-]/g,'').replace(/\s+/g,'_') + '.pdf';
-    const url = URL.createObjectURL(currentPdfBlob);
-    const a = Object.assign(document.createElement('a'),
-      { href:url, download:fname, style:'display:none' });
-    document.body.appendChild(a);
-    a.click(); URL.revokeObjectURL(url); a.remove();
-    showToast('PDF downloaded', 'ok');
-  }
-  $('save-btn').addEventListener('click', downloadPDF);
-
-  // ══════════════════════════════════════
-  //  SOURCE DIALOG
-  // ══════════════════════════════════════
-  $('latex-source-btn').addEventListener('click', async () => {
-    if (!editor) return;
-    try {
-      const p = await buildPayload();
-      const res = await fetch(`${API}/api/latex`, {
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body: JSON.stringify(p),
-      });
-      if (!res.ok) throw new Error('Failed to generate source');
-      const { source } = await res.json();
-      $('source-textarea').value = source;
-      $('source-dialog').showModal();
-    } catch(err) { showToast(err.message, 'err'); }
-  });
-
-  $('copy-source-btn').addEventListener('click', () =>
-    navigator.clipboard.writeText($('source-textarea').value)
-      .then(()=>showToast('Copied','ok'))
-      .catch(()=>showToast('Copy failed','err'))
-  );
-
-  // ══════════════════════════════════════
-  //  KEYBOARD SHORTCUTS
-  // ══════════════════════════════════════
-  document.addEventListener('keydown', e => {
-    const mod = e.ctrlKey || e.metaKey;
-    if (mod && e.key==='Enter') { e.preventDefault(); compilePDF(); }
-    if (mod && e.key==='s')     { e.preventDefault(); downloadPDF(); }
-    if (e.key==='Escape') {
-      hideError();
-      try { $('source-dialog').close(); } catch(_){}
-    }
-  });
+});
 </script>
 </body>
 </html>

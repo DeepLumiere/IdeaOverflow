@@ -29,10 +29,9 @@ app.add_middleware(
 )
 
 # Initialize Gemini — keep your own key here
-client = genai.Client(api_key="KEY_GOES_HERE")
+client = genai.Client(api_key="API_KEY_HERE")
 
-# ─── Gemini model to use ────────────────────────────────────────────────────
-GEMINI_MODEL = "gemini-2.5-flash"   # was "gemini-3-flash" which doesn't exist
+GEMINI_MODEL = "gemini-2.5-flash"
 
 # ─── Pydantic Models ─────────────────────────────────────────────────────────
 
@@ -40,11 +39,16 @@ class EditorBlock(BaseModel):
     type: str
     data: dict
 
+class Author(BaseModel):
+    name: str
+    affiliation: str = ""
+
 class CompileRequest(BaseModel):
     template: str
     title: str
-    author: str
-    affiliation: str
+    author: str = ""          # legacy single-author (kept for compat)
+    affiliation: str = ""     # legacy affiliation
+    authors: list[Author] = [] # new multi-author list
     blocks: list[EditorBlock]
 
     @field_validator("template")
@@ -67,13 +71,21 @@ class CompileRequest(BaseModel):
             raise ValueError("Too many blocks (max 500)")
         return v
 
+class RephraseRequest(BaseModel):
+    text: str
+    style: str = "academic"
+
+class ReviewRequest(BaseModel):
+    template: str
+    title: str
+    authors: list[Author] = []
+    blocks: list[EditorBlock]
+
 
 # ─── LaTeX Sanitisation ───────────────────────────────────────────────────────
 
-# Characters that must be escaped in plain LaTeX text.
-# Order matters: process backslash FIRST to avoid double-escaping.
 _LATEX_ESCAPES: list[tuple[str, str]] = [
-    ("\\", "\\textbackslash{}"),  # must come first
+    ("\\", "\\textbackslash{}"),
     ("&",  "\\&"),
     ("%",  "\\%"),
     ("$",  "\\$"),
@@ -86,85 +98,84 @@ _LATEX_ESCAPES: list[tuple[str, str]] = [
 ]
 
 _UNICODE_REPLACEMENTS: dict[str, str] = {
-    # Quotes
-    "\u201c": "``",      # left double quote
-    "\u201d": "''",      # right double quote
-    "\u2018": "`",       # left single quote
-    "\u2019": "'",       # right single quote
-    # Dashes
-    "\u2013": "--",      # en dash
-    "\u2014": "---",     # em dash
-    "\u2012": "-",       # figure dash
-    "\u2015": "---",     # horizontal bar
-    # Spaces
-    "\u00a0": " ",       # non-breaking space
-    "\u202f": " ",       # narrow no-break space
-    "\u2009": " ",       # thin space
-    "\u2008": " ",       # punctuation space
-    "\u2007": " ",       # figure space
-    "\u2006": " ",       # six-per-em space
-    "\u2005": " ",       # four-per-em space
-    "\u2004": " ",       # three-per-em space
-    "\u2003": " ",       # em space
-    "\u2002": " ",       # en space
-    "\u2001": " ",       # em quad
-    "\u2000": " ",       # en quad
-    # Zero-width / invisible characters — must be stripped entirely
-    "\u200b": "",        # zero-width space       ← the reported culprit
-    "\u200c": "",        # zero-width non-joiner
-    "\u200d": "",        # zero-width joiner
-    "\u200e": "",        # left-to-right mark
-    "\u200f": "",        # right-to-left mark
-    "\ufeff": "",        # BOM / zero-width no-break space
-    "\u00ad": "",        # soft hyphen
-    # Math / symbols
-    "\u2026": "\\dots",  # ellipsis
-    "\u2212": "-",       # minus sign
-    "\u00d7": "\\times", # multiplication sign
-    "\u00f7": "\\div",   # division sign
-    "\u2032": "'",       # prime
-    "\u2033": "''",      # double prime
-    "\u2192": "\\rightarrow{}",
-    "\u2190": "\\leftarrow{}",
-    "\u2194": "\\leftrightarrow{}",
-    "\u21d2": "\\Rightarrow{}",
-    "\u2264": "\\leq{}",
-    "\u2265": "\\geq{}",
-    "\u2260": "\\neq{}",
-    "\u221e": "\\infty{}",
-    "\u03b1": "\\alpha{}",  # common Greek letters
-    "\u03b2": "\\beta{}",
-    "\u0394": "\\Delta{}",
-    "\u223c": "\\sim{}",
-    "\u03b3": "\\gamma{}",
-    "\u03b4": "\\delta{}",
-    "\u03bb": "\\lambda{}",
-    "\u03bc": "\\mu{}",
-    "\u03c3": "\\sigma{}",
-    "\u03c4": "\\tau{}",
-    "\u03c0": "\\pi{}",
+    "\u201c": "``", "\u201d": "''", "\u2018": "`", "\u2019": "'",
+    "\u2013": "--", "\u2014": "---", "\u2012": "-", "\u2015": "---",
+    "\u00a0": " ", "\u202f": " ", "\u2009": " ", "\u2008": " ",
+    "\u2007": " ", "\u2006": " ", "\u2005": " ", "\u2004": " ",
+    "\u2003": " ", "\u2002": " ", "\u2001": " ", "\u2000": " ",
+    "\u200b": "", "\u200c": "", "\u200d": "", "\u200e": "",
+    "\u200f": "", "\ufeff": "", "\u00ad": "",
+    "\u2026": "\\dots", "\u2212": "-", "\u00d7": "\\times",
+    "\u00f7": "\\div", "\u2032": "'", "\u2033": "''",
+    "\u2192": "\\rightarrow{}", "\u2190": "\\leftarrow{}",
+    "\u2194": "\\leftrightarrow{}", "\u21d2": "\\Rightarrow{}",
+    "\u2264": "\\leq{}", "\u2265": "\\geq{}", "\u2260": "\\neq{}",
+    "\u221e": "\\infty{}", "\u03b1": "\\alpha{}", "\u03b2": "\\beta{}",
+    "\u0394": "\\Delta{}", "\u223c": "\\sim{}", "\u03b3": "\\gamma{}",
+    "\u03b4": "\\delta{}", "\u03bb": "\\lambda{}", "\u03bc": "\\mu{}",
+    "\u03c3": "\\sigma{}", "\u03c4": "\\tau{}", "\u03c0": "\\pi{}",
     "\u03a9": "\\Omega{}",
 }
 
 
 def sanitize_latex(text: str) -> str:
-    """Escape plain text so it's safe inside a LaTeX document."""
-    # 1. Unicode replacements first (before escape processing)
     for char, replacement in _UNICODE_REPLACEMENTS.items():
         text = text.replace(char, replacement)
-    # 2. Structural escapes
     for char, replacement in _LATEX_ESCAPES:
         text = text.replace(char, replacement)
     return text
 
 
 def clean_html(raw: str) -> str:
-    """Strip HTML tags and unescape HTML entities from Editor.js rich text."""
     raw = raw.replace("&nbsp;", " ")
-    raw = html.unescape(raw)                        # &amp; → &, &lt; → <, …
-    raw = re.sub(r"<br\s*/?>", "\n", raw)           # <br> → newline
-    raw = re.sub(r"<[^>]+>", "", raw)               # strip remaining tags
+    raw = html.unescape(raw)
+    raw = re.sub(r"<br\s*/?>", "\n", raw)
+    raw = re.sub(r"<[^>]+>", "", raw)
     return raw.strip()
+
+
+# ─── Author Formatting ────────────────────────────────────────────────────────
+
+def _resolve_authors(request: CompileRequest) -> list[Author]:
+    """Return list[Author] whether caller sent new multi-author or legacy fields."""
+    if request.authors:
+        return request.authors
+    # Fall back to legacy single-author fields
+    if request.author:
+        return [Author(name=request.author, affiliation=request.affiliation)]
+    return [Author(name="Author", affiliation="")]
+
+
+def format_authors_latex(authors: list[Author], template: str) -> str:
+    if not authors:
+        return "Author"
+
+    if template == "acl":
+        parts = []
+        for a in authors:
+            name = sanitize_latex(a.name)
+            affil = sanitize_latex(a.affiliation)
+            parts.append(f"{name} \\\\\n\t{affil}" if affil else name)
+        return "\n\t\\And\n\t".join(parts)
+
+    elif template == "cvpr":
+        names = " \\quad ".join(sanitize_latex(a.name) for a in authors)
+        # Deduplicate affiliations while preserving order
+        seen, affils = set(), []
+        for a in authors:
+            if a.affiliation and a.affiliation not in seen:
+                seen.add(a.affiliation)
+                affils.append(sanitize_latex(a.affiliation))
+        affil_str = " \\quad ".join(affils)
+        return f"{names} \\\\\n{affil_str}" if affil_str else names
+
+    else:  # standard
+        parts = []
+        for a in authors:
+            name = sanitize_latex(a.name)
+            affil = sanitize_latex(a.affiliation)
+            parts.append(f"{name} \\\\ \\small {affil}" if affil else name)
+        return "\n\\and\n".join(parts)
 
 
 # ─── Templates ───────────────────────────────────────────────────────────────
@@ -185,8 +196,7 @@ ACL_TEMPLATE = r"""\documentclass[11pt]{article}
 
 \title{[[TITLE]]}
 \author{
-	[[AUTHOR]] \\
-	[[AFFILIATION]]
+	[[AUTHORS]]
 }
 \maketitle
 \begin{abstract}
@@ -214,7 +224,7 @@ CVPR_TEMPLATE = r"""\documentclass[10pt,twocolumn,letterpaper]{article}
 \begin{document}
 
 \title{[[TITLE]]}
-\author{[[AUTHOR]] \\ [[AFFILIATION]]}
+\author{[[AUTHORS]]}
 \maketitle
 
 %%BODY%%
@@ -233,7 +243,7 @@ STANDARD_TEMPLATE = r"""\documentclass[12pt]{article}
 \usepackage{geometry}
 \geometry{margin=1in}
 \title{[[TITLE]]}
-\author{[[AUTHOR]] \\ \small [[AFFILIATION]]}
+\author{[[AUTHORS]]}
 \date{\today}
 \begin{document}
 \maketitle
@@ -247,20 +257,40 @@ TEMPLATES = {
     "standard": STANDARD_TEMPLATE,
 }
 
+# ─── Template requirement definitions ────────────────────────────────────────
+
+TEMPLATE_REQUIREMENTS = {
+    "acl": {
+        "name": "ACL",
+        "required": ["abstract", "introduction", "limitations"],
+        "recommended": ["related work", "methodology", "experiments", "results", "conclusion", "ethical considerations"],
+    },
+    "cvpr": {
+        "name": "CVPR",
+        "required": ["abstract", "introduction", "compute budget"],
+        "recommended": ["related work", "method", "experiments", "results", "conclusion", "appendix"],
+    },
+    "standard": {
+        "name": "Standard Article",
+        "required": ["introduction"],
+        "recommended": ["related work", "methodology", "results", "conclusion"],
+    },
+}
+
 
 # ─── DOCX helpers ─────────────────────────────────────────────────────────────
 
 def extract_text_from_docx(file_path: str) -> str:
     doc = docx.Document(file_path)
-    return "\n\n".join(          # double newline → paragraph boundary
+    return "\n\n".join(
         para.text for para in doc.paragraphs if para.text.strip()
     )
 
 
 # ─── Chunked-conversion helpers ───────────────────────────────────────────────
 
-CHUNK_CHARS = 7_000          # characters sent to Gemini per call
-CONTEXT_BLOCKS = 2           # tail blocks fed as context to each continuation chunk
+CHUNK_CHARS = 7_000
+CONTEXT_BLOCKS = 2
 
 _BLOCK_RULES = """\
 Block conversion rules (STRICT):
@@ -286,13 +316,12 @@ _CONT_SCHEMA = """\
 
 
 def _split_chunks(text: str, size: int = CHUNK_CHARS) -> list[str]:
-    """Split text at paragraph boundaries so no chunk exceeds `size` chars."""
     paragraphs = [p.strip() for p in re.split(r'\n{2,}', text) if p.strip()]
     chunks: list[str] = []
     buf: list[str] = []
     buf_len = 0
     for para in paragraphs:
-        para_len = len(para) + 2          # +2 for the "\n\n" separator
+        para_len = len(para) + 2
         if buf and buf_len + para_len > size:
             chunks.append("\n\n".join(buf))
             buf, buf_len = [para], para_len
@@ -305,7 +334,6 @@ def _split_chunks(text: str, size: int = CHUNK_CHARS) -> list[str]:
 
 
 def _call_gemini(prompt: str) -> dict:
-    """Call Gemini, strip fences, parse JSON.  Raises HTTPException on failure."""
     try:
         resp = client.models.generate_content(model=GEMINI_MODEL, contents=prompt)
         raw = resp.text.strip()
@@ -322,15 +350,9 @@ def _call_gemini(prompt: str) -> dict:
 
 
 def _process_chunks(chunks: list[str]) -> dict:
-    """
-    Process every chunk sequentially and return a merged Editor.js document.
-    Chunk 0  → extract metadata + blocks (schema: _FIRST_SCHEMA)
-    Chunk N  → extract blocks only, fed last CONTEXT_BLOCKS for continuity
-    """
     total = len(chunks)
     logger.info("Processing document in %d chunk(s)", total)
 
-    # ── Chunk 0: metadata + first batch of blocks ──────────────────────────
     first_prompt = f"""\
 You are converting an academic document into Editor.js JSON blocks.
 This is chunk 1 of {total}.
@@ -352,7 +374,6 @@ Document text (chunk 1/{total}):
     }
     logger.info("Chunk 1/%d → %d blocks, metadata=%s", total, len(all_blocks), metadata)
 
-    # ── Chunks 1…N: continuation ───────────────────────────────────────────
     for idx, chunk_text in enumerate(chunks[1:], start=2):
         context_tail = all_blocks[-CONTEXT_BLOCKS:] if len(all_blocks) >= CONTEXT_BLOCKS else all_blocks
         context_json = json.dumps(context_tail, ensure_ascii=False)
@@ -383,7 +404,6 @@ Document text (chunk {idx}/{total}):
 # ─── LaTeX construction ───────────────────────────────────────────────────────
 
 def _list_items_to_latex(items: list, ordered: bool, depth: int = 0) -> str:
-    """Recursively convert Editor.js list items to LaTeX enumerate/itemize."""
     env = "enumerate" if ordered else "itemize"
     indent = "  " * depth
     lines = [f"{indent}\\begin{{{env}}}"]
@@ -395,48 +415,36 @@ def _list_items_to_latex(items: list, ordered: bool, depth: int = 0) -> str:
             if nested:
                 lines.append(_list_items_to_latex(nested, ordered, depth + 1))
         else:
-            # Flat string (older Editor.js list format)
             lines.append(f"{indent}  \\item {sanitize_latex(clean_html(str(item)))}")
     lines.append(f"{indent}\\end{{{env}}}")
     return "\n".join(lines)
 
 
 def _table_to_latex(table_data: dict) -> str:
-    """Convert an Editor.js table block to a LaTeX table using booktabs."""
     content = table_data.get("content", [])
     with_headings: bool = table_data.get("withHeadings", False)
-
     rows = [r for r in content if isinstance(r, list)]
     if not rows:
         return ""
-
     cols = max(len(r) for r in rows)
     if cols == 0:
         return ""
-
     col_spec = " ".join(["l"] * cols)
-
     lines = [
-        "",
-        "\\begin{table}[htbp]",
-        "  \\centering",
-        f"  \\begin{{tabular}}{{{col_spec}}}",
-        "  \\toprule",
+        "", "\\begin{table}[htbp]", "  \\centering",
+        f"  \\begin{{tabular}}{{{col_spec}}}", "  \\toprule",
     ]
-
     for i, row in enumerate(rows):
         padded = list(row) + [""] * (cols - len(row))
         if i == 0 and with_headings:
             cells = " & ".join(
-                "\\textbf{" + sanitize_latex(clean_html(str(c))) + "}"
-                for c in padded
+                "\\textbf{" + sanitize_latex(clean_html(str(c))) + "}" for c in padded
             )
         else:
             cells = " & ".join(sanitize_latex(clean_html(str(c))) for c in padded)
         lines.append(f"  {cells} \\\\")
         if i == 0 and with_headings:
             lines.append("  \\midrule")
-
     lines += ["  \\bottomrule", "  \\end{tabular}", "\\end{table}", ""]
     return "\n".join(lines)
 
@@ -462,7 +470,6 @@ def construct_latex(request: CompileRequest) -> str:
                 body_parts.append(f"\\{cmd}{{{text}}}\n")
 
         elif btype == "code":
-            # Raw LaTeX — not sanitised; user is expected to write valid LaTeX here.
             code = data.get("code", "").strip()
             if code:
                 body_parts.append(f"{code}\n")
@@ -483,15 +490,18 @@ def construct_latex(request: CompileRequest) -> str:
             logger.warning("Unsupported block type ignored: %s", btype)
 
     body = "\n".join(body_parts)
+    authors = _resolve_authors(request)
+    authors_latex = format_authors_latex(authors, request.template)
 
-    # Select template, inject metadata, inject body
     tpl = TEMPLATES.get(request.template, STANDARD_TEMPLATE)
     result = (
         tpl
-        .replace("[[TITLE]]",       sanitize_latex(request.title))
-        .replace("[[AUTHOR]]",      sanitize_latex(request.author))
-        .replace("[[AFFILIATION]]", sanitize_latex(request.affiliation))
-        .replace("%%BODY%%",        body)
+        .replace("[[TITLE]]",   sanitize_latex(request.title))
+        .replace("[[AUTHORS]]", authors_latex)
+        # Legacy placeholders (keep in case someone still uses old templates)
+        .replace("[[AUTHOR]]",      sanitize_latex(authors[0].name if authors else ""))
+        .replace("[[AFFILIATION]]", sanitize_latex(authors[0].affiliation if authors else ""))
+        .replace("%%BODY%%",    body)
     )
     return result
 
@@ -500,11 +510,6 @@ def construct_latex(request: CompileRequest) -> str:
 
 @app.post("/api/upload")
 async def upload_and_modularize(file: UploadFile = File(...)):
-    """
-    Convert a .docx file into Editor.js blocks using chunked Gemini processing.
-    Long documents are split into ~7 000-char chunks and processed sequentially
-    so the entire document is always converted, never silently truncated.
-    """
     if not (file.filename or "").endswith(".docx"):
         raise HTTPException(status_code=400, detail="Only .docx files are supported.")
 
@@ -527,8 +532,6 @@ async def upload_and_modularize(file: UploadFile = File(...)):
     chunks = _split_chunks(raw_text)
     logger.info("Document %.0f chars → %d chunk(s)", len(raw_text), len(chunks))
 
-    # _process_chunks is synchronous (Gemini SDK is sync); run in thread pool
-    # so we don't block the event loop on large documents.
     import asyncio
     loop = asyncio.get_event_loop()
     result = await loop.run_in_executor(None, _process_chunks, chunks)
@@ -537,7 +540,6 @@ async def upload_and_modularize(file: UploadFile = File(...)):
 
 @app.post("/api/latex")
 def get_latex_source(request: CompileRequest) -> dict:
-    """Return the generated LaTeX source without compiling — useful for debugging."""
     try:
         return {"source": construct_latex(request)}
     except Exception as e:
@@ -553,7 +555,6 @@ def compile_latex(request: CompileRequest):
         tex_path = os.path.join(temp_dir, "main.tex")
         pdf_path = os.path.join(temp_dir, "main.pdf")
 
-        # Copy local style/bib files
         current_dir = os.getcwd()
         for ext in ("*.sty", "*.cls", "*.bib", "*.bst"):
             for fp in glob.glob(os.path.join(current_dir, ext)):
@@ -562,51 +563,32 @@ def compile_latex(request: CompileRequest):
         with open(tex_path, "w", encoding="utf-8") as f:
             f.write(tex_content)
 
-        latex_cmd = [
-            "pdflatex",
-            "-interaction=nonstopmode",
-            "-halt-on-error",
-            "main.tex",
-        ]
+        latex_cmd = ["pdflatex", "-interaction=nonstopmode", "-halt-on-error", "main.tex"]
 
         def run_pass(pass_num: int):
             try:
                 return subprocess.run(
-                    latex_cmd,
-                    cwd=temp_dir,
-                    check=True,
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.STDOUT,
-                    timeout=60,
+                    latex_cmd, cwd=temp_dir, check=True,
+                    stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=60,
                 )
             except subprocess.TimeoutExpired:
-                raise HTTPException(
-                    status_code=504,
-                    detail=f"LaTeX compilation timed out (pass {pass_num}).",
-                )
+                raise HTTPException(status_code=504,
+                    detail=f"LaTeX compilation timed out (pass {pass_num}).")
             except subprocess.CalledProcessError as e:
                 log_output = e.stdout.decode("utf-8", errors="ignore")
                 log_lines = log_output.splitlines()
-
-                # Collect error blocks: the ! line + next 4 context lines
                 error_chunks: list[str] = []
                 for idx, line in enumerate(log_lines):
                     if line.startswith("!"):
-                        chunk = log_lines[idx : idx + 5]
+                        chunk = log_lines[idx: idx + 5]
                         error_chunks.append("\n".join(chunk))
-
                 if error_chunks:
                     short_error = "\n\n".join(error_chunks)
                 else:
-                    # Fall back to last 20 lines of log
                     short_error = "\n".join(log_lines[-20:]) or "Unknown LaTeX error."
+                raise HTTPException(status_code=400,
+                    detail=f"LaTeX Compiler Error (pass {pass_num}):\n{short_error}")
 
-                raise HTTPException(
-                    status_code=400,
-                    detail=f"LaTeX Compiler Error (pass {pass_num}):\n{short_error}",
-                )
-
-        # Two passes — needed for correct cross-references, TOC, etc.
         run_pass(1)
         run_pass(2)
 
@@ -622,6 +604,128 @@ def compile_latex(request: CompileRequest):
         media_type="application/pdf",
         headers={"X-PDF-Size": str(len(pdf_bytes))},
     )
+
+
+@app.post("/api/rephrase")
+def rephrase_text(req: RephraseRequest):
+    """Rephrase a selected passage using Gemini."""
+    if not req.text.strip():
+        raise HTTPException(status_code=400, detail="No text provided.")
+
+    style_map = {
+        "academic":  "Rephrase the following text in a formal, academic style suitable for a research paper. Improve clarity and precision.",
+        "simpler":   "Simplify the following text. Use plain language and shorter sentences while preserving the core meaning.",
+        "concise":   "Make the following text more concise. Remove redundancy and tighten the writing without losing meaning.",
+        "elaborate": "Expand and elaborate on the following text. Add nuance, detail, and academic depth while staying on topic.",
+        "fluent":    "Improve the fluency and flow of the following text. Fix awkward phrasing while preserving the original meaning.",
+    }
+    instruction = style_map.get(req.style, style_map["academic"])
+
+    prompt = f"""{instruction}
+
+Return ONLY the rephrased text — no explanations, no quotation marks, no preamble.
+
+Text:
+{req.text}
+"""
+    try:
+        resp = client.models.generate_content(model=GEMINI_MODEL, contents=prompt)
+        rephrased = resp.text.strip().strip('"').strip("'")
+        return {"rephrased": rephrased, "original": req.text}
+    except Exception as e:
+        logger.error("Rephrase error: %s", e)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/review")
+def review_paper(req: ReviewRequest):
+    """Analyze a paper draft and return scores + section compliance."""
+    reqs = TEMPLATE_REQUIREMENTS.get(req.template, TEMPLATE_REQUIREMENTS["standard"])
+
+    # Build readable text and collect section headers
+    text_parts: list[str] = []
+    section_headers: list[str] = []
+    word_count = 0
+
+    for block in req.blocks:
+        if block.type == "header":
+            t = clean_html(block.data.get("text", ""))
+            text_parts.append(f"\n## {t}\n")
+            section_headers.append(t.lower().strip())
+        elif block.type == "paragraph":
+            t = clean_html(block.data.get("text", ""))
+            text_parts.append(t)
+            word_count += len(t.split())
+        elif block.type == "list":
+            for item in block.data.get("items", []):
+                t = clean_html(item.get("content", "") if isinstance(item, dict) else str(item))
+                text_parts.append("• " + t)
+                word_count += len(t.split())
+
+    paper_text = "\n".join(text_parts)
+
+    all_sections = reqs["required"] + reqs["recommended"]
+
+    prompt = f"""You are a senior academic reviewer for a {reqs['name']} paper submission.
+
+Paper title: {req.title}
+Template: {reqs['name']}
+Word count (approx): {word_count}
+Section headers found: {json.dumps(section_headers)}
+
+REQUIRED sections for {reqs['name']}: {json.dumps(reqs['required'])}
+RECOMMENDED sections: {json.dumps(reqs['recommended'])}
+
+Paper content (first 5000 chars):
+{paper_text[:5000]}
+
+Evaluate the paper and return ONLY a valid JSON object (no markdown fences):
+{{
+  "section_check": {{
+    "abstract":        {{"present": true,  "quality": "good",    "note": "Well-structured abstract covering motivation and results."}},
+    "introduction":    {{"present": false, "quality": "missing", "note": "No introduction section found."}},
+    "limitations":     {{"present": false, "quality": "missing", "note": "Required for ACL — must discuss model/data limitations."}}
+  }},
+  "scores": {{
+    "completeness":    {{"score": 6, "comment": "Missing Limitations section which is required for ACL."}},
+    "writing_quality": {{"score": 7, "comment": "Clear prose but some sections lack transitions."}},
+    "technical_depth": {{"score": 5, "comment": "Experiments section needs more ablation studies."}},
+    "structure":       {{"score": 7, "comment": "Logical flow but Related Work comes too late."}}
+  }},
+  "recommendations": [
+    "Add a Limitations section — this is mandatory for ACL submissions.",
+    "Include quantitative baselines in the Experiments section.",
+    "Expand the Related Work with recent (2023–2024) citations."
+  ],
+  "overall_assessment": "The paper presents an interesting approach but is missing key required sections. With revisions it could meet ACL standards."
+}}
+
+IMPORTANT:
+- section_check must include ALL sections from: {json.dumps(all_sections)}
+- quality values: "good" | "fair" | "needs_work" | "missing"
+- scores are integers 1–10
+- Be specific and actionable in comments and recommendations
+- A section is "present" if the headers list contains a matching or similar term
+"""
+
+    try:
+        resp = client.models.generate_content(model=GEMINI_MODEL, contents=prompt)
+        raw = resp.text.strip()
+        raw = re.sub(r"^```(?:json)?\s*", "", raw)
+        raw = re.sub(r"\s*```\s*$", "", raw)
+        result = json.loads(raw)
+        result["template_name"]      = reqs["name"]
+        result["required_sections"]  = reqs["required"]
+        result["recommended_sections"] = reqs["recommended"]
+        result["word_count"]         = word_count
+        result["sections_found"]     = section_headers
+        return result
+    except json.JSONDecodeError as e:
+        logger.error("Review JSON parse error: %s | raw: %.300s", e, raw)
+        raise HTTPException(status_code=500, detail=f"AI returned invalid JSON: {e}")
+    except Exception as e:
+        logger.error("Review error: %s", e)
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.get("/api/health")
