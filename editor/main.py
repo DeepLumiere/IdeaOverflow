@@ -29,7 +29,7 @@ app.add_middleware(
 )
 
 # Initialize Gemini — keep your own key here
-client = genai.Client(api_key="API_KEY")
+client = genai.Client(api_key="KEY_GOES_HERE")
 
 # ─── Gemini model to use ────────────────────────────────────────────────────
 GEMINI_MODEL = "gemini-2.5-flash"   # was "gemini-3-flash" which doesn't exist
@@ -72,78 +72,80 @@ class CompileRequest(BaseModel):
 
 # Characters that must be escaped in plain LaTeX text.
 # Order matters: process backslash FIRST to avoid double-escaping.
-_LATEX_ESCAPES = [
-    ("\\", "\\textbackslash{}"),
-    ("&", "\\&"),
-    ("%", "\\%"),
-    ("$", "\\$"),
-    ("#", "\\#"),
-    ("_", "\\_"),
-    ("{", "\\{"),
-    ("}", "\\}"),
-    ("~", "\\textasciitilde{}"),
-    ("^", "\\textasciicircum{}"),
-
-    ("“", "``"),
-    ("”", "''"),
-    ("‘", "`"),
-    ("’", "'"),
-
-    ("–", "--"),
-    ("—", "---"),
-    ("−", "-"),
-    ("…", "\\ldots{}"),
-
-    ("\u00A0", " "),
-
-    ("×", "$\\times$"),
-    ("÷", "$\\div$"),
-    ("±", "$\\pm$"),
-    ("≤", "$\\leq$"),
-    ("≥", "$\\geq$"),
-    ("≈", "$\\approx$"),
-    ("≠", "$\\neq$"),
-
-    ("•", "\\textbullet{}"),
-
-    ("°", "$^{\\circ}$"),
-
-    ("©", "\\textcopyright{}"),
-    ("®", "\\textregistered{}"),
-    ("™", "\\texttrademark{}"),
-
-    ("ﬁ", "fi"),
-    ("ﬂ", "fl"),
-    ("ﬀ", "ff"),
-    ("ﬃ", "ffi"),
-    ("ﬄ", "ffl"),
-    ("α", "$\\alpha$"),
-    ("β", "$\\beta$"),
-    ("γ", "$\\gamma$"),
-    ("δ", "$\\delta$"),
-    ("Δ", "$\\Delta$"),
-    ("ε", "$\\epsilon$"),
-    ("θ", "$\\theta$"),
-    ("λ", "$\\lambda$"),
-    ("μ", "$\\mu$"),
-    ("π", "$\\pi$"),
-    ("σ", "$\\sigma$"),
-    ("ω", "$\\omega$"),
-    ("∼", "$\\sim$"),
-    ("Ω", "$\\Omega$"),
+_LATEX_ESCAPES: list[tuple[str, str]] = [
+    ("\\", "\\textbackslash{}"),  # must come first
+    ("&",  "\\&"),
+    ("%",  "\\%"),
+    ("$",  "\\$"),
+    ("#",  "\\#"),
+    ("_",  "\\_"),
+    ("{",  "\\{"),
+    ("}",  "\\}"),
+    ("~",  "\\textasciitilde{}"),
+    ("^",  "\\textasciicircum{}"),
 ]
 
 _UNICODE_REPLACEMENTS: dict[str, str] = {
+    # Quotes
     "\u201c": "``",      # left double quote
     "\u201d": "''",      # right double quote
     "\u2018": "`",       # left single quote
     "\u2019": "'",       # right single quote
+    # Dashes
     "\u2013": "--",      # en dash
     "\u2014": "---",     # em dash
-    "\u2026": "\\dots",  # ellipsis
+    "\u2012": "-",       # figure dash
+    "\u2015": "---",     # horizontal bar
+    # Spaces
     "\u00a0": " ",       # non-breaking space
+    "\u202f": " ",       # narrow no-break space
+    "\u2009": " ",       # thin space
+    "\u2008": " ",       # punctuation space
+    "\u2007": " ",       # figure space
+    "\u2006": " ",       # six-per-em space
+    "\u2005": " ",       # four-per-em space
+    "\u2004": " ",       # three-per-em space
+    "\u2003": " ",       # em space
+    "\u2002": " ",       # en space
+    "\u2001": " ",       # em quad
+    "\u2000": " ",       # en quad
+    # Zero-width / invisible characters — must be stripped entirely
+    "\u200b": "",        # zero-width space       ← the reported culprit
+    "\u200c": "",        # zero-width non-joiner
+    "\u200d": "",        # zero-width joiner
+    "\u200e": "",        # left-to-right mark
+    "\u200f": "",        # right-to-left mark
+    "\ufeff": "",        # BOM / zero-width no-break space
+    "\u00ad": "",        # soft hyphen
+    # Math / symbols
+    "\u2026": "\\dots",  # ellipsis
     "\u2212": "-",       # minus sign
+    "\u00d7": "\\times", # multiplication sign
+    "\u00f7": "\\div",   # division sign
+    "\u2032": "'",       # prime
+    "\u2033": "''",      # double prime
+    "\u2192": "\\rightarrow{}",
+    "\u2190": "\\leftarrow{}",
+    "\u2194": "\\leftrightarrow{}",
+    "\u21d2": "\\Rightarrow{}",
+    "\u2264": "\\leq{}",
+    "\u2265": "\\geq{}",
+    "\u2260": "\\neq{}",
+    "\u221e": "\\infty{}",
+    "\u03b1": "\\alpha{}",  # common Greek letters
+    "\u03b2": "\\beta{}",
+    "\u0394": "\\Delta{}",
+    "\u223c": "\\sim{}",
+    "\u03b3": "\\gamma{}",
+    "\u03b4": "\\delta{}",
+    "\u03bb": "\\lambda{}",
+    "\u03bc": "\\mu{}",
+    "\u03c3": "\\sigma{}",
+    "\u03c4": "\\tau{}",
+    "\u03c0": "\\pi{}",
+    "\u03a9": "\\Omega{}",
 }
+
 
 def sanitize_latex(text: str) -> str:
     """Escape plain text so it's safe inside a LaTeX document."""
