@@ -23,6 +23,9 @@ const AppState = {
     /* ─── Conference ─── */
     selectedConference: 'ieee',
 
+    /* ─── Latex Type ─── */
+    latexType: 'single', // 'single' or 'two'
+
     /* ─── Panel sizes ─── */
     panelSizes: {
         sidebarWidth: 300,
@@ -80,6 +83,12 @@ function updateDoc(updates) {
 function setSelectedConference(conf) {
     AppState.selectedConference = conf;
     emit('conferenceChanged', conf);
+}
+
+/* ─── Latex Type ─── */
+function setLatexType(type) {
+    AppState.latexType = type;
+    emit('latexTypeChanged', type);
 }
 
 /* ─── Panel Sizes ─── */
@@ -172,6 +181,7 @@ window.State = {
     on, emit,
     setDoc, updateDoc,
     setSelectedConference,
+    setLatexType,
     setPanelSizes,
     setUser, loadUser, isAuthenticated,
     setTheme, toggleTheme, loadTheme,

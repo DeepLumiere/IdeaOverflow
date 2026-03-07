@@ -62,39 +62,26 @@
             return v.split(/\s+/).slice(0, 2).map(p => (p[0] || '').toUpperCase()).join('');
         }
 
-        const navItems = [
-            { label: 'Home', href: '#/home' },
-            { label: 'Editor', href: '#/editor' },
-        ];
-
-        let navLinksHTML = '';
-        if (isAuth) {
-            navLinksHTML = navItems.map(i => {
-                const active = currentHash === i.href.replace('#', '') ? 'active' : '';
-                return `<a href="${i.href}" class="navbar-link ${active}">${i.label}</a>`;
-            }).join('');
-        }
-
         const themeIcon = theme === 'dark' ? '☀️' : '🌙';
 
         let rightHTML = '';
         if (isAuth && user) {
             rightHTML = `
-        <div class="user-info-pill" style="display: none;">
+        <div class="user-info-pill">
           <div class="user-avatar">${initials(user.name || user.email)}</div>
           <div>
             <div class="user-name">${user.name || ''}</div>
             <div class="user-email">${user.email || ''}</div>
           </div>
         </div>
-        <button class="btn btn-primary btn-sm" id="navbar-logout" style="display: none;">
+        <button class="btn btn-primary btn-sm" id="navbar-logout">
           ↪ Logout
         </button>
       `;
         } else {
             rightHTML = `
-        <a href="#/login" class="btn btn-outline btn-sm" style="display: none;">Login</a>
-        <a href="#/signup" class="btn btn-brand btn-sm" style="display: none;">Sign up</a>
+        <a href="#/login" class="btn btn-outline btn-sm">Login</a>
+        <a href="#/signup" class="btn btn-brand btn-sm">Sign up</a>
       `;
         }
 
@@ -105,22 +92,9 @@
             <span class="navbar-logo-icon">IO</span>
             <span class="navbar-logo-text">IdeaOverflow</span>
           </a>
-          <nav class="navbar-links desktop-only">${navLinksHTML}</nav>
           <div class="flex items-center gap-2">
             <button class="icon-btn" id="theme-toggle" title="Toggle theme">${themeIcon}</button>
-            ${isAuth && user ? `
-              <div class="user-info-pill">
-                <div class="user-avatar">${initials(user.name || user.email)}</div>
-                <div>
-                  <div class="user-name">${user.name || ''}</div>
-                  <div class="user-email">${user.email || ''}</div>
-                </div>
-              </div>
-              <button class="btn btn-primary btn-sm" id="navbar-logout">↪ Logout</button>
-            ` : `
-              <a href="#/login" class="btn btn-outline btn-sm">Login</a>
-              <a href="#/signup" class="btn btn-brand btn-sm">Sign up</a>
-            `}
+            ${rightHTML}
           </div>
         </div>
       </header>

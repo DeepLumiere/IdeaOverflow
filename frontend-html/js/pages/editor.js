@@ -31,7 +31,7 @@ window.Pages.editor = function (container) {
 
   // Check conference from URL query
   const urlConf = new URLSearchParams(window.location.hash.split('?')[1] || '').get('conf');
-  const validConfs = ['ieee', 'acm', 'nature', 'springer', 'arxiv', 'iclr', 'cvpr', 'acl'];
+  const validConfs = ['neurIPS', 'cvpr'];
   if (urlConf && validConfs.includes(urlConf.toLowerCase())) {
     State.setSelectedConference(urlConf.toLowerCase());
   }
@@ -42,6 +42,7 @@ window.Pages.editor = function (container) {
   function render() {
     const doc = AppState.doc;
     const conf = AppState.selectedConference;
+    const latexType = AppState.latexType;
     const fmt = Conferences.CONFERENCE_FORMATS[conf] || Conferences.CONFERENCE_FORMATS.ieee;
     const ps = AppState.panelSizes;
     const sidebarW = ps.sidebarCollapsed ? 72 : ps.sidebarWidth;
@@ -72,6 +73,8 @@ window.Pages.editor = function (container) {
           ${renderPreviewPanel()}
         </div>
       </div>
+     
+      
       <!-- Chat FAB -->
       <button class="chat-fab" id="chat-fab" title="Open AI Chat">💬</button>
     `;
@@ -92,6 +95,7 @@ window.Pages.editor = function (container) {
       rerenderPreviewPanel();
       rerenderSidebarConf();
     }),
+    
   ];
 
   /* ─── Cleanup function ─── */
@@ -104,6 +108,7 @@ window.Pages.editor = function (container) {
     const ps = AppState.panelSizes;
     const collapsed = ps.sidebarCollapsed;
     const conf = AppState.selectedConference;
+    const latexType = AppState.latexType;
     const templates = Conferences.CONFERENCE_TEMPLATES;
 
     const actions = [
@@ -152,6 +157,8 @@ window.Pages.editor = function (container) {
           ` : ''}
         </div>
 
+       
+
         <div class="tips-box">
           <div class="text-xs font-semibold text-secondary">Tips</div>
           <ul>
@@ -196,6 +203,8 @@ window.Pages.editor = function (container) {
   /* ═══════════ EDITOR PANEL ═══════════ */
   function renderEditorPanel() {
     const doc = AppState.doc;
+    const latexType = AppState.latexType;
+    
     if (AppState.isLoading) return '<div class="editor-panel"><div class="p-8 text-center text-secondary">Loading manuscript from backend...</div></div>';
     if (AppState.loadError) return `<div class="editor-panel"><div class="p-8 text-center text-rose">${AppState.loadError} <button class="btn btn-sm btn-outline" id="retry-load">Retry</button></div></div>`;
 
@@ -215,22 +224,22 @@ window.Pages.editor = function (container) {
       `).join('');
 
       return `
-        <div style="margin-top: 2rem;">
+        <div class="editor-section">
           <div class="flex items-baseline gap-3">
             <span class="section-number">${idx + 1}.</span>
             <h2 contenteditable="true" class="text-xl font-bold text-primary" data-edit-section-name="${section.id}">${section.name}</h2>
           </div>
-          <div contenteditable="true" class="text-secondary leading-relaxed whitespace-pre-wrap" style="margin-top: 0.5rem;" data-edit-section-content="${section.id}">${section.content}</div>
+          <div contenteditable="true" class="text-secondary leading-relaxed whitespace-pre-wrap section-content" style="margin-top: 0.5rem;" data-edit-section-content="${section.id}">${section.content}</div>
           ${subsHTML}
         </div>
       `;
     }).join('');
 
     const tablesHTML = doc.tables.length > 0 ? `
-      <div style="margin-top: 2.5rem; padding-top: 2.5rem; border-top: 1px solid var(--border);">
+      <div class="editor-tables-section">
         <h2 class="text-sm font-bold uppercase text-muted mb-6">Tables & Data</h2>
         ${doc.tables.map((table, i) => `
-          <div style="margin-bottom: 2rem; border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden;">
+          <div class="editor-table-container">
             <div class="editor-table caption-bar" style="background: var(--bg-hover); padding: 0.5rem; font-size: 0.75rem; font-weight: 500; border-bottom: 1px solid var(--border);">
               Table ${i + 1}: ${table.caption || ''}
             </div>
@@ -243,12 +252,14 @@ window.Pages.editor = function (container) {
       </div>
     ` : '';
 
+    const editorContentClass = 'editor-content single-column';
+
     return `
       <div class="editor-panel" id="editor-panel-root">
-        <div class="editor-panel-inner">
-          <header style="margin-bottom: 1rem;">
-            <h1 contenteditable="true" class="font-bold text-primary" style="font-size: 1.875rem;" id="edit-title">${doc.title}</h1>
-            <div class="flex flex-wrap gap-4" style="margin-top: 1rem;">
+        <div class="editor-panel-inner ${editorContentClass}" data-layout="${latexType}">
+          <header class="editor-header">
+            <h1 contenteditable="true" class="font-bold text-primary editor-title" id="edit-title">${doc.title}</h1>
+            <div class="editor-authors">
               ${authorsHTML}
             </div>
           </header>
@@ -277,6 +288,7 @@ window.Pages.editor = function (container) {
   function renderPreviewPanel() {
     const doc = AppState.doc;
     const conf = AppState.selectedConference;
+    const latexType = AppState.latexType;
     const fmt = Conferences.CONFERENCE_FORMATS[conf] || Conferences.CONFERENCE_FORMATS.ieee;
 
     return `
@@ -287,6 +299,7 @@ window.Pages.editor = function (container) {
             <div class="flex items-center gap-2">
               <div class="text-xs font-semibold text-secondary tracking-wide">Live Preview</div>
               <span class="badge" style="background: ${fmt.accentColor};">${conf.toUpperCase()}</span>
+             
               <span class="text-xs text-muted">${fmt.layout === 'two-column' ? 'Two-Column' : 'Single-Column'} • ${fmt.citationStyle === 'numbered' ? '[1]' : fmt.citationStyle === 'author-year' ? '(Author, Year)' : 'Superscript'}</span>
             </div>
           </div>
@@ -426,13 +439,11 @@ window.Pages.editor = function (container) {
       </div>
     `;
 
-    const bodyClass = isFullPage && fmt.layout === 'two-column' ? 'paper-body two-column' : fmt.layout === 'two-column' ? 'paper-body' : 'paper-body';
-    const colStyle = fmt.layout === 'two-column' && !isFullPage ? '' : '';
-
+    const bodyClass = 'paper-body';
     return `
       <div class="paper-preview" style="font-family: ${fmt.fontFamily};">
         <div class="paper-banner" style="background-color: ${fmt.accentColor};">${fmt.headerInfo}</div>
-        <div class="${fmt.layout === 'two-column' ? 'paper-body two-column' : 'paper-body'}" style="padding: ${fmt.paperPadding}; font-size: ${fmt.baseFontSize};">
+        <div class="paper-body" style="padding: ${fmt.paperPadding}; font-size: ${fmt.baseFontSize};">
           <div class="break-inside-avoid">
             <h1 style="font-weight: 700; text-align: center; line-height: 1.25; font-size: ${fmt.titleFontSize};">${doc.title}</h1>
             <div style="margin-top: 1rem; text-align: center; font-size: 0.875rem; color: #334155;">${authorsHTML}</div>
@@ -770,6 +781,7 @@ window.Pages.editor = function (container) {
   function openFullPagePreview() {
     const doc = AppState.doc;
     const conf = AppState.selectedConference;
+    const latexType = AppState.latexType;
     const fmt = Conferences.CONFERENCE_FORMATS[conf] || Conferences.CONFERENCE_FORMATS.ieee;
     let zoom = 100;
 
@@ -782,6 +794,7 @@ window.Pages.editor = function (container) {
           <div>
             <div class="text-sm font-semibold text-primary flex items-center gap-2">
               Full Page Preview <span class="badge" style="background: ${fmt.accentColor};">${conf.toUpperCase()}</span>
+              
             </div>
             <div class="text-xs text-muted">${fmt.layout === 'two-column' ? 'Two-Column' : 'Single-Column'} • ${fmt.fontFamily.split(',')[0].replace(/"/g, '')} • ${fmt.citationStyle === 'numbered' ? 'Numbered [1]' : fmt.citationStyle === 'author-year' ? 'Author-Year' : 'Superscript'} Citations</div>
           </div>
