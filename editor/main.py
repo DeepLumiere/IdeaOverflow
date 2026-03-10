@@ -648,7 +648,7 @@ def get_latex_source(request: CompileRequest) -> dict:
 
 
 def _use_docker_pdflatex():
-    """Check if we should use MiKTeX Docker image (pdflatex not installed locally)."""
+    """Check if we should use TeX Live Docker image (pdflatex not installed locally)."""
     if shutil.which("pdflatex"):
         return False
     # Verify Docker is available
@@ -686,9 +686,9 @@ def compile_latex(request: CompileRequest):
         if use_docker:
             latex_cmd = [
                 "docker", "run", "--rm",
-                "-v", "miktex:/var/lib/miktex",
-                "-v", f"{temp_dir}:/miktex/work",
-                "miktex/miktex:essential",
+                "-v", f"{temp_dir}:/work",
+                "-w", "/work",
+                "texlive/texlive:latest-small",
                 "pdflatex", "-interaction=nonstopmode", "-halt-on-error", "main.tex",
             ]
         else:
