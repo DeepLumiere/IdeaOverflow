@@ -1,0 +1,18 @@
+services:
+  editor:
+    build: .
+    command: uvicorn editor.main:app --host 0.0.0.0 --port 8000
+    ports:
+      - "8000:8000"
+    environment:
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+    working_dir: /app
+
+  plugins:
+    build: .
+    command: uvicorn plugins.main:app --host 0.0.0.0 --port 8001
+    ports:
+      - "8001:8001"
+    environment:
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+    working_dir: /app

@@ -28,8 +28,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Initialize Gemini — keep your own key here
-client = genai.Client(api_key="GEMINI_API_KEY")
+# Initialize Gemini
+client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY", "AIzaSyClCk4kEgSafOAXqGI61vxq1QecgPFs6fs"))
 
 GEMINI_MODEL = "gemini-3.1-flash-lite-preview"
 
@@ -647,10 +647,29 @@ def get_latex_source(request: CompileRequest) -> dict:
         raise HTTPException(status_code=400, detail=str(e))
 
 
+def _use_docker_pdflatex():
+    """Check if we should use MiKTeX Docker image (pdflatex not installed locally)."""
+    if shutil.which("pdflatex"):
+        return False
+    # Verify Docker is available
+    try:
+        subprocess.run(["docker", "version"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=10)
+        return True
+    except (FileNotFoundError, subprocess.TimeoutExpired):
+        return False
+
+
 @app.post("/api/compile")
 def compile_latex(request: CompileRequest):
+    use_docker = _use_docker_pdflatex()
+    if not shutil.which("pdflatex") and not use_docker:
+        raise HTTPException(
+            status_code=400,
+            detail="Neither pdflatex nor Docker is installed. Install MiKTeX (https://miktex.org/download) or Docker Desktop.",
+        )
+
     tex_content = construct_latex(request)
-    logger.info("Compiling %.0f chars of LaTeX (template=%s)", len(tex_content), request.template)
+    logger.info("Compiling %.0f chars of LaTeX (template=%s, docker=%s)", len(tex_content), request.template, use_docker)
 
     with tempfile.TemporaryDirectory() as temp_dir:
         tex_path = os.path.join(temp_dir, "main.tex")
@@ -664,13 +683,24 @@ def compile_latex(request: CompileRequest):
         with open(tex_path, "w", encoding="utf-8") as f:
             f.write(tex_content)
 
-        latex_cmd = ["pdflatex", "-interaction=nonstopmode", "-halt-on-error", "main.tex"]
+        if use_docker:
+            latex_cmd = [
+                "docker", "run", "--rm",
+                "-v", "miktex:/var/lib/miktex",
+                "-v", f"{temp_dir}:/miktex/work",
+                "miktex/miktex:essential",
+                "pdflatex", "-interaction=nonstopmode", "-halt-on-error", "main.tex",
+            ]
+        else:
+            latex_cmd = ["pdflatex", "-interaction=nonstopmode", "-halt-on-error", "main.tex"]
 
         def run_pass(pass_num: int):
             try:
                 return subprocess.run(
-                    latex_cmd, cwd=temp_dir, check=True,
-                    stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=60,
+                    latex_cmd,
+                    cwd=None if use_docker else temp_dir,
+                    check=True,
+                    stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=120,
                 )
             except subprocess.TimeoutExpired:
                 raise HTTPException(status_code=504,
@@ -832,3 +862,10 @@ IMPORTANT:
 @app.get("/api/health")
 def health():
     return {"status": "ok", "model": GEMINI_MODEL}
+
+
+from fastapi.responses import FileResponse
+
+@app.get("/")
+def serve_index():
+    return FileResponse(os.path.join(os.path.dirname(__file__), "index.html"))
