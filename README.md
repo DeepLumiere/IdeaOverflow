@@ -149,6 +149,9 @@ IdeaOverflow/
 │   └── overleaf_review.mp4
 │
 ├── requirements.txt           # Python dependencies for both backends
+├── Dockerfile                 # Docker image with TeX Live + Python deps
+├── docker-compose.yml         # Run both backends via Docker Compose
+├── .gitignore
 ├── LICENSE
 └── README.md
 ```
@@ -162,7 +165,7 @@ IdeaOverflow/
 - **pdflatex** — required to compile `.tex` files to PDF. Install one of:
   - **TeX Live** (Linux/macOS): `sudo apt install texlive-full` or `brew install --cask mactex`
   - **MiKTeX** (Windows): Download from [miktex.org](https://miktex.org/download)
-  - **TinyTeX** (lightweight): `pip install pylatex` then `tlmgr install scheme-small`
+  - **Docker** (any OS): If `pdflatex` is not installed locally, the backend will automatically use `texlive/texlive:latest-small` via Docker. Install [Docker Desktop](https://www.docker.com/products/docker-desktop/) and run `docker pull texlive/texlive:latest-small`.
 - **Google Chrome** (or any Chromium-based browser) — for the browser extension
 - **Google Account** — for the Google Docs Add-on
 
@@ -170,12 +173,12 @@ IdeaOverflow/
 ```
 fastapi>=0.100.0
 uvicorn[standard]
-pylatexenc>=3.0
+pylatexenc>=2.10
 python-multipart
 pydantic>=2.0
 google-generativeai>=0.4.0
+python-docx>=1.0
 ```
-> `python-docx` is used in the editor backend but is not currently listed in `requirements.txt`. Install it manually as shown below.
 
 ### API Keys
 - A **Google Gemini API key** is required for AI features (rephrasing, review, scoring, AI chat).
@@ -205,33 +208,26 @@ source venv/bin/activate
 ### 3. Install Python Dependencies
 ```bash
 pip install -r requirements.txt
-pip install python-docx
 ```
 
 ### 4. Configure API Keys
 
-**Editor backend** — open `editor/main.py` and replace the placeholder key on line 32:
-```python
-client = genai.Client(api_key="YOUR_GEMINI_API_KEY")
+Set the Gemini API key as an environment variable (both backends read from it automatically):
+```bash
+# Windows PowerShell
+$env:GEMINI_API_KEY = "your-key-here"
+
+# macOS / Linux
+export GEMINI_API_KEY="your-key-here"
 ```
 
-**Plugin backend** — open `plugins/config.py` and replace the placeholder:
-```python
-GEMINI_API_KEY = "YOUR_GEMINI_API_KEY"
-```
-
-> **Security tip:** Instead of hardcoding keys, set them as environment variables:
-> ```bash
-> # Windows PowerShell
-> $env:GEMINI_API_KEY = "your-key-here"
-> ```
-> Then load them in Python with `os.environ.get("GEMINI_API_KEY")`.
+Get a free key at [aistudio.google.com](https://aistudio.google.com/app/apikey).
 
 ### 5. Verify pdflatex is Installed
 ```bash
 pdflatex --version
 ```
-If this command is not found, install a TeX distribution as described in [System Requirements](#dependencies) above.
+If `pdflatex` is not found, install a TeX distribution as described in [System Requirements](#dependencies) above, or install [Docker Desktop](https://www.docker.com/products/docker-desktop/) — the backend will automatically use the `texlive/texlive:latest-small` Docker image as a fallback.
 
 ---
 
@@ -255,8 +251,8 @@ uvicorn main:app --reload --port 8001
 The plugin API will be available at `http://localhost:8001`.
 
 ### Open the Editor UI
-Open `editor/index.html` directly in your browser.  
-> The frontend makes API calls to `http://localhost:8000` by default.
+Open `http://localhost:8000` in your browser.  
+> The frontend is served at the root URL by the editor backend.
 
 ### Load the Browser Extension (Overleaf Plugin)
 1. Open Chrome and navigate to `chrome://extensions/`.
