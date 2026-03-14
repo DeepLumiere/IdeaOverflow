@@ -94,46 +94,137 @@
     }
 
     /* ════════ BUTTONS ════════ */
-    .btn {
-      display:inline-flex; align-items:center; gap:6px;
-      font-family: var(--sans); font-size:13px; font-weight:600;
-      padding:8px 18px; border-radius:var(--r); border:none;
-      cursor:pointer; white-space:nowrap; line-height:1;
-      transition: background .12s, border-color .12s, color .12s, opacity .12s;
-    }
-    .btn:focus-visible { outline:2px solid #c9a96e; outline-offset:2px; }
-    .btn-primary { background:#c9a96e; color:#120f09; min-width:200px; justify-content:center; }
-    .btn-primary:hover:not(:disabled) { background:#d6b87e; }
-    .btn-primary:disabled { opacity:.4; cursor:not-allowed; }
-    .btn-ghost {
-      background:#1c1914; border:1px solid #3d3729; color:#7a7470;
-      min-width:200px; justify-content:center;
-    }
-    .btn-ghost:hover { border-color:#7a6035; color:#ddd8ce; }
-    .btn-sm { padding:6px 12px; font-size:12px; min-width:auto; }
-    .btn-icon {
-      background:#1c1914; border:1px solid #302b22; color:#7a7470;
-      padding:5px 11px; font-size:14px; min-width:auto;
-      font-family: var(--mono);
-    }
-    .btn-icon:hover { border-color:#7a6035; color:#ddd8ce; }
-    .btn-accent {
-      background: rgba(201,169,110,.12); border:1px solid #7a6035; color:#c9a96e;
-      min-width:auto;
-    }
-    .btn-accent:hover { background: rgba(201,169,110,.2); border-color:#c9a96e; }
+    /* Base button styles */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  
+  /* Typography */
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1;
+  
+  /* Layout */
+  padding: 8px 18px;
+  min-width: 200px;
+  white-space: nowrap;
+  
+  /* Visual */
+  border: none;
+  border-radius: var(--r);
+  
+  /* Interaction */
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s, color 0.12s, opacity 0.12s;
+  
+  /* Center content by default for primary/ghost */
+  justify-content: center;
+}
 
-    select.g-select {
-      font-family: var(--sans); font-size:13px; font-weight:500;
-      background:#1c1914; border:1px solid #3d3729; color:#7a7470;
-      padding:7px 30px 7px 12px; border-radius:var(--r);
-      cursor:pointer; appearance:none; -webkit-appearance:none;
-      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%237a7470'/%3E%3C/svg%3E");
-      background-repeat:no-repeat; background-position:right 10px center;
-      transition: border-color .12s;
-    }
-    select.g-select:hover { border-color:#7a6035; color:#ddd8ce; }
-    select.g-select option { background:#181510; color:#ddd8ce; }
+.btn:focus-visible {
+  outline: 2px solid #c9a96e;
+  outline-offset: 2px;
+}
+
+/* Button variants */
+.btn-primary {
+  background: #c9a96e;
+  color: #120f09;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: #d6b87e;
+}
+
+.btn-primary:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.btn-ghost {
+  background: #1c1914;
+  border: 1px solid #3d3729;
+  color: #7a7470;
+}
+
+.btn-ghost:hover {
+  border-color: #7a6035;
+  color: #ddd8ce;
+}
+
+.btn-accent {
+  min-width: auto;
+  background: rgba(201, 169, 110, 0.12);
+  border: 1px solid #7a6035;
+  color: #c9a96e;
+}
+
+.btn-accent:hover {
+  background: rgba(201, 169, 110, 0.2);
+  border-color: #c9a96e;
+}
+
+.btn-icon {
+  min-width: auto;
+  font-family: var(--mono);
+  font-size: 14px;
+  background: #1c1914;
+  border: 1px solid #302b22;
+  color: #7a7470;
+  padding: 5px 11px;
+}
+
+.btn-icon:hover {
+  border-color: #7a6035;
+  color: #ddd8ce;
+}
+
+/* Button size modifier */
+.btn-sm {
+  min-width: auto;
+  padding: 6px 12px;
+  font-size: 12px;
+}
+
+/* Select styles */
+.g-select {
+  /* Typography */
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 500;
+  
+  /* Layout */
+  padding: 7px 30px 7px 12px;
+  
+  /* Visual */
+  background: #1c1914;
+  border: 1px solid #3d3729;
+  border-radius: var(--r);
+  color: #7a7470;
+  
+  /* Interaction */
+  cursor: pointer;
+  transition: border-color 0.12s;
+  
+  /* Custom dropdown arrow */
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%237a7470'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+}
+
+.g-select:hover {
+  border-color: #7a6035;
+  color: #ddd8ce;
+}
+
+.g-select option {
+  background: #181510;
+  color: #ddd8ce;
+}
 
     /* ════════ WORKSPACE SHELL ════════ */
     #workspace-container { display:none; height:100vh; flex-direction:column; }
