@@ -1,6 +1,10 @@
 # Idea OverFlow
 
-NirMa HackaMined'26 Project — A platform to capture, organize, and transform overflowing ideas into clear, structured, and actionable documents.
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Python](https://img.shields.io/badge/Python-3.11%2B-blue?logo=python)](https://www.python.org/)
+[![Docker](https://img.shields.io/badge/Docker-supported-2496ED?logo=docker)](https://www.docker.com/)
+
+> A platform to capture, organize, and transform raw ideas into clear, structured, and submission-ready academic documents.
 
 ## Table of Contents
 - [Overview](#overview)
@@ -15,6 +19,7 @@ NirMa HackaMined'26 Project — A platform to capture, organize, and transform o
 - [How It Works](#how-it-works)
 - [Potential Use Cases](#potential-use-cases)
 - [Future Enhancements](#future-enhancements)
+- [Contributing](#contributing)
 - [Team](#team)
 - [Conclusion](#conclusion)
 
@@ -96,13 +101,13 @@ Example suggestions the system might give:
 ## Tech Stack
 
 | Layer | Technology | Purpose |
-|---|---|---|
+| :--- | :--- | :--- |
 | Backend (Editor) | Python 3.11+, FastAPI | REST API for LaTeX compilation, rephrasing, document review, and scoring |
 | Backend (Plugin) | Python 3.11+, FastAPI | REST API consumed by the browser extension for AI chat, review, and edit actions |
 | AI / LLM | Google Gemini API (`google-generativeai`) | Content rephrasing, structure review, missing section detection, AI chat |
 | LaTeX Engine | `pdflatex` (TeX Live / MiKTeX) | Compiles generated `.tex` files into downloadable PDFs |
 | LaTeX Parsing | `pylatexenc` | Encodes/decodes LaTeX special characters |
-| Document Parsing | `python-docx` (`docx`) | Parses uploaded `.docx` files for structure extraction |
+| Document Parsing | `python-docx` | Parses uploaded `.docx` files for structure extraction |
 | Frontend (Editor) | HTML, CSS, JavaScript | Browser-based document editor UI (no framework, served statically) |
 | Editor Blocks | Editor.js (CDN) | Block-based rich-text editing (headers, lists, tables, code blocks) |
 | Browser Extension | JavaScript, Manifest V3 | Overleaf plugin — injects sidebar for editing, review, and AI chat |
@@ -115,12 +120,13 @@ Example suggestions the system might give:
 ## Project Layout
 
 ```
-IdeaOverflow/
+ideaoverflow/
 │
 ├── editor/                    # Core web editor — the main platform
 │   ├── index.html             # Full browser-based editor UI (served as a static file)
 │   ├── main.py                # FastAPI backend — LaTeX compile, rephrase, review, score
 │   ├── acl.sty                # ACL LaTeX style file (bundled for pdflatex)
+│   ├── cvpr.sty               # CVPR LaTeX style file (bundled for pdflatex)
 │   └── logo.svg
 │
 ├── plugins/                   # Browser extension for Overleaf
@@ -130,7 +136,7 @@ IdeaOverflow/
 │   ├── styles.css             # Sidebar styles injected into Overleaf
 │   ├── main.py                # FastAPI backend consumed by the extension
 │   ├── ai_assistant.py        # Gemini AI logic — chat, review, edit, autocomplete
-│   ├── config.py              # API key configuration (set your Gemini key here)
+│   ├── config.py              # API key configuration
 │   ├── logo.svg
 │   └── icons/
 │       ├── 64.png
@@ -140,13 +146,6 @@ IdeaOverflow/
 │   ├── Code.gs                # Apps Script backend — reads/writes document content
 │   ├── Sidebar.html           # Sidebar UI rendered inside Google Docs
 │   └── appscript.json         # Apps Script project manifest
-│
-├── videos/                    # Demo videos
-│   ├── color.mp4
-│   ├── google_docs.mp4
-│   ├── overleaf_chat.mp4
-│   ├── overleaf_edits.mp4
-│   └── overleaf_review.mp4
 │
 ├── requirements.txt           # Python dependencies for both backends
 ├── Dockerfile                 # Docker image with TeX Live + Python deps
@@ -190,8 +189,8 @@ python-docx>=1.0
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/your-username/IdeaOverflow.git
-cd IdeaOverflow
+git clone https://github.com/DeepLumiere/ideaoverflow.git
+cd ideaoverflow
 ```
 
 ### 2. Create and Activate a Virtual Environment (Recommended)
@@ -271,6 +270,20 @@ Open `http://localhost:8000` in your browser.
 5. In the Google Doc, go to **Extensions → IdeaOverflow → Open IdeaOverflow** to open the sidebar.
 > The Apps Script backend makes outbound requests to your Gemini API key configured inside `Sidebar.html`.
 
+### Alternative: Docker Compose
+
+If you have Docker and Docker Compose installed, you can run both backends with a single command — no local TeX Live installation required:
+
+```bash
+export GEMINI_API_KEY="your-key-here"
+docker compose up --build
+```
+
+- Editor API: `http://localhost:8000`
+- Plugin API: `http://localhost:8001`
+
+> The Docker image bundles TeX Live and all Python dependencies automatically.
+
 ---
 
 ## How It Works
@@ -306,15 +319,29 @@ Open `http://localhost:8000` in your browser.
 
 ---
 
+## Contributing
+
+Contributions are welcome! To get started:
+
+1. Fork the repository and create a feature branch.
+2. Make your changes with clear, focused commits.
+3. Open a pull request describing what you changed and why.
+
+Please use the [issue tracker](https://github.com/DeepLumiere/ideaoverflow/issues) to report bugs or request features.
+
+---
+
 ## Team
 
 | Name | Roll No. |
-|---|---|
+| :--- | :--- |
 | Deep Joshi | 24BCE152 |
 | Hasti Vaghela | 24BCE154 |
 | Het Agrawal | 24BCE156 |
 | Man Patel | 24BCE155 |
 | Ziyankhan Pathan | 24BCE146 |
+
+> Built as part of NirMa HackaMined'26.
 
 ---
 
